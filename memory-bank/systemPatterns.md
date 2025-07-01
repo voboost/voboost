@@ -1,11 +1,11 @@
 # System Patterns: voboost
 
 ## System Architecture Overview
-The `voboost` project will follow a modular architecture, leveraging Android's component model and clean architecture principles to ensure maintainability, scalability, and testability. The project will consist of at least two main components: the `voboost` application (the UI-focused front-end) and the `voboost-lib-config` library (a shared configuration management backend). A separate `voboost-service` is envisioned but is out of scope for this initial development.
+The `voboost` project will follow a modular architecture, leveraging Android's component model and clean architecture principles to ensure maintainability, scalability, and testability. The project will consist of at least two main components: the `voboost` application (the UI-focused front-end) and the `voboost-config` library (a shared configuration management backend). A separate `voboost-service` is envisioned but is out of scope for this initial development.
 
 ```mermaid
 graph TD
-    UserApp(voboost Application) --> ConfigLib(voboost-lib-config)
+    UserApp(voboost Application) --> ConfigLib(voboost-config)
     ConfigLib --> ConfigFiles(Configuration Files: .json)
     ConfigLib -->|Flow| AppVM[App ViewModels]
     UserApp --> AndroidFramework(Android Framework)
@@ -93,8 +93,8 @@ graph TD
     - Manages application layout shift defined in application settings
 
 ## Component Relationships
-- **`voboost` application:** Depends on `voboost-lib-config`. Communicates with Android system services (PackageManager, DownloadManager), and potentially external update servers.
-- **`voboost-lib-config` module:** Independent of `voboost`'s UI. Handles low-level file I/O, parsing, and change detection. Designed to be reusable by `voboost-service`.
+- **`voboost` application:** Depends on `voboost-config`. Communicates with Android system services (PackageManager, DownloadManager), and potentially external update servers.
+- **`voboost-config` module:** Independent of `voboost`'s UI. Handles low-level file I/O, parsing, and change detection. Designed to be reusable by `voboost-service`.
 - **`ThemeManager`:** A component within `voboost` that listens to configuration changes related to themes and applies them globally or to specific UI elements.
 - **Custom UI Components:** Self-contained, reusable Android Views or ViewGroups that can be easily integrated into different parts of the UI, including the drag-and-drop, message box, and select components.
 

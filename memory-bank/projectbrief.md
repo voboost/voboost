@@ -1,77 +1,75 @@
-# Project Brief: voboost
+# Voboost - Project Brief
 
-## Core Purpose
-To provide a dedicated Android application for configuring the parameters of Voyah Free and Voyah Dreamer vehicles.
+## Primary Goal
+Create an Android application for Voyah vehicles (Free, Dreamer) that provides a native vehicle interface for configuring car settings using the voboost-config library.
 
-## Guiding Principles
-- **Open Source:** All components and code are intended to be open source.
-- **Modularity:** Functionality that can be developed as independent components/applications should be separated. Configuration should be external and dynamically loaded.
-- **Native UI Adherence:** The application's appearance should closely mimic the existing car settings interface, aiming for minimal native interface modification and maximal configuration.
-- **Flexibility:** Avoid hardcoding; all changeable parameters should be configurable and reversible.
+## Key Requirements
 
-## Current Application Focus: `voboost`
-- This application will primarily focus on reading and writing configuration files.
-- It will feature a user interface (UI) to interact with these configurations.
+### Functional Requirements
+- Native Android interface matching Voyah vehicle UI design
+- Vehicle settings configuration and management
+- Integration with voboost-config library for configuration handling
+- Real-time configuration validation and application
+- Vehicle-specific settings categories and options
+- Touch-optimized interface for in-vehicle use
 
-## Related Service: `voboost-service`
-- A separate application, `voboost-service`, will handle applying configuration changes directly to the car's settings. This is outside the scope of the current `voboost` application.
+### Technical Requirements
+- **Target Platform**: Android 9 and Android 11 only
+- **Vehicle Models**: Voyah Free, Voyah Dreamer
+- Kotlin/Android as primary development language
+- Android UI components with vehicle-themed design
+- Integration with voboost-config through dependency
+- Vehicle system integration capabilities
+- Optimized for automotive hardware specifications
 
-## Key Technical Decisions
-- **Language:** Kotlin (officially chosen after detailed analysis against Java)
-  - **Advantages:**
-    - Native null safety prevents common crashes
-    - Coroutines simplify async config file operations
-    - More concise syntax (estimated 40% less code)
-    - Modern Android development (Google's preferred language)
-    - Better library support for reactive programming
-    - Smaller APK size (typically 10-15% reduction)
-    - Better performance in most benchmarks
-  - **Version:** Kotlin 1.9.0
-- **Communication Language:** All code comments, commit messages, Memory Bank content, issues and PR comments will be in English.
+### Vehicle Integration Requirements
+- Use voboost-config for all configuration operations
+- Result<T> pattern for consistent error handling
+- Vehicle system API integration
+- Configuration persistence in vehicle storage
+- Integration with vehicle's existing systems
+- Automotive-grade reliability and performance
 
-## Shared Libraries
-- **`voboost-lib-config`**: A shared library to manage configuration files.
-    - **Implementation Details:**
-      - Uses JSON format with Kotlinx Serialization library
-      - Supports dot notation for nested sections (e.g., "settings.language")
-      - Implements FileObserver for real-time change detection
-      - Provides reactive updates via Kotlin Flows
-      - Supports atomic partial updates
-      - Maintains change history for rollback capability
+## Architectural Principles
+- Android MVVM architecture pattern
+- Vehicle-specific UI/UX design language
+- Asynchronous configuration processing
+- Centralized vehicle state management
+- Modular architecture for different vehicle models
 
-## `voboost` UI Features
-- **Multilingual Support:** English (default) and Russian.
-- **Theming:** Dark (default) and Light themes.
-- **UI Offset:** Configurable X and Y axis shifts.
-- **Dynamic UI:** Adapts to viewport changes.
-- **Icon Manipulation:** Ability to render icons black-and-white with a grayscale palette.
+## Success Criteria
+- Native vehicle interface experience
+- Seamless integration with voboost-config library
+- Stable operation on target Android versions (9, 11)
+- Reliable vehicle configuration management
+- Professional automotive-grade user experience
+- Integration with Voyah vehicle systems
 
-## Core UI Components
-- **UI Architecture:**
-  - **`MainActivity`**: Main application entry point with ViewModel
-  - **Tab Structure**:
-    - Store: Applications store, provides ability to install, uninstall, upgrade applications
-    - Applications: Provides an ability to setup installed applications to vehicle user interface
-    - Interface: Provides an ability to change vehicle user interface settings
-    - Vehicle: Provides an ability to change vehicle settings
-    - Settings: Provides an ability to change application settings
-  - **`ThemeManager`**:
-    - Handles dark/light theme switching
-    - Applies grayscale filtering to icons
-    - Manages dynamic viewport adjustments
-  - **`LayoutManager`**:
-    - Manages application layout shift defined in application settings
-    - Manages dynamic viewport adjustments
-- **Custom Components**:
-    - Tabs (5 tabs at left with panes at right)
-    - Radio (toggle with dynamic background animation on switching)
-    - Checkbox
-    - Drag-and-drop component for reordering items (e.g., applications on the steering wheel).
-    - Message box (text + yes/no buttons).
-    - Full-screen select component for single-item selection.
+## Constraints and Assumptions
+- Android 9 and 11 compatibility only
+- Voyah Free and Dreamer vehicle models only
+- Dependency on voboost-config library
+- Vehicle hardware and system constraints
+- Automotive environment requirements (temperature, vibration, etc.)
+- Integration with existing vehicle software stack
 
-## `Store` Tab Specifics
-- File download component with progress indicators.
-- Information retrieval for installed packages.
-- New version check from a server (e.g., Huawei).
-- Application installation, permission granting, and uninstallation.
+## Related Projects
+- voboost-config: Core library for configuration management
+- voboost-service: Android service for applying configuration to vehicle systems
+- voboost-codestyle: Common code style rules for all Voboost projects
+
+## Vehicle-Specific Features
+
+### Voyah Integration
+- Vehicle model detection (Free vs Dreamer)
+- Model-specific configuration options
+- Integration with vehicle's infotainment system
+- Vehicle state monitoring and feedback
+- Automotive UI patterns and interactions
+
+### User Experience
+- Touch-optimized interface for vehicle use
+- High contrast display for various lighting conditions
+- Large touch targets for driving scenarios
+- Voice feedback and accessibility features
+- Quick access to frequently used settings

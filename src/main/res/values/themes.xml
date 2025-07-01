@@ -1,0 +1,18 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.Voboost" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <item name="colorPrimary">@color/voboost_primary</item>
+        <item name="colorPrimaryVariant">@color/voboost_primary_variant</item>
+        <item name="colorSecondary">@color/voboost_secondary</item>
+        <item name="colorSecondaryVariant">@color/voboost_secondary_variant</item>
+        <item name="android:colorBackground">@color/voboost_background</item>
+        <item name="colorSurface">@color/voboost_surface</item>
+        <item name="colorOnPrimary">@color/voboost_on_primary</item>
+        <item name="colorOnSecondary">@color/voboost_on_secondary</item>
+        <item name="colorOnBackground">@color/voboost_on_background</item>
+        <item name="colorOnSurface">@color/voboost_on_surface</item>
+    </style>
+
+    <style name="Theme.Voboost" parent="Base.Theme.Voboost" />
+</resources>
