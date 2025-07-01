@@ -7,7 +7,7 @@
   - Flow for reactive programming
   - Null safety throughout codebase
   - Kotlinx Serialization for config
-- **Architectural overview:** A high-level system architecture, emphasizing modularity and the creation of a shared `voboost-lib-config` library, has been defined.
+- **Architectural overview:** A high-level system architecture, emphasizing modularity and the creation of a shared `voboost-config` library, has been defined.
 - **Technical stack outlined:** Key technologies and libraries (e.g., Android SDK, Jetpack components, Coroutines, JSON, OkHttp) have been identified.
 - **Memory Bank populated (initial phase):** The following core Memory Bank files have been successfully created, establishing a documented baseline for the project:
     - [`memory-bank/projectbrief.md`](memory-bank/projectbrief.md)
@@ -29,9 +29,9 @@ Current Phase: `UI Implementation & Config Development`
   - MainActivity and tab structure
   - ThemeManager development
     - Actual instantiation of the Android project in Android Studio.
-    - Creation of the `voboost-lib-config` module.
+    - Creation of the `voboost-config` module.
     - Setup of `MainActivity` and initial tab structure (XML layouts).
-- **Core `voboost-lib-config` implementation:** Developing the configuration reading, writing, and reactive update mechanisms.
+- **Core `voboost-config` implementation:** Developing the configuration reading, writing, and reactive update mechanisms.
 - **`voboost` UI and Feature Development:** Implementing all defined UI components, internationalization, theming, dynamic UI adjustments, and `Store` tab functionalities.
 - **Integration and Testing:** Connecting modules, writing comprehensive tests, and ensuring system stability.
 
@@ -45,4 +45,5 @@ All foundational documentation for the project, as defined by RooCode's Memory B
   - Advanced theme customization needs
   - Performance optimization strategies
 - **Huawei Server Details:** The exact API specifications or contact points for the "Huawei" update server for the "Store" tab are not yet known.
-- **`voboost-service` communication:** While `voboost-lib-config` will be shared, the precise mechanism for `voboost` to trigger actions in `voboost-service` (e.g., applying configuration changes to the car's ECU) is not defined yet and will depend on Android's IPC capabilities and security considerations. This is outside the scope of `voboost` itself but is a future concern for the overall system.
+- **`voboost-service` communication:** While `voboost-config` will be shared, the precise mechanism for `voboost` to trigger actions in `voboost-service` (e.g., applying configuration changes to the car's ECU) is not defined yet and will depend on Android's IPC capabilities and security considerations. This is outside the scope of `voboost` itself but is a future concern for the overall system.
+

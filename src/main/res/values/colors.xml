@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Voboost brand colors -->
+    <color name="voboost_primary">#2196F3</color>
+    <color name="voboost_primary_variant">#1976D2</color>
+    <color name="voboost_secondary">#03DAC6</color>
+    <color name="voboost_secondary_variant">#018786</color>
+
+    <!-- Background colors -->
+    <color name="voboost_background">#121212</color>
+    <color name="voboost_surface">#1E1E1E</color>
+    <color name="voboost_surface_variant">#2C2C2C</color>
+
+    <!-- Text colors -->
+    <color name="voboost_on_primary">#FFFFFF</color>
+    <color name="voboost_on_secondary">#000000</color>
+    <color name="voboost_on_background">#FFFFFF</color>
+    <color name="voboost_on_surface">#FFFFFF</color>
+
+    <!-- Status colors -->
+    <color name="voboost_success">#4CAF50</color>
+    <color name="voboost_error">#F44336</color>
+    <color name="voboost_warning">#FF9800</color>
+
+    <!-- Tab colors -->
+    <color name="tab_selected">#2196F3</color>
+    <color name="tab_unselected">#757575</color>
+    <color name="tab_background">#1E1E1E</color>
+
+    <!-- Config display colors -->
+    <color name="config_changed_text">#F44336</color>
+    <color name="config_normal_text">#FFFFFF</color>
+</resources>

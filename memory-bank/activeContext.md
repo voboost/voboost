@@ -13,7 +13,7 @@ The current primary focus is on establishing the foundational project structure 
   - Coroutines simplify async config operations
   - Kotlinx Serialization for JSON handling
   - Modern Android development standard
-- The high-level architecture has been conceptualized, emphasizing modularity with a shared `voboost-lib-config` library.
+- The high-level architecture has been conceptualized, emphasizing modularity with a shared `voboost-config` library.
 - Initial specifications for UI, theming, internationalization, and custom components have been captured.
 - The `projectbrief.md`, `productContext.md`, `systemPatterns.md`, and `techContext.md` Memory Bank files have been created. This provides a solid initial documentation base.
 

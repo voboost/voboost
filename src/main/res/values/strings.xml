@@ -1,0 +1,30 @@
+<resources>
+    <string name="app_name">Voboost</string>
+
+    <!-- Tab names -->
+    <string name="tab_launcher">Launcher</string>
+    <string name="tab_applications">Applications</string>
+    <string name="tab_interface">Interface</string>
+    <string name="tab_vehicle">Vehicle</string>
+    <string name="tab_settings">Settings</string>
+
+    <!-- Version info -->
+    <string name="version_info">Voboost 1.0.0.2025012501</string>
+
+    <!-- Language settings -->
+    <string name="language_label">Language</string>
+    <string name="language_russian">Russian</string>
+    <string name="language_english">English</string>
+
+    <!-- Theme settings -->
+    <string name="appearance_label">Appearance</string>
+    <string name="theme_auto">Auto</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_light">Light</string>
+
+    <!-- Config status -->
+    <string name="config_loading">Loading configuration...</string>
+    <string name="config_loaded">Configuration loaded</string>
+    <string name="config_error">Configuration loading error</string>
+    <string name="config_updated">Configuration updated</string>
+</resources>

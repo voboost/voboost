@@ -1,0 +1,28 @@
+# Voboost Configuration File
+# This file contains settings for the Voboost vehicle interface application
+
+# Application Settings
+settings-language: ru
+settings-theme: dark
+settings-interface-shift-x: 0
+settings-interface-shift-y: 0
+
+# Vehicle Configuration
+vehicle-fuel-mode: intellectual
+vehicle-drive-mode: comfort
+
+# Tab Configuration
+settings-active-tab: launcher
+
+# Vehicle Model Settings
+vehicle-model: free  # free or dreamer
+
+# Interface Settings
+interface-tab-position: left
+interface-show-version: true
+interface-auto-hide-tabs: false
+
+# Performance Settings
+performance-animation-enabled: true
+performance-haptic-feedback: true
+performance-sound-enabled: true
