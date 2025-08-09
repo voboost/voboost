@@ -1,0 +1,49 @@
+<resources>
+    <string name="app_name">Voboost</string>
+
+    <!-- Tab names -->
+    <string name="tab_store">Магазин</string>
+    <string name="tab_applications">Приложения</string>
+    <string name="tab_interface">Интерфейс</string>
+    <string name="tab_vehicle">Автомобиль</string>
+    <string name="tab_settings">Настройки</string>
+
+    <!-- Interface settings -->
+    <string name="appearance">Настройки внешнего вида</string>
+    <string name="interface_appearance">Внешний вид</string>
+    <string name="interface_theme">Тема</string>
+
+    <!-- Language settings -->
+    <string name="language_section">Настройки языка</string>
+    <string name="language_label">Язык</string>
+    <string name="language_ru">Русский</string>
+    <string name="language_en">Английский</string>
+
+    <!-- Theme settings -->
+    <string name="theme_auto">Авто</string>
+    <string name="theme_dark">Тёмная</string>
+    <string name="theme_light">Светлая</string>
+
+    <!-- Vehicle settings -->
+    <string name="vehicle_fuel_mode">Управление топливом</string>
+    <string name="vehicle_drive_mode">Поведение вождения</string>
+
+    <!-- Fuel mode options -->
+    <string name="fuel_mode_intellectual">Интеллектуальный</string>
+    <string name="fuel_mode_electric">Электро</string>
+    <string name="fuel_mode_fuel">Топливо</string>
+    <string name="fuel_mode_save">Экономия</string>
+
+    <!-- Drive mode options -->
+    <string name="drive_mode_eco">Эко</string>
+    <string name="drive_mode_comfort">Комфорт</string>
+    <string name="drive_mode_sport">Спорт</string>
+    <string name="drive_mode_snow">Снег</string>
+    <string name="drive_mode_outing">Бездорожье</string>
+    <string name="drive_mode_individual">Индивидуальный</string>
+
+    <!-- Placeholder texts -->
+    <string name="store_placeholder_text">Интерфейс магазина будет здесь</string>
+    <string name="applications_placeholder_text">Список установленных приложений будет здесь</string>
+    <string name="interface_placeholder_text">Настройки интерфейса будут здесь</string>
+</resources>
