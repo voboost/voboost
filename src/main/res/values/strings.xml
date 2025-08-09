@@ -2,29 +2,48 @@
     <string name="app_name">Voboost</string>
 
     <!-- Tab names -->
-    <string name="tab_launcher">Launcher</string>
+    <string name="tab_store">Store</string>
     <string name="tab_applications">Applications</string>
     <string name="tab_interface">Interface</string>
     <string name="tab_vehicle">Vehicle</string>
     <string name="tab_settings">Settings</string>
 
-    <!-- Version info -->
-    <string name="version_info">Voboost 1.0.0.2025012501</string>
+    <!-- Interface settings -->
+    <string name="appearance">Appearance Settings</string>
+    <string name="interface_appearance">Appearance</string>
+    <string name="interface_theme">Theme</string>
 
     <!-- Language settings -->
+    <string name="language_section">Language Settings</string>
     <string name="language_label">Language</string>
-    <string name="language_russian">Russian</string>
-    <string name="language_english">English</string>
+    <string name="language_ru">Russian</string>
+    <string name="language_en">English</string>
 
     <!-- Theme settings -->
-    <string name="appearance_label">Appearance</string>
     <string name="theme_auto">Auto</string>
     <string name="theme_dark">Dark</string>
     <string name="theme_light">Light</string>
 
-    <!-- Config status -->
-    <string name="config_loading">Loading configuration...</string>
-    <string name="config_loaded">Configuration loaded</string>
-    <string name="config_error">Configuration loading error</string>
-    <string name="config_updated">Configuration updated</string>
+    <!-- Vehicle settings -->
+    <string name="vehicle_fuel_mode">Fuel Management</string>
+    <string name="vehicle_drive_mode">Driving Behavior</string>
+
+    <!-- Fuel mode options -->
+    <string name="fuel_mode_intellectual">Intelligent</string>
+    <string name="fuel_mode_electric">Electric</string>
+    <string name="fuel_mode_fuel">Fuel</string>
+    <string name="fuel_mode_save">Save</string>
+
+    <!-- Drive mode options -->
+    <string name="drive_mode_eco">Eco</string>
+    <string name="drive_mode_comfort">Comfort</string>
+    <string name="drive_mode_sport">Sport</string>
+    <string name="drive_mode_snow">Snow</string>
+    <string name="drive_mode_outing">Off-road</string>
+    <string name="drive_mode_individual">Individual</string>
+
+    <!-- Placeholder texts -->
+    <string name="store_placeholder_text">Store interface will be here</string>
+    <string name="applications_placeholder_text">List of installed applications will be here</string>
+    <string name="interface_placeholder_text">Interface settings will be here</string>
 </resources>

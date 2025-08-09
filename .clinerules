@@ -4,6 +4,8 @@
 - This project follows ALL common rules from ../voboost-codestyle/.clinerules
 - The rules below are PROJECT-SPECIFIC additions to the global rules
 - NEVER duplicate global rules here - they are inherited automatically
+- ALL code comments, documentation, and commit messages MUST be in English only
+- NO Russian text in code files - use English for all technical documentation
 
 ## Project-Specific Patterns
 
@@ -64,6 +66,21 @@
 - Automotive-grade error recovery procedures
 - Comprehensive logging for vehicle diagnostics
 
+### Color System Rules
+- ALWAYS use `Color.TAB_SELECTED` instead of `VoboostColor.TAB_SELECTED`
+- Import colors as `import ru.voboost.ui.theme.Color`
+- Never use alias imports like `Color as VoboostColor`
+- Components should resolve colors internally, not accept color parameters
+- No theme parameters should be passed to components - use ThemeManager internally
+
+### Performance Rules (CRITICAL for Automotive)
+- NEVER create UI objects (panels, components) in Composable body - use `remember` for caching
+- Cache expensive operations and object creation using `remember` with appropriate keys
+- Avoid recreating panels/components on each recomposition - create once, reuse
+- Use `remember(key)` to control when cached objects should be recreated
+- Minimize recompositions by proper state management and key usage
+- Performance is critical for automotive applications - prioritize speed and responsiveness
+
 ## Development Workflow (Project-Specific)
 - Android application should provide native vehicle interface experience
 - All changes should maintain automotive-grade reliability standards
@@ -71,18 +88,20 @@
 - Android 9 and 11 compatibility must be maintained
 - Vehicle integration should follow Voyah platform standards
 
-## Project Status
-- INITIAL SETUP PHASE
-- Android architecture planning in progress
-- Vehicle integration patterns to be established
-- Voyah-specific UI design to be developed
-- Memory bank documentation initialized
-
 ## Key Success Factors
-- Native Voyah vehicle interface experience
+- Native Voyah vehicle interface experience with Jetpack Compose
 - Seamless integration with voboost-config library
-- Stable operation on Android 9 and 11
-- Reliable vehicle configuration management
-- Professional automotive-grade user experience
+- Stable operation on Android 9 (API 28) - primary target
+- Reliable vehicle configuration management with ConfigViewModel singleton
+- Professional automotive-grade user experience with performance optimization
 - Deep integration with Voyah vehicle systems
 - Model-specific feature support (Free vs Dreamer)
+- Automotive-grade performance with panel caching and optimized recomposition
+
+## Implementation Patterns Discovered
+- **ConfigViewModel Singleton Pattern**: Single instance across app lifecycle for centralized state management
+- **Panel Caching Strategy**: Use `remember()` to cache panel instances and avoid recreation on recomposition
+- **Compose Performance Optimization**: Critical for automotive applications - minimize object creation in Composable body
+- **Localization Architecture**: Custom i18n system with LocalizedString class for type-safe string handling
+- **Theme System**: Separate ColorLight/ColorDark files with unified Color access point
+- **Build Integration**: Seamless integration with voboost-codestyle through gradle configuration

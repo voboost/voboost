@@ -1,119 +1,91 @@
-# Voboost
+# voboost
 
-An Android application for Voyah vehicles (Free, Dreamer) that provides a native vehicle interface for configuring car settings with seamless integration to the voboost-config library.
+Android application for Voyah vehicles with Jetpack Compose UI and voboost-config integration.
 
-## Overview
+## What's implemented
 
-Voboost delivers a in-vehicle configuration experience for Voyah Free and Dreamer models. Built with Kotlin/Android and integrated with the voboost-config library, it provides a native vehicle interface that matches the Voyah design language while offering comprehensive vehicle settings management.
+### Core Application
+- **MainActivity** - Entry point with ConfigViewModel initialization
+- **Jetpack Compose UI** with Material Design 3
+- **Fullscreen mode** with system UI hiding for vehicle use
+- **Screen always on** flag for automotive environment
 
-## Features
+### Configuration System
+- **ConfigViewModel singleton** - Centralized configuration state management
+- **voboost-config integration** - YAML configuration loading and real-time file watching
+- **Reactive configuration updates** via StateFlow
+- **Field-level access** with dynamic field reading/writing
+- **Automatic config initialization** - copies default config from assets if needed
 
-- **Native Vehicle Interface**: UI designed to match Voyah vehicle infotainment system
-- **Vehicle Settings Management**: Comprehensive configuration of vehicle parameters
-- **Real-time Validation**: Instant feedback on configuration changes
-- **Model-Specific Options**: Tailored settings for Voyah Free and Dreamer models
-- **Touch-Optimized**: Interface designed for in-vehicle touch interaction
-- **Vehicle Integration**: Deep integration with Voyah vehicle systems
+### UI Architecture
+- **Screen component** - Main layout with sidebar navigation and content area
+- **Interface positioning** - X/Y offset support from configuration
+- **Tab system** - Navigation between different panels
+- **Panel system** - Modular content areas
 
-## Target Platform
+### Localization System (i18n)
+- **Multi-language support** - English and Russian
+- **Reactive language switching** - Updates UI without restart
+- **LocaleManager** - Handles resource loading and caching
+- **Resource fallback** - Returns key name if translation missing
+- **Type-safe localization** with `i18n()` composable function
 
-- **Android Versions**: Android 9 and Android 11
-- **Vehicle Models**: Voyah Free, Voyah Dreamer
-- **Hardware**: Automotive-grade Android hardware in Voyah vehicles
+### Theme System
+- **Color management** - Light/Dark theme support with Color, ColorDark, ColorLight
+- **Dimensions and Typography** - Centralized design tokens
+- **Material Design 3** integration
 
-## Technology Stack
-
-- **Language**: Kotlin/Android
-- **UI Framework**: Android Views with vehicle-themed components
-- **Configuration Library**: voboost-config
-- **Architecture**: MVVM with Android Architecture Components
-- **Build System**: Gradle with Kotlin DSL
-- **Code Style**: Unified Voboost code style
+### Build Configuration
+- **Android API 28** (Android 9 compatibility)
+- **Kotlin 1.9.25** with Compose
+- **voboost-config dependency** as project reference
+- **ktlint integration** with voboost-codestyle
 
 ## Project Structure
 
 ```
-voboost/
-├── app/src/main/kotlin/      # Main Android application source
-├── app/src/test/kotlin/      # Unit tests
-├── app/src/androidTest/      # Android instrumentation tests
-├── app/src/main/res/         # Android resources (layouts, drawables, etc.)
-├── memory-bank/              # Project documentation
-├── .clinerules              # Project-specific rules
-├── .editorconfig            # Code style configuration (symlink)
-└── build.gradle.kts         # Build configuration
+src/main/java/ru/voboost/
+├── MainActivity.kt                    # Application entry point
+├── ui/
+│   ├── components/                    # Compose UI components
+│   ├── panels/                        # Configuration panels
+│   ├── theme/                         # Theme system
+│   ├── ConfigViewModel.kt             # Singleton configuration state
+│   └── I18n.kt                        # Localization system
 ```
 
-## Development Setup
+## Technical Details
 
-### Prerequisites
+### ConfigViewModel Features
+- **Singleton pattern** with thread-safe initialization
+- **voboost-config integration** - ConfigManager wrapper
+- **Real-time file watching** with OnConfigChangeListener
+- **Dynamic field access** - `getFieldValue()` and `updateField()`
+- **StateFlow integration** - Reactive UI updates
+- **Enum conversion** - Automatic string to enum conversion for Language/Theme
 
-- Android Studio Arctic Fox or newer
-- JDK 11 or higher
-- Android SDK with API levels 28 (Android 9) and 30 (Android 11)
-- Voyah vehicle hardware or emulator setup
+### Localization Features
+- **Resource caching** - Avoids repeated context creation
+- **Reactive updates** - StateFlow-based language changes
+- **Error handling** - Graceful fallback to key names
+- **Android Resources integration** - Uses standard string resources
 
-### Building
+### Screen Features
+- **Fullscreen mode** - Hides system bars for vehicle use
+- **Keep screen on** - Prevents sleep during vehicle operation
+- **Interface positioning** - X/Y offset from configuration
+- **Edge-to-edge display** - Modern Android UI patterns
+
+## Build Commands
 
 ```bash
 ./gradlew assembleDebug
-```
-
-### Running
-
-```bash
 ./gradlew installDebug
-```
-
-### Testing
-
-```bash
 ./gradlew test
-./gradlew connectedAndroidTest
 ```
 
-## Integration with voboost-config
+## Requirements
 
-This application integrates with the voboost-config library for:
-
-- Vehicle configuration parsing and validation
-- YAML structure management for vehicle settings
-- Error handling and reporting
-- Configuration diff utilities for vehicle state changes
-
-## Vehicle-Specific Features
-
-### Voyah Integration
-- Automatic vehicle model detection (Free vs Dreamer)
-- Model-specific configuration options and UI
-- Integration with vehicle's existing infotainment system
-- Vehicle state monitoring and real-time feedback
-
-## Code Style
-
-This project follows the unified Voboost code style defined in `../voboost-codestyle/`. Key rules:
-
-- All code, comments, and documentation in English
-- Kotlin code style with 4-space indentation
-- Result<T> pattern for error handling
-- KDoc comments for public APIs
-- Files must end with blank line
-
-## Contributing
-
-1. Follow the code style guidelines
-2. Write comprehensive tests (unit and instrumentation)
-3. Test on target Android versions (9, 11)
-4. Update documentation as needed
-5. Ensure all tests pass before committing
-
-## Related Projects
-
-- [voboost-config](../voboost-config/): Core configuration library
-- [voboost-service](../voboost-service/): Android service for configuration application
-- [voboost-codestyle](../voboost-codestyle/): Unified code style rules
-
-## License
-
-[License information to be added]
-
+- Android API 28+ (Android 9+)
+- voboost-config library (project dependency)
+- Kotlin/Compose development environment
