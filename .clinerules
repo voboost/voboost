@@ -87,6 +87,8 @@
 - Integration with voboost-config library should be seamless
 - Android 9 and 11 compatibility must be maintained
 - Vehicle integration should follow Voyah platform standards
+- NEVER run `./gradlew installDebug` - only use `./gradlew assembleDebug` to verify build
+- User handles app installation and launch manually
 
 ## Key Success Factors
 - Native Voyah vehicle interface experience with Jetpack Compose
