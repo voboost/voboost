@@ -60,18 +60,18 @@ object Color {
                 ru.voboost.ui.ConfigViewModel.getInstance()
             }.getOrNull()
 
-        return if (configViewModel != null) {
-            val currentThemeRaw by configViewModel.fieldFlow("settingsTheme").collectAsState()
-            val currentTheme =
-                currentThemeRaw?.let {
-                    try {
-                        Theme.valueOf(it)
-                    } catch (e: IllegalArgumentException) {
-                        Theme.light
-                    }
-                } ?: Theme.light
+        return if (configViewModel != null && configViewModel.isInitialized()) {
+            // Use reactive theme detection to trigger recomposition on theme changes
+            val currentTheme by configViewModel.fieldFlow("settingsTheme").collectAsState()
+            val theme = currentTheme?.let {
+                try {
+                    Theme.valueOf(it)
+                } catch (e: IllegalArgumentException) {
+                    Theme.light
+                }
+            } ?: Theme.light
 
-            when (currentTheme) {
+            when (theme) {
                 Theme.light -> false
                 Theme.dark -> true
                 else -> systemDarkTheme // fallback for any other values

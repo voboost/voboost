@@ -24,7 +24,7 @@ internal val lightColors =
         ColorToken.TAB_SELECTED to ComposeColor(0xFF4099F3),
         ColorToken.TAB_UNSELECTED to ComposeColor(0xFF2D3442),
         ColorToken.TAB_BACKGROUND to ComposeColor(0xFFF6F8FB),
-        ColorToken.TAB_SELECTED_BACKGROUND to ComposeColor(0xFFF6F8FB),
+        ColorToken.TAB_SELECTED_BACKGROUND to ComposeColor(0xFFE3F2FD),
         ColorToken.CONFIG_CHANGED_TEXT to ComposeColor(0xFFF44336),
         ColorToken.CONFIG_NORMAL_TEXT to ComposeColor(0xFF1A1A1A)
     )

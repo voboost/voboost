@@ -1,6 +1,10 @@
 package ru.voboost.ui.components
 
 import android.util.Log
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -10,13 +14,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,24 +51,62 @@ fun tabs(modifier: Modifier = Modifier) {
     val configViewModel = ConfigViewModel.getInstance()
     val selectedTab by configViewModel.selectedTab.collectAsState()
 
-    Column(
-        modifier =
-            modifier
-                .width(Dimensions.SIDEBAR_WIDTH)
-                .fillMaxHeight()
-                .background(Color.TAB_BACKGROUND)
-                .padding(start = Dimensions.SIDEBAR_PADDING_START)
-    ) {
-        TABS.forEachIndexed { index, tab ->
-            if (index > 0) {
-                Spacer(modifier = Modifier.height(Dimensions.TAB_ITEM_SPACING))
-            }
+    // Calculate the Y offset for the animated background
+    val selectedIndex = TABS.indexOf(selectedTab)
+    val density = LocalDensity.current
 
-            tab(
-                tab = tab,
-                isSelected = selectedTab == tab,
-                onClick = { configViewModel.setSelectedTab(tab) }
+    // Calculate target Y position for the background
+    val targetY = with(density) {
+        selectedIndex.toFloat() * (Dimensions.TAB_ITEM_HEIGHT + Dimensions.TAB_ITEM_SPACING).toPx()
+    }
+
+    // Animated Y offset for the background
+    val animatedY = remember { Animatable(targetY) }
+
+    // Animate to new position when selected tab changes - uniform spring animation
+    LaunchedEffect(selectedTab) {
+        animatedY.animateTo(
+            targetValue = targetY,
+            animationSpec = spring(
+                dampingRatio = 0.7f,
+                stiffness = 850f,
+                visibilityThreshold = 0.4f
             )
+        )
+    }
+
+    Box(
+        modifier = modifier
+            .width(Dimensions.SIDEBAR_WIDTH)
+            .fillMaxHeight()
+            .background(Color.TAB_BACKGROUND)
+            .padding(start = Dimensions.SIDEBAR_PADDING_START)
+    ) {
+        // Animated background that slides between tab positions
+        Box(
+            modifier = Modifier
+                .width(Dimensions.TAB_ITEM_WIDTH)
+                .height(Dimensions.TAB_ITEM_HEIGHT)
+                .offset(y = with(density) { animatedY.value.toDp() })
+                .background(
+                    Color.TAB_SELECTED_BACKGROUND,
+                    RoundedCornerShape(Dimensions.TAB_ITEM_CORNER_RADIUS)
+                )
+        )
+
+        // Tab items (text only, no individual backgrounds)
+        Column {
+            TABS.forEachIndexed { index, tab ->
+                if (index > 0) {
+                    Spacer(modifier = Modifier.height(Dimensions.TAB_ITEM_SPACING))
+                }
+
+                tab(
+                    tab = tab,
+                    isSelected = selectedTab == tab,
+                    onClick = { configViewModel.setSelectedTab(tab) }
+                )
+            }
         }
     }
 }
@@ -84,13 +129,7 @@ private fun tab(
     // Log language changes for debugging
     Log.d("Tabs", "Tab ${tab.name} recomposing with language: $currentLanguage")
 
-    val backgroundColor =
-        if (isSelected) {
-            Color.TAB_SELECTED_BACKGROUND
-        } else {
-            ComposeColor.Transparent
-        }
-
+    // Instant text color change (no animation) - this is the first phase
     val textColor = if (isSelected) Color.TAB_SELECTED else Color.TAB_UNSELECTED
 
     // Use currentLanguage in the key to force recomposition
@@ -99,8 +138,6 @@ private fun tab(
             Modifier
                 .width(Dimensions.TAB_ITEM_WIDTH)
                 .height(Dimensions.TAB_ITEM_HEIGHT)
-                .background(backgroundColor, RoundedCornerShape(Dimensions.TAB_ITEM_CORNER_RADIUS))
-                .border(0.dp, ComposeColor.Transparent, RoundedCornerShape(Dimensions.TAB_ITEM_CORNER_RADIUS))
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null
@@ -122,3 +159,4 @@ private fun tab(
         }
     }
 }
+
