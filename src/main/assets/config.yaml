@@ -8,7 +8,7 @@ settings-interface-shift-y: 0
 settings-active-tab: store
 
 # Vehicle Configuration
-vehicle-fuel-mode: intellectual
+vehicle-fuel-mode: electric
 vehicle-drive-mode: comfort
 
 # Vehicle Model Settings
