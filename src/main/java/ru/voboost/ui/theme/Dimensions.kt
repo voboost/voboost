@@ -33,6 +33,9 @@ object Dimensions {
 
     // Animation durations (in milliseconds)
     const val RADIO_GROUP_ANIMATION_DURATION = 40
+    const val TAB_ANIMATION_DAMPING_RATIO = 0.7f
+    const val TAB_ANIMATION_STIFFNESS = 850f
+    const val TAB_ANIMATION_VISIBILITY_THRESHOLD = 0.4f
 }
 
 @Composable
