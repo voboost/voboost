@@ -68,9 +68,9 @@ fun tabs(modifier: Modifier = Modifier) {
         animatedY.animateTo(
             targetValue = targetY,
             animationSpec = spring(
-                dampingRatio = 0.7f,
-                stiffness = 850f,
-                visibilityThreshold = 0.4f
+                dampingRatio = Dimensions.TAB_ANIMATION_DAMPING_RATIO,
+                stiffness = Dimensions.TAB_ANIMATION_STIFFNESS,
+                visibilityThreshold = Dimensions.TAB_ANIMATION_VISIBILITY_THRESHOLD
             )
         )
     }
