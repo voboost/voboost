@@ -26,5 +26,14 @@ internal val lightColors =
         ColorToken.TAB_BACKGROUND to ComposeColor(0xFFF6F8FB),
         ColorToken.TAB_SELECTED_BACKGROUND to ComposeColor(0xFFE3F2FD),
         ColorToken.CONFIG_CHANGED_TEXT to ComposeColor(0xFFF44336),
-        ColorToken.CONFIG_NORMAL_TEXT to ComposeColor(0xFF1A1A1A)
+        ColorToken.CONFIG_NORMAL_TEXT to ComposeColor(0xFF1A1A1A),
+        // RadioGroup colors for light theme
+        ColorToken.RADIO_GROUP_BACKGROUND to ComposeColor(0xFFFFFFFF),
+        ColorToken.RADIO_GROUP_SELECTED_TEXT to ComposeColor(0xFFFFFFFF),
+        ColorToken.RADIO_GROUP_UNSELECTED_TEXT to ComposeColor(0xFF2D3442),
+        ColorToken.RADIO_GROUP_SELECTED_GRADIENT_TOP to ComposeColor(0xFF55A2EF),
+        ColorToken.RADIO_GROUP_SELECTED_GRADIENT_BOTTOM to ComposeColor(0xFF2681DD),
+        ColorToken.RADIO_GROUP_SELECTED_BORDER_TOP to ComposeColor(0xFF8DC6FF),
+        ColorToken.RADIO_GROUP_SELECTED_BORDER_SIDE to ComposeColor(0xFF519AE5),
+        ColorToken.RADIO_GROUP_SELECTED_BORDER_BOTTOM to ComposeColor(0xFF1875D2)
     )

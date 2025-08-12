@@ -79,6 +79,23 @@ data class Section(
         _elements.add(Select(id, label, fieldPath, options, defaultValue))
     }
 
+    fun radioGroup(
+        id: String,
+        fieldPath: String?,
+        options: List<RadioGroupOption>,
+        defaultValue: String = ""
+    ) {
+        _elements.add(RadioGroup(id, fieldPath, options, defaultValue))
+    }
+
+    fun radioGroup(
+        id: String,
+        options: List<RadioGroupOption>,
+        defaultValue: String = ""
+    ) {
+        _elements.add(RadioGroup(id, null, options, defaultValue))
+    }
+
     fun textInput(
         id: String,
         label: String,
@@ -119,6 +136,7 @@ fun sectionRenderer(
                     is Toggle -> toggleRenderer(element, configViewModel)
                     is Slider -> sliderRenderer(element, configViewModel)
                     is Select -> selectRenderer(element, configViewModel)
+                    is RadioGroup -> radioGroupRenderer(element, configViewModel)
                     is TextInput -> textInputRenderer(element, configViewModel)
                     is Info -> infoRenderer(element)
                     is Button -> buttonRenderer(element)
@@ -144,3 +162,4 @@ fun section(
     section.builder()
     return section
 }
+

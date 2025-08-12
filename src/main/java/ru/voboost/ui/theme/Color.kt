@@ -43,6 +43,16 @@ object Color {
     val CONFIG_CHANGED_TEXT @Composable get() = getColor(ColorToken.CONFIG_CHANGED_TEXT)
     val CONFIG_NORMAL_TEXT @Composable get() = getColor(ColorToken.CONFIG_NORMAL_TEXT)
 
+    // RadioGroup colors
+    val RADIO_GROUP_BACKGROUND @Composable get() = getColor(ColorToken.RADIO_GROUP_BACKGROUND)
+    val RADIO_GROUP_SELECTED_TEXT @Composable get() = getColor(ColorToken.RADIO_GROUP_SELECTED_TEXT)
+    val RADIO_GROUP_UNSELECTED_TEXT @Composable get() = getColor(ColorToken.RADIO_GROUP_UNSELECTED_TEXT)
+    val RADIO_GROUP_SELECTED_GRADIENT_TOP @Composable get() = getColor(ColorToken.RADIO_GROUP_SELECTED_GRADIENT_TOP)
+    val RADIO_GROUP_SELECTED_GRADIENT_BOTTOM @Composable get() = getColor(ColorToken.RADIO_GROUP_SELECTED_GRADIENT_BOTTOM)
+    val RADIO_GROUP_SELECTED_BORDER_TOP @Composable get() = getColor(ColorToken.RADIO_GROUP_SELECTED_BORDER_TOP)
+    val RADIO_GROUP_SELECTED_BORDER_SIDE @Composable get() = getColor(ColorToken.RADIO_GROUP_SELECTED_BORDER_SIDE)
+    val RADIO_GROUP_SELECTED_BORDER_BOTTOM @Composable get() = getColor(ColorToken.RADIO_GROUP_SELECTED_BORDER_BOTTOM)
+
     @Composable
     private fun getColor(token: ColorToken): ComposeColor {
         val isDarkTheme = isDarkTheme()
@@ -102,5 +112,13 @@ internal enum class ColorToken {
     TAB_BACKGROUND,
     TAB_SELECTED_BACKGROUND,
     CONFIG_CHANGED_TEXT,
-    CONFIG_NORMAL_TEXT
+    CONFIG_NORMAL_TEXT,
+    RADIO_GROUP_BACKGROUND,
+    RADIO_GROUP_SELECTED_TEXT,
+    RADIO_GROUP_UNSELECTED_TEXT,
+    RADIO_GROUP_SELECTED_GRADIENT_TOP,
+    RADIO_GROUP_SELECTED_GRADIENT_BOTTOM,
+    RADIO_GROUP_SELECTED_BORDER_TOP,
+    RADIO_GROUP_SELECTED_BORDER_SIDE,
+    RADIO_GROUP_SELECTED_BORDER_BOTTOM
 }

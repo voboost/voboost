@@ -21,6 +21,18 @@ object Dimensions {
 
     // Text dimensions
     val TAB_TEXT_SIZE @Composable get() = 33.pxToDp()
+
+    // RadioGroup dimensions
+    val RADIO_GROUP_HEIGHT @Composable get() = 70.pxToDp()
+    val RADIO_GROUP_CORNER_RADIUS @Composable get() = 34.pxToDp()
+    val RADIO_GROUP_TEXT_SIZE @Composable get() = 24.pxToDp()
+    val RADIO_GROUP_BORDER_WIDTH @Composable get() = 2.pxToDp()
+    val RADIO_GROUP_ANIMATION_OVERSHOOT @Composable get() = 10.pxToDp()
+    val RADIO_GROUP_ITEM_PADDING_HORIZONTAL @Composable get() = 32.pxToDp()
+    val RADIO_GROUP_ITEM_MIN_WIDTH @Composable get() = 120.pxToDp()
+
+    // Animation durations (in milliseconds)
+    const val RADIO_GROUP_ANIMATION_DURATION = 40
 }
 
 @Composable
