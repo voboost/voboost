@@ -72,7 +72,7 @@ class ConfigViewModel : ViewModel() {
             object : ru.voboost.config.OnConfigChangeListener {
                 override fun onConfigChanged(
                     newConfig: Config,
-                    diff: Config
+                    diff: Config,
                 ) {
                     _config.value = newConfig
                 }
@@ -125,7 +125,7 @@ class ConfigViewModel : ViewModel() {
     // Update any field - uses library method directly
     suspend fun updateField(
         fieldPath: String,
-        value: Any
+        value: Any,
     ) {
         Log.d("ConfigViewModel", "updateField called: $fieldPath = $value")
 
@@ -137,10 +137,17 @@ class ConfigViewModel : ViewModel() {
                     if (value is String) {
                         try {
                             val enumValue = Language.valueOf(value)
-                            Log.d("ConfigViewModel", "Converted string '$value' to Language enum: $enumValue")
+                            Log.d(
+                                "ConfigViewModel",
+                                "Converted string '$value' to Language enum: $enumValue",
+                            )
                             enumValue
                         } catch (e: IllegalArgumentException) {
-                            Log.w("ConfigViewModel", "Failed to convert '$value' to Language enum", e)
+                            Log.w(
+                                "ConfigViewModel",
+                                "Failed to convert '$value' to Language enum",
+                                e,
+                            )
                             value // fallback to original value if conversion fails
                         }
                     } else {
@@ -168,7 +175,10 @@ class ConfigViewModel : ViewModel() {
             Log.d("ConfigViewModel", "Field update successful, reloading config")
             // Force reload config to ensure it's updated immediately
             configManager?.getConfig()?.let { newConfig ->
-                Log.d("ConfigViewModel", "New config loaded, language: ${newConfig.settingsLanguage}")
+                Log.d(
+                    "ConfigViewModel",
+                    "New config loaded, language: ${newConfig.settingsLanguage}",
+                )
                 _config.value = newConfig
             }
         }?.onFailure { error ->

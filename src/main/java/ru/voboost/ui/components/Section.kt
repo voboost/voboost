@@ -12,8 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
-import ru.voboost.ui.i18n
 import ru.voboost.ui.ConfigViewModel
+import ru.voboost.ui.i18n
 
 /**
  * Section element containing multiple controls
@@ -21,7 +21,7 @@ import ru.voboost.ui.ConfigViewModel
 data class Section(
     override val id: String,
     val titleKey: String,
-    override val visibility: Flow<Boolean> = flowOf(true)
+    override val visibility: Flow<Boolean> = flowOf(true),
 ) : AbstractControl() {
     private val _elements = mutableListOf<AbstractControl>()
     val elements: List<AbstractControl> get() = _elements
@@ -34,7 +34,7 @@ data class Section(
         id: String,
         textKey: String,
         style: InfoStyle = InfoStyle.NORMAL,
-        visibility: Flow<Boolean> = flowOf(true)
+        visibility: Flow<Boolean> = flowOf(true),
     ) {
         _elements.add(Info(id, textKey, style, visibility))
     }
@@ -44,7 +44,7 @@ data class Section(
         labelKey: String,
         onClick: suspend () -> Unit,
         style: ButtonStyle = ButtonStyle.PRIMARY,
-        visibility: Flow<Boolean> = flowOf(true)
+        visibility: Flow<Boolean> = flowOf(true),
     ) {
         _elements.add(Button(id, labelKey, onClick, style, visibility))
     }
@@ -55,7 +55,7 @@ data class Section(
         fieldPath: String,
         range: IntRange,
         defaultValue: Int = 0,
-        step: Int = 1
+        step: Int = 1,
     ) {
         _elements.add(Slider(id, label, fieldPath, range, defaultValue, step))
     }
@@ -64,7 +64,7 @@ data class Section(
         id: String,
         label: String,
         fieldPath: String,
-        defaultValue: Boolean = false
+        defaultValue: Boolean = false,
     ) {
         _elements.add(Toggle(id, label, fieldPath, defaultValue))
     }
@@ -74,7 +74,7 @@ data class Section(
         label: String,
         fieldPath: String,
         options: List<SelectOption>,
-        defaultValue: String = ""
+        defaultValue: String = "",
     ) {
         _elements.add(Select(id, label, fieldPath, options, defaultValue))
     }
@@ -83,7 +83,7 @@ data class Section(
         id: String,
         fieldPath: String?,
         options: List<RadioGroupOption>,
-        defaultValue: String = ""
+        defaultValue: String = "",
     ) {
         _elements.add(RadioGroup(id, fieldPath, options, defaultValue))
     }
@@ -91,7 +91,7 @@ data class Section(
     fun radioGroup(
         id: String,
         options: List<RadioGroupOption>,
-        defaultValue: String = ""
+        defaultValue: String = "",
     ) {
         _elements.add(RadioGroup(id, null, options, defaultValue))
     }
@@ -102,7 +102,7 @@ data class Section(
         fieldPath: String,
         defaultValue: String = "",
         placeholder: String? = null,
-        maxLength: Int? = null
+        maxLength: Int? = null,
     ) {
         _elements.add(TextInput(id, label, fieldPath, defaultValue, placeholder, maxLength))
     }
@@ -114,7 +114,7 @@ data class Section(
 @Composable
 fun sectionRenderer(
     section: Section,
-    configViewModel: ConfigViewModel
+    configViewModel: ConfigViewModel,
 ) {
     val isVisible by section.visibility.collectAsState(initial = true)
 
@@ -123,12 +123,12 @@ fun sectionRenderer(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(16.dp),
         ) {
             Text(
                 text = i18n(section.titleKey),
                 style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.padding(bottom = 16.dp)
+                modifier = Modifier.padding(bottom = 16.dp),
             )
 
             section.elements.forEach { element ->
@@ -156,10 +156,9 @@ fun section(
     id: String,
     titleKey: String,
     visibility: Flow<Boolean> = flowOf(true),
-    builder: Section.() -> Unit
+    builder: Section.() -> Unit,
 ): Section {
     val section = Section(id, titleKey, visibility)
     section.builder()
     return section
 }
-

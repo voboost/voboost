@@ -17,8 +17,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
-import ru.voboost.ui.i18n
 import ru.voboost.ui.ConfigViewModel
+import ru.voboost.ui.i18n
 
 /**
  * Text input element
@@ -30,7 +30,7 @@ data class TextInput(
     val defaultValue: String = "",
     val placeholderKey: String? = null,
     val maxLength: Int? = null,
-    override val visibility: Flow<Boolean> = flowOf(true)
+    override val visibility: Flow<Boolean> = flowOf(true),
 ) : AbstractControl()
 
 /**
@@ -39,7 +39,7 @@ data class TextInput(
 @Composable
 fun textInputRenderer(
     element: TextInput,
-    configViewModel: ConfigViewModel
+    configViewModel: ConfigViewModel,
 ) {
     val isVisible by element.visibility.collectAsState(initial = true)
     val valueFlow: StateFlow<String?> = configViewModel.fieldFlow(element.fieldPath)
@@ -65,7 +65,7 @@ fun textInputRenderer(
                         configViewModel.updateField(element.fieldPath, finalValue)
                     }
                 },
-                placeholder = element.placeholderKey?.let { { Text(i18n(it)) } }
+                placeholder = element.placeholderKey?.let { { Text(i18n(it)) } },
             )
         }
     }

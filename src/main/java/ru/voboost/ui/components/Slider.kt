@@ -17,8 +17,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
-import ru.voboost.ui.i18n
 import ru.voboost.ui.ConfigViewModel
+import ru.voboost.ui.i18n
 
 /**
  * Slider element
@@ -30,7 +30,7 @@ data class Slider(
     val range: IntRange,
     val defaultValue: Int = 0,
     val step: Int = 1,
-    override val visibility: Flow<Boolean> = flowOf(true)
+    override val visibility: Flow<Boolean> = flowOf(true),
 ) : AbstractControl()
 
 /**
@@ -39,7 +39,7 @@ data class Slider(
 @Composable
 fun sliderRenderer(
     element: Slider,
-    configViewModel: ConfigViewModel
+    configViewModel: ConfigViewModel,
 ) {
     val isVisible by element.visibility.collectAsState(initial = true)
     val valueFlow: StateFlow<String?> = configViewModel.fieldFlow(element.fieldPath)
@@ -60,7 +60,12 @@ fun sliderRenderer(
                     }
                 },
                 valueRange = element.range.first.toFloat()..element.range.last.toFloat(),
-                steps = if (element.step > 1) (element.range.last - element.range.first) / element.step - 1 else 0
+                steps =
+                    if (element.step > 1) {
+                        (element.range.last - element.range.first) / element.step - 1
+                    } else {
+                        0
+                    },
             )
         }
     }

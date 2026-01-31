@@ -17,8 +17,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
-import ru.voboost.ui.i18n
 import ru.voboost.ui.ConfigViewModel
+import ru.voboost.ui.i18n
 
 /**
  * Toggle/Switch element
@@ -28,7 +28,7 @@ data class Toggle(
     val labelKey: String,
     val fieldPath: String,
     val defaultValue: Boolean = false,
-    override val visibility: Flow<Boolean> = flowOf(true)
+    override val visibility: Flow<Boolean> = flowOf(true),
 ) : AbstractControl()
 
 /**
@@ -37,7 +37,7 @@ data class Toggle(
 @Composable
 fun toggleRenderer(
     element: Toggle,
-    configViewModel: ConfigViewModel
+    configViewModel: ConfigViewModel,
 ) {
     val isVisible by element.visibility.collectAsState(initial = true)
     val valueFlow: StateFlow<String?> = configViewModel.fieldFlow(element.fieldPath)
@@ -52,7 +52,7 @@ fun toggleRenderer(
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(text = i18n(element.labelKey))
             Switch(
@@ -61,7 +61,7 @@ fun toggleRenderer(
                     scope.launch {
                         configViewModel.updateField(element.fieldPath, newValue)
                     }
-                }
+                },
             )
         }
     }

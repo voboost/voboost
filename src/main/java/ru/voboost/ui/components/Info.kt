@@ -19,7 +19,7 @@ enum class InfoStyle {
     NORMAL,
     WARNING,
     ERROR,
-    SUCCESS
+    SUCCESS,
 }
 
 /**
@@ -29,7 +29,7 @@ data class Info(
     override val id: String,
     val textKey: String,
     val style: InfoStyle = InfoStyle.NORMAL,
-    override val visibility: Flow<Boolean> = flowOf(true)
+    override val visibility: Flow<Boolean> = flowOf(true),
 ) : AbstractControl()
 
 /**
@@ -51,7 +51,7 @@ fun infoRenderer(element: Info) {
         Text(
             text = i18n(element.textKey),
             style = textStyle,
-            modifier = Modifier.padding(vertical = 4.dp)
+            modifier = Modifier.padding(vertical = 4.dp),
         )
     }
 }

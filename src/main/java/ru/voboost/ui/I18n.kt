@@ -25,7 +25,7 @@ import java.util.Locale
  */
 class LocaleManager(
     private val context: Context,
-    private val configViewModel: ConfigViewModel
+    private val configViewModel: ConfigViewModel,
 ) {
     private val scope = CoroutineScope(Dispatchers.Main)
     private val _currentLanguage: MutableStateFlow<Language>
@@ -48,7 +48,10 @@ class LocaleManager(
                 Log.d("LocaleManager", "Config language changed to: $newLanguage")
                 newLanguage?.let {
                     if (it != _currentLanguage.value) {
-                        Log.d("LocaleManager", "Updating current language from ${_currentLanguage.value} to $it")
+                        Log.d(
+                            "LocaleManager",
+                            "Updating current language from ${_currentLanguage.value} to $it",
+                        )
                         _currentLanguage.value = it
                         // Clear cache when language changes
                         cachedLanguage = null
@@ -63,7 +66,7 @@ class LocaleManager(
 
     fun getString(
         key: String,
-        vararg args: Any
+        vararg args: Any,
     ): String {
         val currentLang = _currentLanguage.value
         Log.d("LocaleManager", "getString called for key: $key, current language: $currentLang")
@@ -80,7 +83,10 @@ class LocaleManager(
             // Get or create cached resources for current language
             val resources = getLocalizedResources(currentLang)
             val result = resources.getString(resId, *args)
-            Log.d("LocaleManager", "getString result for key: $key, language: $currentLang, result: $result")
+            Log.d(
+                "LocaleManager",
+                "getString result for key: $key, language: $currentLang, result: $result",
+            )
             result
         } catch (e: Exception) {
             Log.e("LocaleManager", "Error getting string for key: $key, language: $currentLang", e)
@@ -136,7 +142,7 @@ class LocaleManager(
 @Composable
 fun i18n(
     key: String,
-    vararg args: Any
+    vararg args: Any,
 ): String {
     // Auto-initialize by getting ConfigViewModel instance
     val configViewModel = ConfigViewModel.getInstance()

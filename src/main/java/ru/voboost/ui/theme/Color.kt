@@ -10,6 +10,12 @@ import androidx.compose.ui.graphics.Color as ComposeColor
 /**
  * Color object that provides theme-aware colors
  * Usage: Color.TAB_SELECTED returns appropriate color for current theme
+ *
+ * ## Usage Rules
+ * - ALWAYS use `Color.TAB_SELECTED` instead of `VoboostColor.TAB_SELECTED`
+ * - Import colors as `import ru.voboost.ui.theme.Color`
+ * - Never use alias imports like `Color as VoboostColor`
+ * - Components should resolve colors internally, not accept color parameters
  */
 object Color {
     // Brand primary colors
@@ -46,12 +52,30 @@ object Color {
     // RadioGroup colors
     val RADIO_GROUP_BACKGROUND @Composable get() = getColor(ColorToken.RADIO_GROUP_BACKGROUND)
     val RADIO_GROUP_SELECTED_TEXT @Composable get() = getColor(ColorToken.RADIO_GROUP_SELECTED_TEXT)
-    val RADIO_GROUP_UNSELECTED_TEXT @Composable get() = getColor(ColorToken.RADIO_GROUP_UNSELECTED_TEXT)
-    val RADIO_GROUP_SELECTED_GRADIENT_TOP @Composable get() = getColor(ColorToken.RADIO_GROUP_SELECTED_GRADIENT_TOP)
-    val RADIO_GROUP_SELECTED_GRADIENT_BOTTOM @Composable get() = getColor(ColorToken.RADIO_GROUP_SELECTED_GRADIENT_BOTTOM)
-    val RADIO_GROUP_SELECTED_BORDER_TOP @Composable get() = getColor(ColorToken.RADIO_GROUP_SELECTED_BORDER_TOP)
-    val RADIO_GROUP_SELECTED_BORDER_SIDE @Composable get() = getColor(ColorToken.RADIO_GROUP_SELECTED_BORDER_SIDE)
-    val RADIO_GROUP_SELECTED_BORDER_BOTTOM @Composable get() = getColor(ColorToken.RADIO_GROUP_SELECTED_BORDER_BOTTOM)
+    val RADIO_GROUP_UNSELECTED_TEXT @Composable get() =
+        getColor(
+            ColorToken.RADIO_GROUP_UNSELECTED_TEXT,
+        )
+    val RADIO_GROUP_SELECTED_GRADIENT_TOP @Composable get() =
+        getColor(
+            ColorToken.RADIO_GROUP_SELECTED_GRADIENT_TOP,
+        )
+    val RADIO_GROUP_SELECTED_GRADIENT_BOTTOM @Composable get() =
+        getColor(
+            ColorToken.RADIO_GROUP_SELECTED_GRADIENT_BOTTOM,
+        )
+    val RADIO_GROUP_SELECTED_BORDER_TOP @Composable get() =
+        getColor(
+            ColorToken.RADIO_GROUP_SELECTED_BORDER_TOP,
+        )
+    val RADIO_GROUP_SELECTED_BORDER_SIDE @Composable get() =
+        getColor(
+            ColorToken.RADIO_GROUP_SELECTED_BORDER_SIDE,
+        )
+    val RADIO_GROUP_SELECTED_BORDER_BOTTOM @Composable get() =
+        getColor(
+            ColorToken.RADIO_GROUP_SELECTED_BORDER_BOTTOM,
+        )
 
     @Composable
     private fun getColor(token: ColorToken): ComposeColor {
@@ -73,13 +97,14 @@ object Color {
         return if (configViewModel != null && configViewModel.isInitialized()) {
             // Use reactive theme detection to trigger recomposition on theme changes
             val currentTheme by configViewModel.fieldFlow("settingsTheme").collectAsState()
-            val theme = currentTheme?.let {
-                try {
-                    Theme.valueOf(it)
-                } catch (e: IllegalArgumentException) {
-                    Theme.light
-                }
-            } ?: Theme.light
+            val theme =
+                currentTheme?.let {
+                    try {
+                        Theme.valueOf(it)
+                    } catch (e: IllegalArgumentException) {
+                        Theme.light
+                    }
+                } ?: Theme.light
 
             when (theme) {
                 Theme.light -> false
@@ -120,5 +145,5 @@ internal enum class ColorToken {
     RADIO_GROUP_SELECTED_GRADIENT_BOTTOM,
     RADIO_GROUP_SELECTED_BORDER_TOP,
     RADIO_GROUP_SELECTED_BORDER_SIDE,
-    RADIO_GROUP_SELECTED_BORDER_BOTTOM
+    RADIO_GROUP_SELECTED_BORDER_BOTTOM,
 }

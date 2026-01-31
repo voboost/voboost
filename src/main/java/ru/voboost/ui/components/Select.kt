@@ -22,15 +22,15 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
-import ru.voboost.ui.i18n
 import ru.voboost.ui.ConfigViewModel
+import ru.voboost.ui.i18n
 
 /**
  * Select option data class
  */
 data class SelectOption(
     val labelKey: String,
-    val value: String
+    val value: String,
 )
 
 /**
@@ -42,7 +42,7 @@ data class Select(
     val fieldPath: String,
     val options: List<SelectOption>,
     val defaultValue: String = "",
-    override val visibility: Flow<Boolean> = flowOf(true)
+    override val visibility: Flow<Boolean> = flowOf(true),
 ) : AbstractControl()
 
 /**
@@ -52,7 +52,7 @@ data class Select(
 @Composable
 fun selectRenderer(
     element: Select,
-    configViewModel: ConfigViewModel
+    configViewModel: ConfigViewModel,
 ) {
     val isVisible by element.visibility.collectAsState(initial = true)
     val valueFlow: StateFlow<String?> = configViewModel.fieldFlow(element.fieldPath)
@@ -66,25 +66,31 @@ fun selectRenderer(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp)
+                    .padding(vertical = 8.dp),
         ) {
             Text(text = i18n(element.labelKey))
             ExposedDropdownMenuBox(
                 expanded = expanded,
-                onExpandedChange = { expanded = !expanded }
+                onExpandedChange = { expanded = !expanded },
             ) {
                 OutlinedTextField(
                     value =
-                        element.options.find { it.value == selectedValue }?.labelKey?.let { i18n(it) }
+                        element.options.find { it.value == selectedValue }
+                            ?.labelKey
+                            ?.let { i18n(it) }
                             ?: selectedValue,
                     onValueChange = {},
                     readOnly = true,
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                    modifier = Modifier.menuAnchor()
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(
+                            expanded = expanded,
+                        )
+                    },
+                    modifier = Modifier.menuAnchor(),
                 )
                 ExposedDropdownMenu(
                     expanded = expanded,
-                    onDismissRequest = { expanded = false }
+                    onDismissRequest = { expanded = false },
                 ) {
                     element.options.forEach { option ->
                         DropdownMenuItem(
@@ -94,7 +100,7 @@ fun selectRenderer(
                                     configViewModel.updateField(element.fieldPath, option.value)
                                 }
                                 expanded = false
-                            }
+                            },
                         )
                     }
                 }

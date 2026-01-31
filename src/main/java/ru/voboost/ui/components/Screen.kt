@@ -18,9 +18,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import ru.voboost.ui.ConfigViewModel
 import ru.voboost.ui.theme.Color
 import ru.voboost.ui.theme.pxToDp
-import ru.voboost.ui.ConfigViewModel
 
 @Composable
 fun screen() {
@@ -39,7 +39,7 @@ fun screen() {
         modifier =
             Modifier
                 .fillMaxSize()
-                .background(Color.BACKGROUND)
+                .background(Color.BACKGROUND),
     ) {
         Row(
             modifier =
@@ -47,8 +47,8 @@ fun screen() {
                     .fillMaxSize()
                     .offset(
                         x = (config?.settingsInterfaceShiftX ?: 0).pxToDp(),
-                        y = (config?.settingsInterfaceShiftY ?: 0).pxToDp()
-                    )
+                        y = (config?.settingsInterfaceShiftY ?: 0).pxToDp(),
+                    ),
         ) {
             // Left Navigation Sidebar
             tabs()
@@ -63,10 +63,15 @@ private fun setupFullscreenMode(activity: ComponentActivity) {
     // Hide system UI (status bar and navigation bar)
     WindowCompat.setDecorFitsSystemWindows(activity.window, false)
 
-    val windowInsetsController = WindowCompat.getInsetsController(activity.window, activity.window.decorView)
+    val windowInsetsController =
+        WindowCompat.getInsetsController(
+            activity.window,
+            activity.window.decorView,
+        )
     windowInsetsController.let { controller ->
         controller.hide(WindowInsetsCompat.Type.systemBars())
-        controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        controller.systemBarsBehavior =
+            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
     }
 
     // Keep screen on for vehicle use
