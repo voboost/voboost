@@ -12,7 +12,7 @@ import ru.voboost.R
 val InterFontFamily =
     FontFamily(
         Font(R.font.inter_regular, FontWeight.Normal),
-        Font(R.font.inter_semibold, FontWeight.SemiBold)
+        Font(R.font.inter_semibold, FontWeight.SemiBold),
     )
 
 // Set of Material typography styles to start with
@@ -24,7 +24,7 @@ val Typography =
                 fontWeight = FontWeight.Normal,
                 fontSize = 16.sp,
                 lineHeight = 24.sp,
-                letterSpacing = 0.5.sp
+                letterSpacing = 0.5.sp,
             ),
         titleLarge =
             TextStyle(
@@ -32,7 +32,7 @@ val Typography =
                 fontWeight = FontWeight.Normal,
                 fontSize = 22.sp,
                 lineHeight = 28.sp,
-                letterSpacing = 0.sp
+                letterSpacing = 0.sp,
             ),
         labelSmall =
             TextStyle(
@@ -40,6 +40,6 @@ val Typography =
                 fontWeight = FontWeight.Medium,
                 fontSize = 11.sp,
                 lineHeight = 16.sp,
-                letterSpacing = 0.5.sp
-            )
+                letterSpacing = 0.5.sp,
+            ),
     )

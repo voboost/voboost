@@ -35,5 +35,5 @@ internal val lightColors =
         ColorToken.RADIO_GROUP_SELECTED_GRADIENT_BOTTOM to ComposeColor(0xFF2681DD),
         ColorToken.RADIO_GROUP_SELECTED_BORDER_TOP to ComposeColor(0xFF8DC6FF),
         ColorToken.RADIO_GROUP_SELECTED_BORDER_SIDE to ComposeColor(0xFF519AE5),
-        ColorToken.RADIO_GROUP_SELECTED_BORDER_BOTTOM to ComposeColor(0xFF1875D2)
+        ColorToken.RADIO_GROUP_SELECTED_BORDER_BOTTOM to ComposeColor(0xFF1875D2),
     )

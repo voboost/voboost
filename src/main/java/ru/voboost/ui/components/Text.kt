@@ -20,7 +20,7 @@ enum class VoboostTextStyle {
     NORMAL,
     HEADING,
     CAPTION,
-    LABEL
+    LABEL,
 }
 
 /**
@@ -33,7 +33,7 @@ data class Text(
     val color: Color? = null,
     val fontSize: TextUnit? = null,
     val fontWeight: FontWeight? = null,
-    override val visibility: Flow<Boolean> = flowOf(true)
+    override val visibility: Flow<Boolean> = flowOf(true),
 ) : AbstractControl()
 
 /**
@@ -42,7 +42,7 @@ data class Text(
 @Composable
 fun textRenderer(
     element: Text,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val isVisible by element.visibility.collectAsState(initial = true)
 
@@ -52,7 +52,7 @@ fun textRenderer(
             modifier = modifier,
             color = element.color ?: Color.Unspecified,
             fontSize = element.fontSize ?: TextUnit.Unspecified,
-            fontWeight = element.fontWeight
+            fontWeight = element.fontWeight,
         )
     }
 }
@@ -67,7 +67,7 @@ fun text(
     color: Color = Color.Unspecified,
     fontSize: TextUnit = TextUnit.Unspecified,
     fontWeight: FontWeight? = null,
-    style: androidx.compose.ui.text.TextStyle? = null
+    style: androidx.compose.ui.text.TextStyle? = null,
 ) {
     android.util.Log.d("Text", "text() called with textKey: $textKey")
     val localizedText = i18n(textKey)
@@ -79,6 +79,6 @@ fun text(
         color = color,
         fontSize = fontSize,
         fontWeight = fontWeight,
-        style = style ?: androidx.compose.ui.text.TextStyle.Default
+        style = style ?: androidx.compose.ui.text.TextStyle.Default,
     )
 }

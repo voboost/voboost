@@ -16,7 +16,7 @@ enum class ButtonStyle {
     PRIMARY,
     SECONDARY,
     OUTLINE,
-    TEXT
+    TEXT,
 }
 
 /**
@@ -27,7 +27,7 @@ data class Button(
     val labelKey: String,
     val onClick: suspend () -> Unit,
     val style: ButtonStyle = ButtonStyle.PRIMARY,
-    override val visibility: Flow<Boolean> = flowOf(true)
+    override val visibility: Flow<Boolean> = flowOf(true),
 ) : AbstractControl()
 
 /**

@@ -1,20 +1,14 @@
 package ru.voboost.ui.components
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.Placeable
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -35,28 +29,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color as ComposeColor
-import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
-import ru.voboost.ui.theme.Color
-import ru.voboost.ui.theme.Dimensions
 import ru.voboost.ui.ConfigViewModel
+import ru.voboost.ui.theme.Dimensions
+import androidx.compose.ui.graphics.Color as ComposeColor
 
 /**
  * RadioGroup option data class
  */
 data class RadioGroupOption(
     val labelKey: String,
-    val value: String
+    val value: String,
 )
 
 /**
@@ -67,7 +56,7 @@ data class RadioGroup(
     val fieldPath: String?,
     val options: List<RadioGroupOption>,
     val defaultValue: String = "",
-    override val visibility: Flow<Boolean> = flowOf(true)
+    override val visibility: Flow<Boolean> = flowOf(true),
 ) : AbstractControl()
 
 /**
@@ -76,7 +65,7 @@ data class RadioGroup(
 @Composable
 fun radioGroupRenderer(
     element: RadioGroup,
-    configViewModel: ConfigViewModel
+    configViewModel: ConfigViewModel,
 ) {
     val isVisible by element.visibility.collectAsState(initial = true)
     val scope = rememberCoroutineScope()
@@ -85,35 +74,45 @@ fun radioGroupRenderer(
     // Handle both config-bound and standalone RadioGroups
     var standaloneValue by remember { mutableStateOf(element.defaultValue) }
 
-    val selectedValue = if (element.fieldPath != null) {
-        // Config-bound RadioGroup
-        val valueFlow: StateFlow<String?> = configViewModel.fieldFlow(element.fieldPath)
-        val selectedValueRaw by valueFlow.collectAsState()
-        selectedValueRaw ?: element.defaultValue
-    } else {
-        // Standalone RadioGroup - use local state
-        standaloneValue
-    }
+    val selectedValue =
+        if (element.fieldPath != null) {
+            // Config-bound RadioGroup
+            val valueFlow: StateFlow<String?> = configViewModel.fieldFlow(element.fieldPath)
+            val selectedValueRaw by valueFlow.collectAsState()
+            selectedValueRaw ?: element.defaultValue
+        } else {
+            // Standalone RadioGroup - use local state
+            standaloneValue
+        }
 
     // Get current language to trigger recomposition when language changes
-    val currentLanguage = if (configViewModel.isInitialized()) {
-        configViewModel.localeManager.currentLanguage.collectAsState().value
-    } else null
+    val currentLanguage =
+        if (configViewModel.isInitialized()) {
+            configViewModel.localeManager.currentLanguage.collectAsState().value
+        } else {
+            null
+        }
 
     // Check if ConfigViewModel is initialized to avoid theme flashing
     val isConfigInitialized = configViewModel.isInitialized()
 
     // Get current theme reactively to trigger recomposition on theme changes
-    val currentTheme = if (isConfigInitialized) {
-        val themeFlow = configViewModel.fieldFlow("settingsTheme")
-        val themeValue by themeFlow.collectAsState()
-        themeValue
-    } else null
+    val currentTheme =
+        if (isConfigInitialized) {
+            val themeFlow = configViewModel.fieldFlow("settingsTheme")
+            val themeValue by themeFlow.collectAsState()
+            themeValue
+        } else {
+            null
+        }
     val isDarkTheme = currentTheme == "dark"
 
     if (isVisible) {
         // Find selected index
-        val selectedIndex = element.options.indexOfFirst { it.value == selectedValue }.takeIf { it >= 0 } ?: 0
+        val selectedIndex =
+            element.options.indexOfFirst {
+                it.value == selectedValue
+            }.takeIf { it >= 0 } ?: 0
 
         // State to track item widths and positions - reset when language changes
         var itemWidths by remember(currentLanguage) { mutableStateOf(emptyList<Float>()) }
@@ -122,13 +121,19 @@ fun radioGroupRenderer(
         var previousSelectedValue by remember(currentLanguage) { mutableStateOf(selectedValue) }
 
         // Calculate target position and width for the background
-        val targetX = if (itemPositions.isNotEmpty() && selectedIndex < itemPositions.size) {
-            itemPositions[selectedIndex]
-        } else 0f
+        val targetX =
+            if (itemPositions.isNotEmpty() && selectedIndex < itemPositions.size) {
+                itemPositions[selectedIndex]
+            } else {
+                0f
+            }
 
-        val targetWidth = if (itemWidths.isNotEmpty() && selectedIndex < itemWidths.size) {
-            itemWidths[selectedIndex]
-        } else 0f
+        val targetWidth =
+            if (itemWidths.isNotEmpty() && selectedIndex < itemWidths.size) {
+                itemWidths[selectedIndex]
+            } else {
+                0f
+            }
 
         // Animation state for background position and width
         val animatedX = remember { Animatable(targetX) }
@@ -136,26 +141,32 @@ fun radioGroupRenderer(
 
         // Only animate when selection changes AND we've already rendered once
         LaunchedEffect(selectedValue) {
-            if (selectedValue != previousSelectedValue && hasEverAnimated && itemWidths.isNotEmpty() && itemPositions.isNotEmpty()) {
+            if (selectedValue != previousSelectedValue &&
+                hasEverAnimated &&
+                itemWidths.isNotEmpty() &&
+                itemPositions.isNotEmpty()
+            ) {
                 // Animate to new position (only on user selection change)
                 launch {
                     animatedX.animateTo(
                         targetValue = targetX,
-                        animationSpec = spring(
-                            dampingRatio = Dimensions.TAB_ANIMATION_DAMPING_RATIO,
-                            stiffness = Dimensions.TAB_ANIMATION_STIFFNESS,
-                            visibilityThreshold = Dimensions.TAB_ANIMATION_VISIBILITY_THRESHOLD
-                        )
+                        animationSpec =
+                            spring(
+                                dampingRatio = Dimensions.TAB_ANIMATION_DAMPING_RATIO,
+                                stiffness = Dimensions.TAB_ANIMATION_STIFFNESS,
+                                visibilityThreshold = Dimensions.TAB_ANIMATION_VISIBILITY_THRESHOLD,
+                            ),
                     )
                 }
                 launch {
                     animatedWidth.animateTo(
                         targetValue = targetWidth,
-                        animationSpec = spring(
-                            dampingRatio = Dimensions.TAB_ANIMATION_DAMPING_RATIO,
-                            stiffness = Dimensions.TAB_ANIMATION_STIFFNESS,
-                            visibilityThreshold = Dimensions.TAB_ANIMATION_VISIBILITY_THRESHOLD
-                        )
+                        animationSpec =
+                            spring(
+                                dampingRatio = Dimensions.TAB_ANIMATION_DAMPING_RATIO,
+                                stiffness = Dimensions.TAB_ANIMATION_STIFFNESS,
+                                visibilityThreshold = Dimensions.TAB_ANIMATION_VISIBILITY_THRESHOLD,
+                            ),
                     )
                 }
             }
@@ -182,46 +193,56 @@ fun radioGroupRenderer(
         key(currentLanguage) {
             // Box container for proper layering
             Box(
-                modifier = Modifier
-                    .wrapContentWidth()
-                    .height(Dimensions.RADIO_GROUP_HEIGHT)
+                modifier =
+                    Modifier
+                        .wrapContentWidth()
+                        .height(Dimensions.RADIO_GROUP_HEIGHT),
             ) {
                 // Background layer - bottom (matches content width exactly)
                 Box(
-                    modifier = Modifier
-                        .wrapContentWidth()
-                        .fillMaxHeight()
-                        .clip(RoundedCornerShape(Dimensions.RADIO_GROUP_CORNER_RADIUS))
-                        .background(
-                            // Always use direct colors to avoid theme flashing
-                            if (isDarkTheme) {
-                                ComposeColor(0xFF373F4A) // Dark theme background
-                            } else {
-                                ComposeColor(0xFFFFFFFF) // Light theme background
-                            }
-                        )
+                    modifier =
+                        Modifier
+                            .wrapContentWidth()
+                            .fillMaxHeight()
+                            .clip(RoundedCornerShape(Dimensions.RADIO_GROUP_CORNER_RADIUS))
+                            .background(
+                                // Always use direct colors to avoid theme flashing
+                                if (isDarkTheme) {
+                                    ComposeColor(0xFF373F4A) // Dark theme background
+                                } else {
+                                    ComposeColor(0xFFFFFFFF) // Light theme background
+                                },
+                            ),
                 ) {
                     // Invisible Row that matches the text structure to define background size
                     Row(
-                        modifier = Modifier
-                            .wrapContentWidth()
-                            .fillMaxHeight()
+                        modifier =
+                            Modifier
+                                .wrapContentWidth()
+                                .fillMaxHeight(),
                     ) {
                         element.options.forEachIndexed { _, option ->
                             Box(
-                                modifier = Modifier
-                                    .wrapContentWidth()
-                                    .widthIn(min = Dimensions.RADIO_GROUP_ITEM_MIN_WIDTH)
-                                    .fillMaxHeight()
-                                    .padding(horizontal = Dimensions.RADIO_GROUP_ITEM_PADDING_HORIZONTAL),
-                                contentAlignment = Alignment.Center
+                                modifier =
+                                    Modifier
+                                        .wrapContentWidth()
+                                        .widthIn(min = Dimensions.RADIO_GROUP_ITEM_MIN_WIDTH)
+                                        .fillMaxHeight()
+                                        .padding(
+                                            horizontal =
+                                                Dimensions.RADIO_GROUP_ITEM_PADDING_HORIZONTAL,
+                                        ),
+                                contentAlignment = Alignment.Center,
                             ) {
                                 // Invisible text to measure size
                                 text(
                                     textKey = option.labelKey,
                                     color = ComposeColor.Transparent,
-                                    fontSize = with(density) { Dimensions.RADIO_GROUP_TEXT_SIZE.toSp() },
-                                    fontWeight = FontWeight.Normal
+                                    fontSize =
+                                        with(
+                                            density,
+                                        ) { Dimensions.RADIO_GROUP_TEXT_SIZE.toSp() },
+                                    fontWeight = FontWeight.Normal,
                                 )
                             }
                         }
@@ -231,30 +252,56 @@ fun radioGroupRenderer(
                 // Selection background - always use animated values (they're initialized correctly)
                 if (targetWidth > 0) {
                     Box(
-                        modifier = Modifier
-                            .width(with(density) { animatedWidth.value.toDp() })
-                            .fillMaxHeight()
-                            .offset(x = with(density) { animatedX.value.toDp() })
-                            .background(
-                                brush = Brush.verticalGradient(
-                                    colors = listOf(
-                                        ComposeColor(0xFF55A2EF), // Same gradient for both themes
-                                        ComposeColor(0xFF2681DD)  // Same gradient for both themes
-                                    )
+                        modifier =
+                            Modifier
+                                .width(with(density) { animatedWidth.value.toDp() })
+                                .fillMaxHeight()
+                                .offset(x = with(density) { animatedX.value.toDp() })
+                                .background(
+                                    brush =
+                                        Brush.verticalGradient(
+                                            colors =
+                                                listOf(
+                                                    // Same gradient for both themes
+                                                    ComposeColor(
+                                                        0xFF55A2EF,
+                                                    ),
+                                                    // Same gradient for both themes
+                                                    ComposeColor(
+                                                        0xFF2681DD,
+                                                    ),
+                                                ),
+                                        ),
+                                    shape =
+                                        RoundedCornerShape(
+                                            Dimensions.RADIO_GROUP_CORNER_RADIUS,
+                                        ),
+                                )
+                                .border(
+                                    width = Dimensions.RADIO_GROUP_BORDER_WIDTH,
+                                    brush =
+                                        Brush.verticalGradient(
+                                            colors =
+                                                listOf(
+                                                    // Same border for both themes
+                                                    ComposeColor(
+                                                        0xFF8DC6FF,
+                                                    ),
+                                                    // Same border for both themes
+                                                    ComposeColor(
+                                                        0xFF519AE5,
+                                                    ),
+                                                    // Same border for both themes
+                                                    ComposeColor(
+                                                        0xFF1875D2,
+                                                    ),
+                                                ),
+                                        ),
+                                    shape =
+                                        RoundedCornerShape(
+                                            Dimensions.RADIO_GROUP_CORNER_RADIUS,
+                                        ),
                                 ),
-                                shape = RoundedCornerShape(Dimensions.RADIO_GROUP_CORNER_RADIUS)
-                            )
-                            .border(
-                                width = Dimensions.RADIO_GROUP_BORDER_WIDTH,
-                                brush = Brush.verticalGradient(
-                                    colors = listOf(
-                                        ComposeColor(0xFF8DC6FF), // Same border for both themes
-                                        ComposeColor(0xFF519AE5), // Same border for both themes
-                                        ComposeColor(0xFF1875D2)  // Same border for both themes
-                                    )
-                                ),
-                                shape = RoundedCornerShape(Dimensions.RADIO_GROUP_CORNER_RADIUS)
-                            )
                     )
                 }
 
@@ -266,52 +313,77 @@ fun radioGroupRenderer(
                             val isSelected = option.value == selectedValue
 
                             Box(
-                                modifier = Modifier
-                                    .wrapContentWidth()
-                                    .widthIn(min = Dimensions.RADIO_GROUP_ITEM_MIN_WIDTH)
-                                    .fillMaxHeight()
-                                    .padding(horizontal = Dimensions.RADIO_GROUP_ITEM_PADDING_HORIZONTAL)
-                                    .clickable(
-                                        interactionSource = remember { MutableInteractionSource() },
-                                        indication = null
-                                    ) {
-                                        if (element.fieldPath != null) {
-                                            // Config-bound RadioGroup - update configuration
-                                            scope.launch {
-                                                configViewModel.updateField(element.fieldPath, option.value)
+                                modifier =
+                                    Modifier
+                                        .wrapContentWidth()
+                                        .widthIn(min = Dimensions.RADIO_GROUP_ITEM_MIN_WIDTH)
+                                        .fillMaxHeight()
+                                        .padding(
+                                            horizontal =
+                                                Dimensions.RADIO_GROUP_ITEM_PADDING_HORIZONTAL,
+                                        )
+                                        .clickable(
+                                            interactionSource =
+                                                remember {
+                                                    MutableInteractionSource()
+                                                },
+                                            indication = null,
+                                        ) {
+                                            if (element.fieldPath != null) {
+                                                // Config-bound RadioGroup - update configuration
+                                                scope.launch {
+                                                    configViewModel.updateField(
+                                                        element.fieldPath,
+                                                        option.value,
+                                                    )
+                                                }
+                                            } else {
+                                                // Standalone RadioGroup - update local state
+                                                standaloneValue = option.value
                                             }
-                                        } else {
-                                            // Standalone RadioGroup - update local state
-                                            standaloneValue = option.value
-                                        }
-                                    },
-                                contentAlignment = Alignment.Center
+                                        },
+                                contentAlignment = Alignment.Center,
                             ) {
                                 text(
                                     textKey = option.labelKey,
-                                    color = if (isSelected) {
-                                        ComposeColor(0xFFFFFFFF) // Same selected text for both themes
-                                    } else {
-                                        if (isDarkTheme) {
-                                            ComposeColor(0xFFCACACA) // Dark theme unselected text
+                                    color =
+                                        if (isSelected) {
+                                            // Same selected text for both themes
+                                            ComposeColor(
+                                                0xFFFFFFFF,
+                                            )
                                         } else {
-                                            ComposeColor(0xFF2D3442) // Light theme unselected text
-                                        }
-                                    },
-                                    fontSize = with(density) { Dimensions.RADIO_GROUP_TEXT_SIZE.toSp() },
-                                    fontWeight = FontWeight.Normal
+                                            if (isDarkTheme) {
+                                                // Dark theme unselected text
+                                                ComposeColor(
+                                                    0xFFCACACA,
+                                                )
+                                            } else {
+                                                // Light theme unselected text
+                                                ComposeColor(
+                                                    0xFF2D3442,
+                                                )
+                                            }
+                                        },
+                                    fontSize =
+                                        with(
+                                            density,
+                                        ) { Dimensions.RADIO_GROUP_TEXT_SIZE.toSp() },
+                                    fontWeight = FontWeight.Normal,
                                 )
                             }
                         }
                     },
-                    modifier = Modifier
-                        .wrapContentWidth()
-                        .fillMaxHeight()
+                    modifier =
+                        Modifier
+                            .wrapContentWidth()
+                            .fillMaxHeight(),
                 ) { measurables, constraints ->
                     // Measure all children
-                    val placeables = measurables.map { measurable ->
-                        measurable.measure(constraints.copy(minWidth = 0))
-                    }
+                    val placeables =
+                        measurables.map { measurable ->
+                            measurable.measure(constraints.copy(minWidth = 0))
+                        }
 
                     // Calculate total width and individual positions
                     val totalWidth = placeables.sumOf { it.width }

@@ -16,13 +16,13 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import ru.voboost.config.models.Tab
+import ru.voboost.ui.ConfigViewModel
 import ru.voboost.ui.i18n
 import ru.voboost.ui.panels.createApplicationsPanel
 import ru.voboost.ui.panels.createInterfacePanel
 import ru.voboost.ui.panels.createSettingsPanel
 import ru.voboost.ui.panels.createStorePanel
 import ru.voboost.ui.panels.createVehiclePanel
-import ru.voboost.ui.ConfigViewModel
 
 /**
  * Panel represents a complete configuration screen
@@ -31,7 +31,7 @@ data class Panel(
     override val id: String,
     val titleKey: String,
     val sections: List<Section>,
-    override val visibility: Flow<Boolean> = flowOf(true)
+    override val visibility: Flow<Boolean> = flowOf(true),
 ) : AbstractControl()
 
 /**
@@ -40,7 +40,7 @@ data class Panel(
 @Composable
 fun panelRenderer(
     panel: Panel,
-    configViewModel: ConfigViewModel
+    configViewModel: ConfigViewModel,
 ) {
     val isVisible by panel.visibility.collectAsState(initial = true)
 
@@ -50,12 +50,12 @@ fun panelRenderer(
                 Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
-                    .padding(16.dp)
+                    .padding(16.dp),
         ) {
             Text(
                 text = i18n(panel.titleKey),
                 style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(bottom = 16.dp)
+                modifier = Modifier.padding(bottom = 16.dp),
             )
 
             panel.sections.forEach { section ->
@@ -79,7 +79,7 @@ class PanelBuilder(private val id: String, private val titleKey: String) {
     fun section(
         id: String,
         titleKey: String,
-        block: Section.() -> Unit
+        block: Section.() -> Unit,
     ) {
         val section = Section(id, titleKey)
         section.block()
@@ -97,7 +97,7 @@ class PanelBuilder(private val id: String, private val titleKey: String) {
 fun panel(
     id: String,
     title: String,
-    block: PanelBuilder.() -> Unit
+    block: PanelBuilder.() -> Unit,
 ): Panel {
     val builder = PanelBuilder(id, title)
     builder.block()
@@ -110,7 +110,7 @@ fun panel(
 fun panel(
     tab: Tab,
     title: String,
-    block: PanelBuilder.() -> Unit
+    block: PanelBuilder.() -> Unit,
 ): Panel {
     val builder = PanelBuilder(tab.name, title)
     builder.block()
@@ -133,7 +133,7 @@ fun panel() {
                 Tab.applications to createApplicationsPanel(configViewModel),
                 Tab.`interface` to createInterfacePanel(configViewModel),
                 Tab.vehicle to createVehiclePanel(configViewModel),
-                Tab.settings to createSettingsPanel(configViewModel)
+                Tab.settings to createSettingsPanel(configViewModel),
             )
         }
 
