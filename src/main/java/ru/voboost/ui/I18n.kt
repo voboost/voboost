@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import ru.voboost.config.models.Language
+import ru.voboost.components.i18n.Language
 import java.util.Locale
 
 /**
@@ -37,7 +37,7 @@ class LocaleManager(
 
     init {
         val initialConfig = configViewModel.config.value
-        val initialLang = initialConfig?.settingsLanguage ?: Language.en
+        val initialLang = initialConfig?.settingsLanguage ?: Language.EN
         _currentLanguage = MutableStateFlow(initialLang)
         currentLanguage = _currentLanguage.asStateFlow()
 
@@ -95,6 +95,47 @@ class LocaleManager(
         }
     }
 
+    /**
+     * Get localized string for a specific language
+     * Used by Radio adapter to build label maps for all languages
+     *
+     * @param key String resource key
+     * @param language Target language
+     * @param args Optional formatting arguments
+     * @return Localized string for the specified language
+     */
+    fun get(key: String, language: Language, vararg args: Any): String {
+        Log.d("LocaleManager", "get called for key: $key, language: $language")
+
+        val resId = getResourceIdFromString(key)
+
+        // If resource ID is 0, the resource was not found - return the key as fallback
+        if (resId == 0) {
+            Log.d("LocaleManager", "Resource not found for key: $key, returning key as fallback")
+            return key
+        }
+
+        return try {
+            val resources = getLocalizedResources(language)
+            val result = resources.getString(resId, *args)
+            Log.d("LocaleManager", "get result for key: $key, language: $language, result: $result")
+            result
+        } catch (e: Exception) {
+            Log.e("LocaleManager", "Error getting string for key: $key, language: $language", e)
+            key
+        }
+    }
+
+    /**
+     * Get localized string for a specific language using library Language enum
+     * Used by Radio adapter to build label maps for all languages
+     *
+     * @param key String resource key
+     * @param language Target language (from voboost-components)
+     * @param args Optional formatting arguments
+     * @return Localized string for the specified language
+     */
+
     private fun getLocalizedResources(language: Language): Resources {
         // Return cached resources if language hasn't changed
         if (cachedLanguage == language && cachedResources != null) {
@@ -107,12 +148,12 @@ class LocaleManager(
         // Create new localized resources
         val resources =
             when (language) {
-                Language.ru -> {
+                Language.RU -> {
                     val config = Configuration(context.resources.configuration)
                     config.setLocale(Locale("ru"))
                     context.createConfigurationContext(config).resources
                 }
-                Language.en -> {
+                Language.EN -> {
                     val config = Configuration(context.resources.configuration)
                     config.setLocale(Locale.ENGLISH)
                     context.createConfigurationContext(config).resources

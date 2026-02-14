@@ -1,54 +1,56 @@
 package ru.voboost.ui.panels
 
-import ru.voboost.config.models.Language
 import ru.voboost.config.models.Tab
-import ru.voboost.config.models.Theme
 import ru.voboost.ui.ConfigViewModel
 import ru.voboost.ui.components.Panel
-import ru.voboost.ui.components.RadioGroupOption
+import ru.voboost.ui.components.RadioButton
 import ru.voboost.ui.components.panel
+import ru.voboost.components.theme.Theme      // From library
+import ru.voboost.components.i18n.Language    // From library
 
 fun createSettingsPanel(
     @Suppress("UNUSED_PARAMETER") configViewModel: ConfigViewModel,
 ): Panel {
     return panel(Tab.settings, "tab_settings") {
         section("language_section", "language_label") {
-            radioGroup(
+            radio(
                 id = "language",
                 fieldPath = "settingsLanguage",
                 options =
                     Language.values().map {
-                        RadioGroupOption(
-                            "language_${it.name}",
-                            it.name,
+                        RadioButton(
+                            "language_${it.name.lowercase()}",
+                            it.getCode(),
                         )
                     },
-                defaultValue = Language.en.name,
+                defaultValue = Language.EN.getCode(),
             )
         }
 
         section("appearance", "interface_appearance") {
-            radioGroup(
+            radio(
                 id = "theme",
                 fieldPath = "settingsTheme",
                 options =
                     listOf(
-                        RadioGroupOption("theme_light", Theme.light.name),
-                        RadioGroupOption("theme_dark", Theme.dark.name),
+                        RadioButton("theme_free_light", Theme.FREE_LIGHT.getValue()),
+                        RadioButton("theme_free_dark", Theme.FREE_DARK.getValue()),
+                        RadioButton("theme_dreamer_light", Theme.DREAMER_LIGHT.getValue()),
+                        RadioButton("theme_dreamer_dark", Theme.DREAMER_DARK.getValue()),
                     ),
-                defaultValue = Theme.light.name,
+                defaultValue = Theme.FREE_LIGHT.getValue(),
             )
         }
 
         section("test-radio-group", "TEST") {
-            radioGroup(
-                id = "test-radio-group",
+            radio(
+                id = "test-radio",
                 options =
                     listOf(
-                        RadioGroupOption("test-radio-group-close", "close"),
-                        RadioGroupOption("test-radio-group-normal", "normal"),
-                        RadioGroupOption("test-radio-group-sync-with-music", "sync-with-music"),
-                        RadioGroupOption("test-radio-group-sync-with-driving", "sync-with-driving"),
+                        RadioButton("test-radio-close", "close"),
+                        RadioButton("test-radio-normal", "normal"),
+                        RadioButton("test-radio-sync-with-music", "sync-with-music"),
+                        RadioButton("test-radio-sync-with-driving", "sync-with-driving"),
                     ),
                 defaultValue = "normal",
             )

@@ -68,6 +68,9 @@ dependencies {
     // Main dependency on the voboost-config library
     implementation(project(":voboost-config"))
 
+    // Add dependency on voboost-components library
+    implementation(project(":voboost-components"))
+
     // Android Core
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
