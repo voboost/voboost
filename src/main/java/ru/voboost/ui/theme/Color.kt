@@ -4,7 +4,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import ru.voboost.config.models.Theme
+import ru.voboost.components.theme.Theme  // From library
 import androidx.compose.ui.graphics.Color as ComposeColor
 
 /**
@@ -49,33 +49,6 @@ object Color {
     val CONFIG_CHANGED_TEXT @Composable get() = getColor(ColorToken.CONFIG_CHANGED_TEXT)
     val CONFIG_NORMAL_TEXT @Composable get() = getColor(ColorToken.CONFIG_NORMAL_TEXT)
 
-    // RadioGroup colors
-    val RADIO_GROUP_BACKGROUND @Composable get() = getColor(ColorToken.RADIO_GROUP_BACKGROUND)
-    val RADIO_GROUP_SELECTED_TEXT @Composable get() = getColor(ColorToken.RADIO_GROUP_SELECTED_TEXT)
-    val RADIO_GROUP_UNSELECTED_TEXT @Composable get() =
-        getColor(
-            ColorToken.RADIO_GROUP_UNSELECTED_TEXT,
-        )
-    val RADIO_GROUP_SELECTED_GRADIENT_TOP @Composable get() =
-        getColor(
-            ColorToken.RADIO_GROUP_SELECTED_GRADIENT_TOP,
-        )
-    val RADIO_GROUP_SELECTED_GRADIENT_BOTTOM @Composable get() =
-        getColor(
-            ColorToken.RADIO_GROUP_SELECTED_GRADIENT_BOTTOM,
-        )
-    val RADIO_GROUP_SELECTED_BORDER_TOP @Composable get() =
-        getColor(
-            ColorToken.RADIO_GROUP_SELECTED_BORDER_TOP,
-        )
-    val RADIO_GROUP_SELECTED_BORDER_SIDE @Composable get() =
-        getColor(
-            ColorToken.RADIO_GROUP_SELECTED_BORDER_SIDE,
-        )
-    val RADIO_GROUP_SELECTED_BORDER_BOTTOM @Composable get() =
-        getColor(
-            ColorToken.RADIO_GROUP_SELECTED_BORDER_BOTTOM,
-        )
 
     @Composable
     private fun getColor(token: ColorToken): ComposeColor {
@@ -99,17 +72,12 @@ object Color {
             val currentTheme by configViewModel.fieldFlow("settingsTheme").collectAsState()
             val theme =
                 currentTheme?.let {
-                    try {
-                        Theme.valueOf(it)
-                    } catch (e: IllegalArgumentException) {
-                        Theme.light
-                    }
-                } ?: Theme.light
+                    Theme.fromValue(it)
+                } ?: Theme.FREE_LIGHT
 
             when (theme) {
-                Theme.light -> false
-                Theme.dark -> true
-                else -> systemDarkTheme // fallback for any other values
+                Theme.FREE_LIGHT, Theme.DREAMER_LIGHT -> false
+                Theme.FREE_DARK, Theme.DREAMER_DARK -> true
             }
         } else {
             // If ConfigViewModel is not available, fall back to system theme
@@ -138,12 +106,4 @@ internal enum class ColorToken {
     TAB_SELECTED_BACKGROUND,
     CONFIG_CHANGED_TEXT,
     CONFIG_NORMAL_TEXT,
-    RADIO_GROUP_BACKGROUND,
-    RADIO_GROUP_SELECTED_TEXT,
-    RADIO_GROUP_UNSELECTED_TEXT,
-    RADIO_GROUP_SELECTED_GRADIENT_TOP,
-    RADIO_GROUP_SELECTED_GRADIENT_BOTTOM,
-    RADIO_GROUP_SELECTED_BORDER_TOP,
-    RADIO_GROUP_SELECTED_BORDER_SIDE,
-    RADIO_GROUP_SELECTED_BORDER_BOTTOM,
 }

@@ -14,9 +14,9 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import ru.voboost.config.ConfigManager
 import ru.voboost.config.models.Config
-import ru.voboost.config.models.Language
 import ru.voboost.config.models.Tab
-import ru.voboost.config.models.Theme
+import ru.voboost.components.i18n.Language
+import ru.voboost.components.theme.Theme
 
 class ConfigViewModel : ViewModel() {
     private val _config = MutableStateFlow<Config?>(null)

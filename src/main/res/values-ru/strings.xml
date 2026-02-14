@@ -24,6 +24,12 @@
     <string name="theme_dark">Тёмная</string>
     <string name="theme_light">Светлая</string>
 
+    <!-- Theme options -->
+    <string name="theme_free_light">Free Светлая</string>
+    <string name="theme_free_dark">Free Тёмная</string>
+    <string name="theme_dreamer_light">Dreamer Светлая</string>
+    <string name="theme_dreamer_dark">Dreamer Тёмная</string>
+
     <!-- Vehicle settings -->
     <string name="vehicle_fuel_mode">Управление топливом</string>
     <string name="vehicle_drive_mode">Поведение вождения</string>

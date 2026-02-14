@@ -24,6 +24,12 @@
     <string name="theme_dark">Dark</string>
     <string name="theme_light">Light</string>
 
+    <!-- Theme options -->
+    <string name="theme_free_light">Free Light</string>
+    <string name="theme_free_dark">Free Dark</string>
+    <string name="theme_dreamer_light">Dreamer Light</string>
+    <string name="theme_dreamer_dark">Dreamer Dark</string>
+
     <!-- Vehicle settings -->
     <string name="vehicle_fuel_mode">Fuel Management</string>
     <string name="vehicle_drive_mode">Driving Behavior</string>
