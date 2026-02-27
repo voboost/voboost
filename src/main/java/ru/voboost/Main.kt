@@ -28,12 +28,12 @@ class Main(
      */
     fun start(): Result<Unit> {
         return try {
+            Logger.init(paths.logDirectory, level = "info")
             configManager = ConfigManager(context)
             val configResult = configManager.loadConfig()
 
             configResult.fold(
                 onSuccess = { config ->
-                    Logger.init(paths.logDirectory, level = "info")
 
                     Logger.info(LOG, "Starting Voboost")
                     vehicleManager.getVehicleModel().fold(
@@ -42,10 +42,17 @@ class Main(
                                 onSuccess = { year ->
                                     Logger.info(LOG, "Vehicle: $model ($year)")
                                 },
-                                onFailure = { },
+                                onFailure = { error ->
+                                    Logger.debug(
+                                        LOG,
+                                        "Could not get vehicle year: ${error.message}",
+                                    )
+                                },
                             )
                         },
-                        onFailure = { },
+                        onFailure = { error ->
+                            Logger.debug(LOG, "Could not get vehicle model: ${error.message}")
+                        },
                     )
                     Logger.info(LOG, "Config: ${paths.configFile}")
 

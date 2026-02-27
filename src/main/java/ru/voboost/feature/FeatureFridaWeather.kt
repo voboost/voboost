@@ -18,8 +18,8 @@ import ru.voboost.Logger
  * - **Config Key**: `interfaceWidgetWeather`
  *
  * ## Activation Conditions
- * The feature is enabled when:
- * 1. Configuration value is set to "enable-non-chineese-cities"
+ *  The feature is enabled when:
+ * 1. Configuration value is set to "enable-non-chinese-cities"
  * 2. The feature is supported by the vehicle
  *
  * ## Script Parameters
@@ -33,7 +33,7 @@ class FeatureFridaWeather : FeatureFrida() {
     companion object {
         private const val TAG = "FeatureFridaWeather"
         private const val FEATURE_ID = "interface-widget-weather"
-        private const val CONFIG_VALUE_ENABLE = "enable-non-chineese-cities"
+        private const val CONFIG_VALUE_ENABLE = "enable-non-chinese-cities"
     }
 
     /**
@@ -51,7 +51,7 @@ class FeatureFridaWeather : FeatureFrida() {
      * Checks if the weather widget feature should be enabled.
      *
      * The feature is enabled when:
-     * 1. Configuration value matches "enable-non-chineese-cities"
+     * 1. Configuration value matches "enable-non-chinese-cities"
      * 2. The feature is supported by the vehicle
      * 3. Target process is available (checked by parent class)
      *

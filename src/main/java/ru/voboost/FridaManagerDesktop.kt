@@ -10,6 +10,7 @@ import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Desktop-specific Frida injection using frida CLI.
@@ -21,7 +22,7 @@ class FridaManagerDesktop : FridaManager {
     }
 
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-    private val injections = mutableMapOf<String, InternalInjectionInfo>()
+    private val injections = ConcurrentHashMap<String, InternalInjectionInfo>()
 
     private data class InternalInjectionInfo(
         val targetProcess: String,
@@ -173,10 +174,14 @@ class FridaManagerDesktop : FridaManager {
     }
 
     private suspend fun captureOutput(stream: java.io.InputStream) {
-        BufferedReader(InputStreamReader(stream)).use { reader ->
-            reader.lineSequence().forEach { line ->
-                Logger.raw(line)
+        try {
+            BufferedReader(InputStreamReader(stream)).use { reader ->
+                reader.lineSequence().forEach { line ->
+                    Logger.raw(line)
+                }
             }
+        } catch (e: Exception) {
+            Logger.error(LOG, "Error capturing output: ${e.message}")
         }
     }
 }
