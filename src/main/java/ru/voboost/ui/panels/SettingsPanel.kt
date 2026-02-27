@@ -1,16 +1,16 @@
 package ru.voboost.ui.panels
 
+import ru.voboost.components.i18n.Language // From library
+import ru.voboost.components.theme.Theme // From library
 import ru.voboost.config.models.Tab
-import ru.voboost.ui.ConfigViewModel
-import ru.voboost.ui.components.Panel
+import ru.voboost.ui.ConfigState
+import ru.voboost.ui.components.PanelDefinition
 import ru.voboost.ui.components.RadioButton
 import ru.voboost.ui.components.panel
-import ru.voboost.components.theme.Theme      // From library
-import ru.voboost.components.i18n.Language    // From library
 
 fun createSettingsPanel(
-    @Suppress("UNUSED_PARAMETER") configViewModel: ConfigViewModel,
-): Panel {
+    @Suppress("UNUSED_PARAMETER") configState: ConfigState,
+): PanelDefinition {
     return panel(Tab.settings, "tab_settings") {
         section("language_section", "language_label") {
             radio(
@@ -38,7 +38,7 @@ fun createSettingsPanel(
                         RadioButton("theme_dreamer_light", Theme.DREAMER_LIGHT.getValue()),
                         RadioButton("theme_dreamer_dark", Theme.DREAMER_DARK.getValue()),
                     ),
-                defaultValue = Theme.FREE_LIGHT.getValue(),
+                defaultValue = Theme.FREE_DARK.getValue(),
             )
         }
 
