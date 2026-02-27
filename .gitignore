@@ -1,3 +1,13 @@
 .vscode/
 .gradle/
 build/
+
+
+# Temporary removal
+REMOVEME/
+
+# Temporary planning files
+plans/
+desktop-testing-improvements.md
+config.yaml
+

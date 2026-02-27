@@ -39,6 +39,7 @@
     <string name="fuel_mode_electric">Электро</string>
     <string name="fuel_mode_fuel">Топливо</string>
     <string name="fuel_mode_save">Экономия</string>
+    <string name="fuel_mode_electric_forced">Принудительный ЭВ</string>
 
     <!-- Drive mode options -->
     <string name="drive_mode_eco">Эко</string>
