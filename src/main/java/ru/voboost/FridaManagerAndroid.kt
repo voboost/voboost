@@ -22,10 +22,9 @@ class FridaManagerAndroid(private val paths: Paths) : FridaManager {
     }
 
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-    private val injections = ConcurrentHashMap<String, InjectionInfo>()
-    private val processes = ConcurrentHashMap<String, Process>()
+    private val injections = ConcurrentHashMap<String, ActiveInjection>()
 
-    private data class InjectionInfo(
+    private data class ActiveInjection(
         val id: String,
         val targetProcess: String,
         val scriptPath: String,
@@ -57,7 +56,6 @@ class FridaManagerAndroid(private val paths: Paths) : FridaManager {
             Logger.info(LOG, "Injecting script: $scriptPath -> $targetProcess")
 
             val process = Runtime.getRuntime().exec(command.toTypedArray())
-            processes[id] = process
 
             val job =
                 scope.launch {
@@ -66,13 +64,12 @@ class FridaManagerAndroid(private val paths: Paths) : FridaManager {
                     launch {
                         val exitCode = process.waitFor()
                         injections.remove(id)
-                        processes.remove(id)
                         Logger.info(LOG, "Process exited: $scriptPath (code: $exitCode)")
                     }
                 }
 
             val info =
-                InjectionInfo(
+                ActiveInjection(
                     id = id,
                     targetProcess = targetProcess,
                     scriptPath = scriptPath,
@@ -95,7 +92,6 @@ class FridaManagerAndroid(private val paths: Paths) : FridaManager {
             if (info != null) {
                 info.process.destroy()
                 info.job.cancel()
-                processes.remove(injectionId)
                 Logger.info(LOG, "Stopped injection: $injectionId")
                 Result.success(Unit)
             } else {
@@ -146,7 +142,6 @@ class FridaManagerAndroid(private val paths: Paths) : FridaManager {
                 info.job.cancel()
             }
             injections.clear()
-            processes.clear()
             scope.cancel()
             Logger.info(LOG, "Shutdown complete")
             Result.success(Unit)
