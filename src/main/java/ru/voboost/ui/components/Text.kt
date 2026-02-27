@@ -1,17 +1,15 @@
 package ru.voboost.ui.components
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.TextUnit
+import android.content.Context
+import android.view.View
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
+import ru.voboost.components.i18n.Language
+import ru.voboost.components.text.TextRole
+import ru.voboost.ui.ConfigState
 import ru.voboost.ui.i18n
-import androidx.compose.material3.Text as MaterialText
+import ru.voboost.components.text.Text as LibraryText
 
 /**
  * Text display styles
@@ -30,55 +28,58 @@ data class Text(
     override val id: String,
     val textKey: String,
     val style: VoboostTextStyle = VoboostTextStyle.NORMAL,
-    val color: Color? = null,
-    val fontSize: TextUnit? = null,
-    val fontWeight: FontWeight? = null,
     override val visibility: Flow<Boolean> = flowOf(true),
 ) : AbstractControl()
 
 /**
- * Text renderer
+ * Creates a native Text view.
+ *
+ * @param context Android context
+ * @param element Text data model
+ * @param configState Application config state
+ * @return TextView displaying the localized text
  */
-@Composable
-fun textRenderer(
+fun createTextView(
+    context: Context,
     element: Text,
-    modifier: Modifier = Modifier,
-) {
-    val isVisible by element.visibility.collectAsState(initial = true)
+    configState: ConfigState,
+): View {
+    return LibraryText(context).apply {
+        role = when (element.style) {
+            VoboostTextStyle.HEADING -> TextRole.TITLE
+            else -> TextRole.CONTROL
+        }
 
-    if (isVisible) {
-        MaterialText(
-            text = i18n(element.textKey),
-            modifier = modifier,
-            color = element.color ?: Color.Unspecified,
-            fontSize = element.fontSize ?: TextUnit.Unspecified,
-            fontWeight = element.fontWeight,
-        )
+        val titleMap = buildLocalizedMap(element.textKey, configState)
+        setText(titleMap)
+        
+        if (configState.isInitialized()) {
+            setTheme(configState.currentTheme)
+            setLanguage(configState.currentLanguage)
+        }
+
+        // Subscribe to language changes for reactive updates
+        configState.scope.launch {
+            configState.languageFlow.collect { lang ->
+                setLanguage(lang)
+            }
+        }
+        
+        configState.scope.launch {
+            configState.themeFlow.collect { thm ->
+                setTheme(thm)
+            }
+        }
     }
 }
 
-/**
- * Simple localized text component
- */
-@Composable
-fun text(
-    textKey: String,
-    modifier: Modifier = Modifier,
-    color: Color = Color.Unspecified,
-    fontSize: TextUnit = TextUnit.Unspecified,
-    fontWeight: FontWeight? = null,
-    style: androidx.compose.ui.text.TextStyle? = null,
-) {
-    android.util.Log.d("Text", "text() called with textKey: $textKey")
-    val localizedText = i18n(textKey)
-    android.util.Log.d("Text", "i18n() returned: $localizedText for key: $textKey")
-
-    MaterialText(
-        text = localizedText,
-        modifier = modifier,
-        color = color,
-        fontSize = fontSize,
-        fontWeight = fontWeight,
-        style = style ?: androidx.compose.ui.text.TextStyle.Default,
+private fun buildLocalizedMap(textKey: String, configState: ConfigState): Map<Language, String> {
+    if (!configState.isInitialized()) {
+        return mapOf(Language.EN to textKey)
+    }
+    val localeManager = configState.localeManager
+    return mapOf(
+        Language.EN to localeManager.get(textKey, Language.EN),
+        Language.RU to localeManager.get(textKey, Language.RU),
     )
 }
