@@ -39,6 +39,7 @@
     <string name="fuel_mode_electric">Electric</string>
     <string name="fuel_mode_fuel">Fuel</string>
     <string name="fuel_mode_save">Save</string>
+    <string name="fuel_mode_electric_forced">Forced EV</string>
 
     <!-- Drive mode options -->
     <string name="drive_mode_eco">Eco</string>
