@@ -1,21 +1,16 @@
 package ru.voboost.ui.components
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import android.content.Context
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
-import ru.voboost.components.radio.Radio as LibraryRadio
-import ru.voboost.components.radio.RadioButton as LibraryRadioButton
 import ru.voboost.components.i18n.Language
 import ru.voboost.components.theme.Theme
-import ru.voboost.ui.ConfigViewModel
+import ru.voboost.ui.ConfigState
+import ru.voboost.ui.resolveLanguage
+import ru.voboost.ui.resolveTheme
+import ru.voboost.components.radio.Radio as LibraryRadio
+import ru.voboost.components.radio.RadioButton as LibraryRadioButton
 
 /**
  * Radio button option data class
@@ -38,95 +33,94 @@ data class Radio(
 ) : AbstractControl()
 
 /**
- * Radio renderer using voboost-components Radio
+ * Creates a native Radio view using the voboost-components library Radio.
  *
- * This adapter:
- * 1. Converts RadioButton to library RadioButton with resolved i18n labels
- * 2. Uses Theme enum directly from voboost-components
- * 3. Uses Language enum directly from voboost-components
- * 4. Maintains ConfigViewModel integration for config-bound Radios
+ * @param context Android context
+ * @param element Radio data model
+ * @param configState Application config state
+ * @return Library Radio view
  */
-@Composable
-fun radioRenderer(
+fun createRadioView(
+    context: Context,
     element: Radio,
-    configViewModel: ConfigViewModel,
-) {
-    val isVisible by element.visibility.collectAsState(initial = true)
-    val scope = rememberCoroutineScope()
+    configState: ConfigState,
+): LibraryRadio {
+    val localeManager = configState.localeManager
 
-    // Handle both config-bound and standalone Radios
-    var standaloneValue by remember { mutableStateOf(element.defaultValue) }
-
-    val selectedValue =
-        if (element.fieldPath != null) {
-            // Config-bound Radio
-            val valueFlow: StateFlow<String?> = configViewModel.fieldFlow(element.fieldPath)
-            val selectedValueRaw by valueFlow.collectAsState()
-            selectedValueRaw ?: element.defaultValue
-        } else {
-            // Standalone Radio - use local state
-            standaloneValue
+    // Convert RadioButton to library RadioButton with resolved i18n labels
+    val libraryButtons =
+        element.options.map { option ->
+            val labelMap: Map<String, String> =
+                mapOf(
+                    Language.EN.getCode() to localeManager.get(option.labelKey, Language.EN),
+                    Language.RU.getCode() to localeManager.get(option.labelKey, Language.RU),
+                )
+            LibraryRadioButton(option.value, labelMap)
         }
 
-    // Get current language - now using library's Language enum
+    // Determine initial selected value
+    val selectedValue =
+        if (element.fieldPath != null) {
+            val rawValue = configState.getFieldValue(element.fieldPath) ?: element.defaultValue
+            when (element.fieldPath) {
+                "settingsTheme" -> resolveTheme(rawValue).getValue()
+                "settingsLanguage" -> resolveLanguage(rawValue).getCode()
+                else -> rawValue
+            }
+        } else {
+            element.defaultValue
+        }
+
+    // Get current language
     val currentLanguage: Language =
-        if (configViewModel.isInitialized()) {
-            val langFlow = configViewModel.fieldFlow("settingsLanguage")
-            val langValue by langFlow.collectAsState()
-            langValue?.let {
-                try {
-                    Language.valueOf(it.uppercase())
-                } catch (e: IllegalArgumentException) {
-                    Language.EN
-                }
-            } ?: Language.EN
+        if (configState.isInitialized()) {
+            configState.languageFlow.value ?: Language.EN
         } else {
             Language.EN
         }
 
-    // Get current theme - now using library's Theme enum
+    // Get current theme
     val currentTheme: Theme =
-        if (configViewModel.isInitialized()) {
-            val themeFlow = configViewModel.fieldFlow("settingsTheme")
-            val themeValue by themeFlow.collectAsState()
-            themeValue?.let {
-                Theme.fromValue(it)
-            } ?: Theme.FREE_LIGHT
+        if (configState.isInitialized()) {
+            configState.themeFlow.value ?: Theme.FREE_DARK
         } else {
-            Theme.FREE_LIGHT
+            Theme.FREE_DARK
         }
 
-    if (isVisible) {
-        // Convert RadioButton to library RadioButton with resolved i18n labels
-        val libraryButtons = remember(element.options, currentLanguage) {
-            val localeManager = configViewModel.localeManager
-            element.options.map { option ->
-                // Build label map for all supported languages
-                val labelMap = mapOf(
-                    Language.EN.getCode() to localeManager.get(option.labelKey, Language.EN),
-                    Language.RU.getCode() to localeManager.get(option.labelKey, Language.RU)
-                )
-                LibraryRadioButton(option.value, labelMap)
-            }
-        }
+    val radio =
+        LibraryRadio(context).apply {
+            setButtons(libraryButtons)
+            setLanguage(currentLanguage)
+            setTheme(currentTheme)
+            setSelectedValue(selectedValue)
 
-        // Use library Radio component with enum-based API
-        LibraryRadio(
-            buttons = libraryButtons,
-            lang = currentLanguage,    // Pass Language enum directly
-            theme = currentTheme,      // Pass Theme enum directly
-            value = selectedValue,
-            onValueChange = { newValue ->
-                if (element.fieldPath != null) {
-                    // Config-bound Radio - update configuration
-                    scope.launch {
-                        configViewModel.updateField(element.fieldPath, newValue)
+            setOnValueChangeListener(
+                LibraryRadio.OnValueChangeListener { newValue ->
+                    if (element.fieldPath != null) {
+                        configState.scope.launch {
+                            configState.updateField(element.fieldPath, newValue)
+                        }
                     }
-                } else {
-                    // Standalone Radio - update local state
-                    standaloneValue = newValue
+                },
+            )
+        }
+
+    // Subscribe to config changes for reactive updates
+    if (element.fieldPath != null) {
+        configState.scope.launch {
+            configState.fieldFlow(element.fieldPath).collect { value ->
+                if (value != null) {
+                    val resolvedValue =
+                        when (element.fieldPath) {
+                            "settingsTheme" -> resolveTheme(value).getValue()
+                            "settingsLanguage" -> resolveLanguage(value).getCode()
+                            else -> value
+                        }
+                    radio.setSelectedValue(resolvedValue)
                 }
             }
-        )
+        }
     }
+
+    return radio
 }

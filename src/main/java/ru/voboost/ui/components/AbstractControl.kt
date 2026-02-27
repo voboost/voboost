@@ -15,13 +15,4 @@ sealed class AbstractControl {
      * Reactive visibility state
      */
     abstract val visibility: Flow<Boolean>
-
-    /**
-     * Check if element is currently visible
-     */
-    suspend fun isVisible(): Boolean {
-        var visible = true
-        visibility.collect { visible = it }
-        return visible
-    }
 }

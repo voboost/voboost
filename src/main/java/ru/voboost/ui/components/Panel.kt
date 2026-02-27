@@ -1,69 +1,23 @@
 package ru.voboost.ui.components
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import android.content.Context
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import ru.voboost.config.models.Tab
-import ru.voboost.ui.ConfigViewModel
-import ru.voboost.ui.i18n
-import ru.voboost.ui.panels.createApplicationsPanel
-import ru.voboost.ui.panels.createInterfacePanel
-import ru.voboost.ui.panels.createSettingsPanel
-import ru.voboost.ui.panels.createStorePanel
-import ru.voboost.ui.panels.createVehiclePanel
+import ru.voboost.ui.ConfigState
+import ru.voboost.components.panel.Panel as LibraryPanel
 
 /**
- * Panel represents a complete configuration screen
+ * Panel definition - describes the content of a panel (title + sections).
+ * This is a DATA MODEL, not a visual component.
+ * The visual rendering is handled by the library Panel ViewGroup.
  */
-data class Panel(
-    override val id: String,
+data class PanelDefinition(
+    val id: String,
     val titleKey: String,
     val sections: List<Section>,
-    override val visibility: Flow<Boolean> = flowOf(true),
-) : AbstractControl()
-
-/**
- * Panel renderer
- */
-@Composable
-fun panelRenderer(
-    panel: Panel,
-    configViewModel: ConfigViewModel,
-) {
-    val isVisible by panel.visibility.collectAsState(initial = true)
-
-    if (isVisible) {
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(16.dp),
-        ) {
-            Text(
-                text = i18n(panel.titleKey),
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(bottom = 16.dp),
-            )
-
-            panel.sections.forEach { section ->
-                sectionRenderer(section, configViewModel)
-            }
-        }
-    }
-}
+    val visibility: Flow<Boolean> = flowOf(true),
+)
 
 /**
  * Panel builder DSL
@@ -86,59 +40,63 @@ class PanelBuilder(private val id: String, private val titleKey: String) {
         sections.add(section)
     }
 
-    fun build(): Panel {
-        return Panel(id, titleKey, sections.toList(), visibilityCondition)
+    fun build(): PanelDefinition {
+        return PanelDefinition(id, titleKey, sections.toList(), visibilityCondition)
     }
 }
 
 /**
- * Create a panel with DSL
+ * Create a panel definition with DSL
  */
 fun panel(
     id: String,
     title: String,
     block: PanelBuilder.() -> Unit,
-): Panel {
+): PanelDefinition {
     val builder = PanelBuilder(id, title)
     builder.block()
     return builder.build()
 }
 
 /**
- * Create a panel for a specific tab
+ * Create a panel definition for a specific tab
  */
 fun panel(
     tab: Tab,
     title: String,
     block: PanelBuilder.() -> Unit,
-): Panel {
+): PanelDefinition {
     val builder = PanelBuilder(tab.name, title)
     builder.block()
     return builder.build()
 }
 
-@Composable
-fun panel() {
-    val configViewModel = ConfigViewModel.getInstance()
-    val selectedTab by configViewModel.selectedTab.collectAsState()
-
-    // Get current language to use as cache key
-    val currentLanguage by configViewModel.localeManager.currentLanguage.collectAsState()
-
-    // Cache panels to avoid recreation on each recomposition, but recreate when language changes
-    val panels =
-        remember(configViewModel, currentLanguage) {
-            mapOf(
-                Tab.store to createStorePanel(configViewModel),
-                Tab.applications to createApplicationsPanel(configViewModel),
-                Tab.`interface` to createInterfacePanel(configViewModel),
-                Tab.vehicle to createVehiclePanel(configViewModel),
-                Tab.settings to createSettingsPanel(configViewModel),
-            )
+/**
+ * Creates a native library Panel ViewGroup from a PanelDefinition.
+ *
+ * The Panel contains a ScrollView with a vertical LinearLayout holding
+ * all Section ViewGroups. This allows scrolling when sections overflow.
+ *
+ * @param context Android context
+ * @param panelDef Panel definition data model
+ * @param configState Application config state
+ * @return Library Panel ViewGroup with Section children
+ */
+fun buildPanelView(
+    context: Context,
+    panelDef: PanelDefinition,
+    configState: ConfigState,
+): LibraryPanel {
+    val panel =
+        LibraryPanel(context).apply {
+            setTheme(configState.currentTheme)
         }
 
-    val panel = panels[selectedTab]
-    if (panel != null) {
-        panelRenderer(panel, configViewModel)
+    // Add sections directly to panel. LibraryPanel handles internal scrolling automatically.
+    panelDef.sections.forEach { section ->
+        val sectionView = createSectionView(context, section, configState)
+        panel.addView(sectionView)
     }
+
+    return panel
 }
