@@ -176,6 +176,17 @@ class OtaDownloader(
                             }
                             output.write(buffer, 0, read)
                         }
+                        // fsync the staged APK bytes to stable storage before the
+                        // atomic rename below. Without this, a power loss after the
+                        // rename could leave a zero-length or partially-flushed APK
+                        // even though the directory entry already switched to the
+                        // target name (R4-VBS-01, same crash-consistency gap class
+                        // as R3-VBS-02 in PlanProducer.writeAtomically). The daemon
+                        // re-verifies signature+sha256 before applying, so a torn
+                        // write is rejected rather than silently applied, but the
+                        // result is a failed self-update the user must wait for the
+                        // next OTA cycle to retry. Mirrors ApkStager.writeFileAtomically.
+                        output.fd.sync()
                     }
                 }
 
