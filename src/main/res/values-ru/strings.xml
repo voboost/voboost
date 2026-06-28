@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">Voboost</string>
 
+    <!-- Settings panel title -->
+    <string name="settings_title">Voboost 1.0.0 alpha1</string>
+
     <!-- Tab names -->
     <string name="tab_store">Магазин</string>
     <string name="tab_applications">Приложения</string>
@@ -24,11 +27,28 @@
     <string name="theme_dark">Тёмная</string>
     <string name="theme_light">Светлая</string>
 
-    <!-- Theme options -->
+    <!-- Theme options (simplified for MVP) -->
+    <string name="theme_option_dark">Тёмная</string>
+    <string name="theme_option_light">Светлая</string>
+
+    <!-- Theme options (legacy - kept for compatibility) -->
     <string name="theme_free_light">Free Светлая</string>
     <string name="theme_free_dark">Free Тёмная</string>
     <string name="theme_dreamer_light">Dreamer Светлая</string>
     <string name="theme_dreamer_dark">Dreamer Тёмная</string>
+
+    <!-- Car model settings -->
+    <string name="car_model_section">Модель автомобиля</string>
+    <string name="car_model_free">Free</string>
+    <string name="car_model_dreamer">Dreamer</string>
+
+    <!-- Vehicle settings -->
+    <string name="vehicle_settings">Настройки машины</string>
+
+    <!-- Vehicle pedestrian warning -->
+    <string name="vehicle_pedestrian_warning">Предупреждение пешеходов</string>
+    <string name="pedestrian_warning_original">Оригинал</string>
+    <string name="pedestrian_warning_off">Выкл</string>
 
     <!-- Vehicle settings -->
     <string name="vehicle_fuel_mode">Управление топливом</string>
@@ -53,4 +73,18 @@
     <string name="store_placeholder_text">Интерфейс магазина будет здесь</string>
     <string name="applications_placeholder_text">Список установленных приложений будет здесь</string>
     <string name="interface_placeholder_text">Настройки интерфейса будут здесь</string>
+
+    <!-- Daemon status -->
+    <string name="daemon_status_title">Статус демона</string>
+    <string name="daemon_status_unavailable">Статус демона недоступен</string>
+    <string name="daemon_state_ready">Готов</string>
+    <string name="daemon_state_degraded">Деградировал</string>
+    <string name="daemon_injection_none">Нет инъекций</string>
+    <string name="daemon_flag_killed">УБИТ</string>
+    <string name="daemon_flag_panic">ПАНИКА</string>
+    <string name="injection_state_active">Активен</string>
+    <string name="injection_state_failed">Сбой</string>
+    <string name="injection_state_waiting">Ожидание</string>
+    <string name="injection_state_quarantined">Карантин</string>
+    <string name="injection_state_skipped_coexist">Пропущен (совместимость)</string>
 </resources>

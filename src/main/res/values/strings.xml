@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">Voboost</string>
 
+    <!-- Settings panel title -->
+    <string name="settings_title">Voboost 1.0.0 alpha1</string>
+
     <!-- Tab names -->
     <string name="tab_store">Store</string>
     <string name="tab_applications">Applications</string>
@@ -24,11 +27,28 @@
     <string name="theme_dark">Dark</string>
     <string name="theme_light">Light</string>
 
-    <!-- Theme options -->
+    <!-- Theme options (simplified for MVP) -->
+    <string name="theme_option_dark">Dark</string>
+    <string name="theme_option_light">Light</string>
+
+    <!-- Theme options (legacy - kept for compatibility) -->
     <string name="theme_free_light">Free Light</string>
     <string name="theme_free_dark">Free Dark</string>
     <string name="theme_dreamer_light">Dreamer Light</string>
     <string name="theme_dreamer_dark">Dreamer Dark</string>
+
+    <!-- Car model settings -->
+    <string name="car_model_section">Car Model</string>
+    <string name="car_model_free">Free</string>
+    <string name="car_model_dreamer">Dreamer</string>
+
+    <!-- Vehicle settings -->
+    <string name="vehicle_settings">Vehicle Settings</string>
+
+    <!-- Vehicle pedestrian warning -->
+    <string name="vehicle_pedestrian_warning">Pedestrian Warning</string>
+    <string name="pedestrian_warning_original">Original</string>
+    <string name="pedestrian_warning_off">Off</string>
 
     <!-- Vehicle settings -->
     <string name="vehicle_fuel_mode">Fuel Management</string>
@@ -53,4 +73,18 @@
     <string name="store_placeholder_text">Store interface will be here</string>
     <string name="applications_placeholder_text">List of installed applications will be here</string>
     <string name="interface_placeholder_text">Interface settings will be here</string>
+
+    <!-- Daemon status -->
+    <string name="daemon_status_title">Daemon Status</string>
+    <string name="daemon_status_unavailable">Daemon status unavailable</string>
+    <string name="daemon_state_ready">Ready</string>
+    <string name="daemon_state_degraded">Degraded</string>
+    <string name="daemon_injection_none">No injections</string>
+    <string name="daemon_flag_killed">KILLED</string>
+    <string name="daemon_flag_panic">PANIC</string>
+    <string name="injection_state_active">Active</string>
+    <string name="injection_state_failed">Failed</string>
+    <string name="injection_state_waiting">Waiting</string>
+    <string name="injection_state_quarantined">Quarantined</string>
+    <string name="injection_state_skipped_coexist">Skipped (coexist)</string>
 </resources>
