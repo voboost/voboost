@@ -158,7 +158,14 @@ class OtaClient(
             Logger.debug(LOG, "Fetching manifest from: $manifestUrl")
 
             val manifestContent = downloader.downloadBytes(manifestUrl)
-            val signatureContent = downloader.downloadBytes(signatureUrl)
+            // Signature is bounded to MAX_SIGNATURE_BYTES (256 B) at the
+            // download layer so a malicious server cannot OOM the app
+            // with a multi-GB ".sig" (R3-VBS-03).
+            val signatureContent =
+                downloader.downloadBytes(
+                    signatureUrl,
+                    OtaDownloader.MAX_SIGNATURE_BYTES,
+                )
 
             // verify() enforces size bounds, signature, and structural validation.
             // It throws on failure — the manifest is never persisted in that case.
