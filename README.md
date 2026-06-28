@@ -1,285 +1,150 @@
 # Voboost
 
-Android application for Voyah vehicles (Free, Dreamer models) that provides system customization through Frida script injection.
+Android application (`ru.voboost`) for Voyah vehicles (Free, Dreamer) that customizes the
+system through signed Frida agents injected by a resident root daemon.
 
-## Features
+This app is the **user-space** half of a multi-repo system. It does **not** inject anything
+itself. It is a **plan producer, a status reader, an OTA client, and a UI**:
 
-- **Weather widget customization** - Enable non-Chinese cities in weather widget
-- **Russian keyboard support** - Add Russian keyboard layout to vehicle input system
-- **Forced EV mode** - Force electric-only mode on Voyah Free (prevents automatic hybrid switching)
-- **Multi-display application support** - Enable apps on passenger display
-- **Phone number formatting** - Format phone numbers according to regional standards
-- **Settings menu integration** - Add Voboost menu item to vehicle settings
+- writes `inject.json` (the daemon's plan) into its Android app zone;
+- reads `inject-status.json` (daemon state) and surfaces it in the UI;
+- fetches, verifies, diffs, downloads, and stages whole-APK OTA updates for itself
+  (the app) and for the daemon (the core);
+- ships the daemon binary, agents, and signed manifests as APK assets.
+
+The injector — `voboost-inject`, a single resident root process launched by an init hook —
+lives in a sibling repo and is consumed here as a prebuilt arm64 binary. Direct Frida
+injection (`frida-inject` over `su`) and the former desktop injection path have been removed.
 
 ## Architecture
 
-The application uses a platform-agnostic core that runs on both Android and Desktop:
+- **[`VoboostService`](src/main/java/ru/voboost/VoboostService.kt)** — the foreground service
+  that runs the app. Started on boot by [`BootReceiver`](src/main/java/ru/voboost/BootReceiver.kt);
+  keeps the process alive, produces the plan, reads status, and runs the periodic OTA check.
+  Running as a foreground service (with a persistent notification) prevents the system from
+  killing it.
+- **[`Main`](src/main/java/ru/voboost/Main.kt)** — orchestrator: produces the plan and reads status.
+- **[`PlanProducer`](src/main/java/ru/voboost/PlanProducer.kt)** — turns `config.yaml` + active
+  features into the daemon's `inject.json` (`version`, `startup` gate, `disabled` kill-switch,
+  per-agent `enabled` + opaque `config`). Atomic write; plan ≤ 1 MiB, per-agent config ≤ 64 KiB.
+- **[`StatusReader`](src/main/java/ru/voboost/StatusReader.kt)** — parses `inject-status.json`
+  (daemon `state`, per-injection state, `killed`, `panic`); tolerant of in-flight atomic writes.
+- **[`ota/`](src/main/java/ru/voboost/ota/)** — APK-level OTA client: ed25519 release-manifest
+  verify, whole-APK download (size + sha256), per-channel apply. The **app** APK is staged and
+  handed to the system installer; the **core** (daemon) APK is staged into the app-zone
+  `staging/voboost-inject.apk` plus a single-use `core-update-ready` marker — the daemon
+  self-updates from it (the app never installs the daemon).
+- **[`FeatureManager`](src/main/java/ru/voboost/FeatureManager.kt)** — maps config → active
+  agents (each `FeatureFrida*` declares its agent id + target process + plan entry).
+- **[`Paths`](src/main/java/ru/voboost/PathsAndroid.kt)** — resolves the app-zone
+  `/data/user/0/ru.voboost` (`inject.json`, `inject-status.json`, `staging/`). The app never
+  writes the root zone `/data/voboost`.
 
-### Core Components
+### App ↔ daemon contract
 
-- **[`Main`](src/main/java/ru/voboost/Main.kt)** - Main orchestrator that coordinates feature management based on configuration
-- **[`FeatureManager`](src/main/java/ru/voboost/FeatureManager.kt)** - Manages feature lifecycle (enable/disable/reload)
-- **[`FridaManager`](src/main/java/ru/voboost/FridaManager.kt)** - Platform-specific Frida script injection (Android/Desktop implementations)
-- **[`VehicleManager`](src/main/java/ru/voboost/VehicleManager.kt)** - Platform-specific vehicle information access
-- **[`Paths`](src/main/java/ru/voboost/Paths.kt)** - Platform-specific path resolution for config, scripts, and logs
-
-### Feature System
-
-Features are modular components that extend Voboost functionality:
-
-- **[`Feature`](src/main/java/ru/voboost/feature/Feature.kt)** - Base interface for all features
-- **[`FeatureFrida`](src/main/java/ru/voboost/feature/FeatureFrida.kt)** - Abstract base for Frida-based features
-- **[`FeatureNative`](src/main/java/ru/voboost/feature/FeatureNative.kt)** - Abstract base for native Android features
-
-### Implemented Features
-
-- **[`FeatureFridaWeather`](src/main/java/ru/voboost/feature/FeatureFridaWeather.kt)** - Weather widget customization
-- **[`FeatureFridaKeyboard`](src/main/java/ru/voboost/feature/FeatureFridaKeyboard.kt)** - Russian keyboard support
-- **[`FeatureFridaForcedEV`](src/main/java/ru/voboost/feature/FeatureFridaForcedEV.kt)** - Forced EV mode (Free only)
-- **[`FeatureFridaSettingsMenu`](src/main/java/ru/voboost/feature/FeatureFridaSettingsMenu.kt)** - Settings menu integration
+The app writes `/data/user/0/ru.voboost/inject.json`; the daemon writes
+`/data/user/0/ru.voboost/inject-status.json`. The contract mirrors the implemented
+`voboost-inject` daemon (see `openspec/changes/local-emulator-testing/specs/app-daemon-contract/`).
 
 ## Building
 
-### Android
-
-Build the APK for installation on vehicle:
-
-```bash
-./gradlew assembleDebug
-```
-
-**Note:** Do not use `./gradlew installDebug` - build only. Installation and launch are handled manually on the vehicle.
-
-### Desktop Testing
-
-Build and run desktop version for local testing:
+The project ships a **single release variant** (the debug variant is disabled). `./gradlew build`
+produces `voboost.apk`; `-Pdebuggable=true` flips the release variant's `isDebuggable` for rare
+deep debugging without reintroducing a debug build type.
 
 ```bash
-./gradlew runDesktop
+./gradlew build                 # build the app APK (voboost.apk) + run unit tests
+./gradlew testUnit              # unit tests only (alias for testReleaseUnitTest)
+./gradlew assembleRelease       # assemble the APK without tests
 ```
 
-## Desktop Testing
+Release signing reads `KEYSTORE_PASSWORD` from `local.properties`; the keystore
+(`voboost-release.jks`) is gitignored. The APK carries the daemon binary, agents, and signed
+manifests as assets; they are provisioned into `/data/voboost` by the operator installer
+(`voboost-install`) or the test harness — not by the app.
 
-For local development without Android emulator or physical device:
+## Local emulator testing
 
-### Prerequisites
-
-1. **Install Frida tools:**
-   ```bash
-   pip3 install frida-tools
-   ```
-
-2. **Install Java (JDK 11+):**
-   ```bash
-   brew install openjdk@11
-   ```
-
-3. **Build Frida scripts:**
-   ```bash
-   cd ../voboost-script
-   npm install
-   npm run build
-   ```
-
-### 3-Step Testing Workflow
-
-#### Step 1: Start stub process
-
-Compile and run a stub application that simulates an Android process:
+The full app → daemon → stub-APK → agent cycle is exercised on a rooted arm64 API-28 AVD
+without a physical device. See [`tools/emulator/README.md`](tools/emulator/README.md).
 
 ```bash
-cd ../voboost-stubs/apps
-javac com/qinggan/app/launcher/LauncherStub.java
-java com.qinggan.app.launcher.LauncherStub
+tools/emulator/boot.sh                              # boot AVD 'free', root, SELinux permissive
+tools/emulator/provision.sh                         # raw-adb: daemon + agents + manifest + stubs + app
+tools/emulator/run-test.sh                          # contract scenarios (silent on success)
+./gradlew emulatorTest                              # gradle entry point for the above
+./gradlew openspecValidate                          # validate openspec changes (strict)
 ```
 
-Keep this terminal running.
-
-#### Step 2: Configure vehicle (optional)
-
-Set environment variables to simulate vehicle configuration:
-
-```bash
-export VOBOOST_VEHICLE_MODEL=free
-export VOBOOST_VEHICLE_YEAR=2023
-export VOBOOST_LANGUAGE=ru
-```
-
-Or create `~/.voboost/vehicle.yaml`:
-
-```yaml
-model: free
-year: 2023
-language: ru
-```
-
-#### Step 3: Run desktop
-
-In another terminal, run the desktop version:
-
-```bash
-cd ../voboost
-./gradlew runDesktop
-```
-
-Expected output:
-
-```
-[+] MainDesktop: Starting Voboost Desktop
-[+] MainDesktop: Vehicle: free (2023)
-[+] MainDesktop: Config file: /path/to/config.yaml
-[+] Main: Starting Voboost
-[+] FeatureManager: Enabled: interface-widget-weather
-[+] MainDesktop: Running. Press Ctrl+C to exit.
-```
-
-### Available Stubs
-
-| Stub | Process Name | Features |
-|------|--------------|----------|
-| LauncherStub | com.qinggan.app.launcher | Weather widget, App launcher, Navbar |
-| BluetoothPhoneStub | com.qinggan.bluetoothphone | Phone number formatting |
-| SystemServiceStub | com.qinggan.systemservice | Multi-display, Settings menu, Forced EV |
-| QgimeStub | com.qinggan.app.qgime | Russian keyboard |
-| VehicleSettingStub | com.qinggan.app.vehiclesetting | Media source |
+The stub target processes (arm64 APKs whose `applicationId` is a `com.qinggan.*` process
+name) are built in the `voboost-stubs` repo (`android-apk-port`).
 
 ## Configuration
 
-Configuration is managed by the [`voboost-config`](../voboost-config) library. The configuration file is located at:
+Managed by the [`voboost-config`](../voboost-config) library; the live file lives at
+`/data/data/ru.voboost/files/config.yaml` (the default is shipped as
+[`src/main/assets/config.yaml`](src/main/assets/config.yaml) and copied on first launch).
+Key settings:
 
-- **Android:** `/data/data/ru.voboost/files/config.yaml`
-- **Desktop:** `~/.voboost/config.yaml` or `../voboost-config/src/config.yaml`
+- `settings-startup`: `off` | `hidden` | `interface` — maps to the daemon `startup` gate
+  (`off` → `startup:"none"`, the daemon takes no action).
+- `vehicle-fuel-mode`: `electric-forced` forces EV mode (Free only).
+- `interface-widget-weather`, `interface-keyboard`, `vehicle-pedestrian-warning`, … — each
+  toggles a daemon agent via the plan.
 
-### Key Settings
+## Logging
 
-#### Application Settings
+Centralized [`Logger`](src/main/java/ru/voboost/Logger.kt); app-side logs at
+`/data/data/ru.voboost/logs/voboost-YYYY-MM-DD.log` (daily rotation, 7-day retention).
 
-- **`settings-language`**: `en` | `ru` - Interface language
-- **`settings-theme`**: `light` | `dark` - Interface theme
-- **`settings-interface-shift-x`**: Integer - Horizontal interface offset (pixels)
-- **`settings-interface-shift-y`**: Integer - Vertical interface offset (pixels)
-- **`settings-active-tab`**: `store` | `settings` | etc. - Default active tab
+## OpenSpec
 
-#### Vehicle Configuration
+Spec-driven; truth is `openspec/`. Active changes:
 
-- **`vehicle-model`**: `free` | `dreamer` - Vehicle model
-- **`vehicle-fuel-mode`**: `original` | `electric` | `electric-forced` | `hybrid` | `save`
-  - `original` - No modification
-  - `electric` - Electric mode preference
-  - `electric-forced` - Force electric-only mode (Free only, prevents automatic hybrid switching)
-  - `hybrid` - Hybrid mode preference
-  - `save` - Energy saving mode
-- **`vehicle-drive-mode`**: `comfort` | `sport` | `eco` - Driving mode preference
+- `local-emulator-testing` — daemon-contract migration, device provisioning, emulator harness.
+- `ota-client` — application-side APK-level OTA client.
 
-#### Interface Features
-
-- **`interface-widget-weather`**: `original` | `enable-non-chineese-cities`
-  - `original` - Default weather widget behavior
-  - `enable-non-chineese-cities` - Enable weather for non-Chinese cities
-
-- **`interface-keyboard`**: `original` | `disable-chinese` | `enable-russian`
-  - `original` - Default keyboard layouts
-  - `disable-chinese` - Hide Chinese keyboard
-  - `enable-russian` - Add Russian keyboard layout
-
-### Configuration Example
-
-```yaml
-# Application Settings
-settings-language: ru
-settings-theme: light
-settings-interface-shift-x: 0
-settings-interface-shift-y: 0
-settings-active-tab: store
-
-# Vehicle Configuration
-vehicle-fuel-mode: electric-forced
-vehicle-drive-mode: comfort
-vehicle-model: free
-
-# Interface Features
-interface-widget-weather: enable-non-chineese-cities
-interface-keyboard: enable-russian
+```bash
+npx @fission-ai/openspec validate --all --strict
 ```
 
-## Logging System
-
-The application uses a centralized logging system ([`Logger`](src/main/java/ru/voboost/Logger.kt)) that writes logs to files.
-
-### Log Levels
-
-| Level | Tag | When to Use |
-|-------|-----|-------------|
-| **info** | `[+]` | Important events (startup, user actions, significant operations) |
-| **debug** | `[*]` | Technical details (method calls, intermediate values, validation) |
-| **error** | `[-]` | Errors and exceptions |
-
-### Log Files
-
-- **Android location:** `/data/data/ru.voboost/files/logs/`
-- **Desktop location:** `~/.voboost/logs/`
-- **Filename pattern:** `voboost-YYYY-MM-DD.log`
-- **Rotation:** Daily
-- **Retention:** 7 days
-
-### Log Format
-
-```
-YYYY-MM-DD HH:mm:ss.SSS [tag] [source] message
-```
-
-Example:
-```
-2024-12-14 14:30:45.123 [+] Main: Starting Voboost
-2024-12-14 14:30:45.456 [*] FeatureManager: Checking feature: interface-widget-weather
-2024-12-14 14:30:46.012 [-] FridaManager: Failed to inject script
-```
-
-## Project Structure
+## Project structure
 
 ```
 src/main/java/ru/voboost/
-├── Main.kt                           # Main orchestrator
-├── MainActivity.kt                   # Android entry point
-├── MainDesktop.kt                    # Desktop entry point
-├── BootReceiver.kt                   # Auto-start on boot
-├── Logger.kt                         # Centralized logging
-├── Paths.kt                          # Path resolution interface
-├── FridaManager.kt                   # Frida injection interface
-├── FridaManagerAndroid.kt            # Android Frida implementation
-├── FridaManagerDesktop.kt            # Desktop Frida implementation
-├── FridaAgentManager.kt              # Frida agent lifecycle management
-├── VehicleManager.kt                 # Vehicle info interface
-├── FeatureManager.kt                 # Feature lifecycle management
-└── feature/
-    ├── Feature.kt                    # Feature interface
-    ├── FeatureFrida.kt               # Frida feature base
-    ├── FeatureNative.kt              # Native feature base
-    ├── FeatureFridaWeather.kt        # Weather widget feature
-    ├── FeatureFridaKeyboard.kt       # Russian keyboard feature
-    ├── FeatureFridaForcedEV.kt       # Forced EV mode feature
-    └── FeatureFridaSettingsMenu.kt   # Settings menu feature
+├── VoboostService.kt        # foreground service (boot, plan, status, OTA)
+├── Main.kt                  # orchestrator
+├── PlanProducer.kt          # config.yaml + features -> inject.json
+├── StatusReader.kt         # inject-status.json -> UI state
+├── BootReceiver.kt          # ACTION_BOOT_COMPLETED -> VoboostService
+├── FeatureManager.kt        # config -> active agents
+├── PathsAndroid.kt          # app-zone path resolution (Paths interface)
+├── Logger.kt                # centralized logging
+├── ota/                     # APK-level OTA client (verify, download, stage)
+├── feature/                # FeatureFrida* (declare agent id + plan entry)
+└── ui/                      # ConfigState, StatusState, panels, components
+src/main/assets/
+├── config.yaml              # default configuration (copied on first launch)
+└── config/release-public.pem # ed25519 public key for OTA manifest verify
+tools/emulator/             # boot/provision/run-test harness
+.github/workflows/           # emulator E2E CI
+openspec/                    # specs (local-emulator-testing, ota-client)
 ```
-
-## Development Guidelines
-
-- **[Compose Performance Guidelines](docs/COMPOSE.md)** - Critical performance rules for Jetpack Compose
-- **[Color System](src/main/java/ru/voboost/ui/theme/Color.kt)** - Theme-aware color usage patterns
 
 ## Requirements
 
-- **Android API 28+** (Android 9+) - Primary target is Android 9 (API 28)
-- **voboost-config library** - Configuration management (project dependency)
-- **voboost-script** - Frida scripts for feature implementation
-- **Kotlin/Compose** - Development environment
-- **Frida** - Dynamic instrumentation toolkit
+- Android API 28+ (arm64-v8a); target AVD `free` (`system-images;android-28;default;arm64-v8a`).
+- Sibling repos: `voboost-inject` (daemon), `voboost-script` (agents), `voboost-stubs`
+  (target APKs), `voboost-install` (provisioning), `voboost-config` (config).
 
-## Related Projects
+## Related projects
 
-- **[voboost-config](../voboost-config)** - Configuration management library
-- **[voboost-script](../voboost-script)** - Frida scripts for feature implementation
-- **[voboost-stubs](../voboost-stubs)** - Stub applications for desktop testing
-- **[voboost-codestyle](../voboost-codestyle)** - Code style and linting rules
+- **[voboost-inject](../voboost-inject)** — the root daemon (sole injector); contract source of truth.
+- **[voboost-script](../voboost-script)** — Frida agents + daemon manifest.
+- **[voboost-stubs](../voboost-stubs)** — target-process APKs for emulator testing.
+- **[voboost-install](../voboost-install)** — operator installer / headless provisioning.
+- **[voboost-config](../voboost-config)** — configuration management library.
+- **[voboost-codestyle](../voboost-codestyle)** — code style and linting rules.
 
 
 ## License

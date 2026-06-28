@@ -1,13 +1,15 @@
 .vscode/
 .gradle/
+.kotlin/
 build/
+local.properties
+voboost-release.jks
 
+# Carrier assets copied from sibling repos at build time (voboost-script/build)
+src/main/assets/scripts/
+src/main/assets/bin/
 
-# Temporary removal
-REMOVEME/
-
-# Temporary planning files
+# Local working notes / scratch (not part of the source tree)
 plans/
-desktop-testing-improvements.md
-config.yaml
-
+logs/
+REMOVEME/
