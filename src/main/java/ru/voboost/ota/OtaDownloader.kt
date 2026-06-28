@@ -78,7 +78,12 @@ class OtaDownloader(
         baseUrl: String,
         targetFile: File,
     ) {
-        val url = "$baseUrl${entry.path}"
+        // Normalize the URL: ensure exactly one '/' between baseUrl and path,
+        // regardless of whether baseUrl ends with '/' or path starts with '/'.
+        // Without this, baseUrl="https://host" + path="voboost.apk" would
+        // produce "https://hostvoboost.apk".
+        val normalizedBase = if (baseUrl.endsWith("/")) baseUrl else "$baseUrl/"
+        val url = "$normalizedBase${entry.path.trimStart('/')}"
         Logger.debug(LOG, "Downloading: $url")
 
         val request = Request.Builder().url(url).get().build()
@@ -91,9 +96,11 @@ class OtaDownloader(
 
                 val body = response.body ?: throw OtaException("Empty response body")
 
-                // Size pre-check before hashing
+                // Size pre-check before hashing. Compare as Long: entry.size is
+                // a Long and toInt() truncates for sizes > 2^31, which would
+                // silently accept a truncated APK.
                 val bytes = body.bytes()
-                if (bytes.size != entry.size.toInt()) {
+                if (bytes.size.toLong() != entry.size) {
                     Logger.error(
                         LOG,
                         "Size mismatch: expected ${entry.size}, got ${bytes.size}",

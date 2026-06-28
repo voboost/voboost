@@ -10,6 +10,7 @@ import android.os.IBinder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ru.voboost.config.models.StartupMode
@@ -137,6 +138,9 @@ class VoboostService : Service() {
 
     override fun onDestroy() {
         Logger.info(LOG, "Service destroyed")
+        // Cancel the service coroutine scope so the periodic OTA check
+        // coroutine stops running instead of leaking past the service lifetime.
+        serviceScope.cancel()
         stopFeatures()
         Logger.shutdown()
         super.onDestroy()
@@ -215,18 +219,15 @@ class VoboostService : Service() {
         try {
             Logger.info(LOG, "Checking for OTA updates...")
 
-            // Check for updates (without applying)
-            val hasUpdates = client.checkForUpdates()
+            // checkAndUpdate() fetches+verifies the manifest once and
+            // short-circuits (returns false, no download/staging) when no
+            // channel has a newer APK. Calling checkForUpdates() first would
+            // perform a second manifest fetch+verify per cycle, so we rely on
+            // checkAndUpdate() alone.
+            val staged = client.checkAndUpdate()
 
-            if (hasUpdates) {
-                Logger.info(LOG, "OTA updates available, initiating download and staging")
-                val staged = client.checkAndUpdate()
-
-                if (staged) {
-                    Logger.info(LOG, "OTA updates staged successfully")
-                } else {
-                    Logger.debug(LOG, "No OTA updates staged")
-                }
+            if (staged) {
+                Logger.info(LOG, "OTA updates staged successfully")
             } else {
                 Logger.debug(LOG, "No OTA updates available")
             }

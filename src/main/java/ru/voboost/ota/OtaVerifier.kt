@@ -2,6 +2,7 @@ package ru.voboost.ota
 
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
+import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters
 import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters
 import org.bouncycastle.crypto.signers.Ed25519Signer
 import org.bouncycastle.crypto.util.PublicKeyFactory
@@ -133,12 +134,15 @@ object OtaKeyGenerator {
     fun generateKeyPair(): Pair<ByteArray, ByteArray> {
         val secureRandom = SecureRandom()
         val privateKey = ByteArray(32)
-        val publicKey = ByteArray(32)
         secureRandom.nextBytes(privateKey)
 
-        // Derive public key from private key
-        val params = Ed25519PublicKeyParameters(privateKey, 0)
-        System.arraycopy(params.encoded, 0, publicKey, 0, 32)
+        // Derive the public key from the private key. Ed25519PublicKeyParameters
+        // treats its input as an already-encoded public key, so it MUST be built
+        // from the private key parameters via generatePublicKey(); otherwise the
+        // returned public key is unrelated to the private key and sign+verify
+        // always fails.
+        val publicKey =
+            Ed25519PrivateKeyParameters(privateKey, 0).generatePublicKey().encoded
 
         return Pair(privateKey, publicKey)
     }
