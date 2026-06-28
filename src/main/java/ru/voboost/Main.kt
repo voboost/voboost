@@ -1,25 +1,27 @@
 package ru.voboost
 
-import android.content.Context
 import ru.voboost.config.ConfigManager
 import ru.voboost.feature.FeatureContext
 
 /**
  * Main application orchestrator.
  * Coordinates feature management based on configuration.
+ *
+ * In daemon-contract architecture, Main orchestrates plan production and
+ * status reading rather than direct injection.
  */
 class Main(
-    private val context: Context,
-    private val paths: Paths,
-    private val fridaManager: FridaManager,
-    private val vehicleManager: VehicleManager,
+    private val configManager: ConfigManager,
+    private val paths: PathsAndroid,
+    private val vehicleManager: VehicleManagerAndroid,
+    private val planProducer: PlanProducer,
+    private val statusReader: StatusReader,
 ) {
     companion object {
         private const val LOG = "Main"
     }
 
     private val featureManager = FeatureManager()
-    private lateinit var configManager: ConfigManager
 
     /**
      * Start the application.
@@ -28,14 +30,20 @@ class Main(
      */
     fun start(): Result<Unit> {
         return try {
-            Logger.init(paths.logDirectory, level = "info")
-            configManager = ConfigManager(context)
             val configResult = configManager.loadConfig()
 
             configResult.fold(
                 onSuccess = { config ->
 
                     Logger.info(LOG, "Starting Voboost")
+                    Logger.info(LOG, "Startup mode: ${config.settingsStartup}")
+
+                    // Check startup mode - exit if off
+                    if (config.settingsStartup == ru.voboost.config.models.StartupMode.off) {
+                        Logger.info(LOG, "Startup mode is 'off', exiting")
+                        return Result.success(Unit)
+                    }
+
                     vehicleManager.getVehicleModel().fold(
                         onSuccess = { model ->
                             vehicleManager.getVehicleYear().fold(
@@ -56,15 +64,15 @@ class Main(
                     )
                     Logger.info(LOG, "Config: ${paths.configFile}")
 
-                    val context =
+                    val featureContext =
                         FeatureContext(
-                            config = config,
-                            fridaManager = fridaManager,
-                            paths = paths,
+                            androidContext = null,
                             vehicleManager = vehicleManager,
+                            config = config,
+                            paths = paths,
                         )
 
-                    featureManager.applyConfig(context)
+                    featureManager.applyConfig(featureContext, planProducer)
                     Result.success(Unit)
                 },
                 onFailure = { error ->
@@ -89,24 +97,62 @@ class Main(
             val configResult = configManager.loadConfig()
             configResult.fold(
                 onSuccess = { config ->
-                    val context =
+                    val featureContext =
                         FeatureContext(
-                            config = config,
-                            fridaManager = fridaManager,
-                            paths = paths,
+                            androidContext = null,
                             vehicleManager = vehicleManager,
+                            config = config,
+                            paths = paths,
                         )
-                    featureManager.stopAll(context)
+                    featureManager.stopAll(featureContext, planProducer)
                 },
                 onFailure = { error ->
                     Logger.error(LOG, "Failed to load config during shutdown: ${error.message}")
                 },
             )
-            fridaManager.shutdown()
             Result.success(Unit)
         } catch (e: Exception) {
             Logger.error(LOG, "Failed to shutdown: ${e.message}")
             Result.failure(e)
         }
+    }
+
+    /**
+     * Produce plan from current configuration.
+     *
+     * @return Result indicating success or failure
+     */
+    fun producePlan(): Result<Unit> {
+        return try {
+            val configResult = configManager.loadConfig()
+            configResult.fold(
+                onSuccess = { config ->
+                    val featureContext =
+                        FeatureContext(
+                            androidContext = null,
+                            vehicleManager = vehicleManager,
+                            config = config,
+                            paths = paths,
+                        )
+                    featureManager.applyConfig(featureContext, planProducer)
+                },
+                onFailure = { error ->
+                    Logger.error(LOG, "Failed to load config for plan production: ${error.message}")
+                    Result.failure(error)
+                },
+            )
+        } catch (e: Exception) {
+            Logger.error(LOG, "Failed to produce plan: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * Read current daemon status.
+     *
+     * @return DaemonStatus or null if unavailable
+     */
+    fun readStatus(): StatusReader.DaemonStatus? {
+        return statusReader.read()
     }
 }

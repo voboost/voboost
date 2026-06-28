@@ -1,14 +1,11 @@
 package ru.voboost
 
-import android.content.Context
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
 import java.io.File
 import java.util.UUID
 import java.util.concurrent.CountDownLatch
@@ -326,12 +323,11 @@ class LoggerTest {
         // Reset any existing instance
         Logger.shutdown()
 
-        // Mock Android Context
-        val mockContext = mock(Context::class.java)
-        `when`(mockContext.filesDir).thenReturn(testDir)
-
-        // Initialize logger
-        Logger.init(mockContext, "debug", 7)
+        // Initialize the global logger directly into the test directory.
+        // The Context-based init resolves context.dataDir, which a Mockito mock
+        // does not stub; the File-based static init is the test-friendly overload
+        // (mirrors Logger.create used in setUp).
+        Logger.init(testDir, "debug", 7)
 
         // Test raw logging
         Logger.raw("2024-12-15 14:30:45.123 [+] test: raw message")
@@ -402,12 +398,11 @@ class LoggerTest {
         // Reset any existing instance
         Logger.shutdown()
 
-        // Mock Android Context
-        val mockContext = mock(Context::class.java)
-        `when`(mockContext.filesDir).thenReturn(testDir)
-
-        // Initialize logger
-        Logger.init(mockContext, "debug", 7)
+        // Initialize the global logger directly into the test directory.
+        // The Context-based init resolves context.dataDir, which a Mockito mock
+        // does not stub; the File-based static init is the test-friendly overload
+        // (mirrors Logger.create used in setUp).
+        Logger.init(testDir, "debug", 7)
 
         // Test that initialization works
         assertEquals("debug", Logger.getLevel())
