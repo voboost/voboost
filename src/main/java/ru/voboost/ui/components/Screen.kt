@@ -1,6 +1,8 @@
 package ru.voboost.ui.components
 
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import kotlinx.coroutines.launch
 import ru.voboost.components.i18n.Language
 import ru.voboost.components.tabs.TabItem
@@ -16,26 +18,41 @@ import ru.voboost.components.panel.Panel as LibraryPanel
 import ru.voboost.components.screen.Screen as LibraryScreen
 import ru.voboost.components.tabs.Tabs as LibraryTabs
 
+private const val TAB_VEHICLE_MORE = "vehicle_more"
+
 /**
- * Tab definitions matching the TABS list from the old implementation.
- * Each tab has a value (used for selection) and localized labels.
+ * Tab definitions for the main navigation.
+ *
+ * Layout:
+ * - Store, Applications, Interface: disabled (placeholder)
+ * - Vehicle: pedestrian warning settings
+ * - Settings: theme, car model, language
+ * - Vehicle >: launches native CarSettingActivity
  */
 private val TAB_ITEMS: List<TabItem> =
     listOf(
-        TabItem("store", mapOf("en" to "Store", "ru" to "Магазин")),
-        TabItem("applications", mapOf("en" to "Applications", "ru" to "Приложения")),
-        TabItem("interface", mapOf("en" to "Interface", "ru" to "Интерфейс")),
-        TabItem("vehicle", mapOf("en" to "Vehicle", "ru" to "Автомобиль")),
+        TabItem("store", mapOf("en" to "Store", "ru" to "Магазин"), false),
+        TabItem("applications", mapOf("en" to "Applications", "ru" to "Приложения"), false),
+        TabItem("interface", mapOf("en" to "Interface", "ru" to "Интерфейс"), false),
+        TabItem("vehicle", mapOf("en" to "Vehicle", "ru" to "Машина")),
         TabItem("settings", mapOf("en" to "Settings", "ru" to "Настройки")),
+        TabItem(
+            TAB_VEHICLE_MORE,
+            mapOf("en" to "Vehicle", "ru" to "Машина"),
+            true,
+            30,
+            true,
+        ),
     )
 
 /**
- * Maps Tab enum values to TabItem string values for bridging ConfigState and library Tabs.
+ * Maps Tab enum values to TabItem string values.
  */
 private fun Tab.toTabValue(): String = this.name
 
 /**
- * Maps TabItem string values back to Tab enum for ConfigState.
+ * Maps TabItem string values back to Tab enum.
+ * Non-matching values (e.g., vehicle_more) fall back to settings.
  */
 private fun String.toTab(): Tab =
     try {
@@ -47,16 +64,8 @@ private fun String.toTab(): Tab =
 /**
  * Builds the complete native Screen view hierarchy.
  *
- * This is the main entry point for the UI. It creates:
- * - Screen (root container with offset support)
- * - Tabs (tab bar)
- * - Panel[] (one per tab, each containing Sections with controls)
- *
- * It also sets up reactive updates by subscribing to ConfigState flows.
- *
- * @param context Android context (Activity)
- * @param configState Application config state
- * @return The root Screen view, ready to be passed to setContentView()
+ * Creates Screen -> Tabs -> Panels using library components directly.
+ * Sets up reactive updates by subscribing to ConfigState flows.
  */
 fun buildScreen(
     context: Context,
@@ -67,7 +76,6 @@ fun buildScreen(
     val currentLanguage = configState.currentLanguage
     val selectedTabValue = configState.selectedTab.value?.toTabValue() ?: "settings"
 
-    // Get offsets from config (defaults match library Screen defaults)
     val offsetX = config?.settingsInterfaceShiftX ?: 145
     val offsetY = config?.settingsInterfaceShiftY ?: 50
 
@@ -90,27 +98,41 @@ fun buildScreen(
             setSelectedValue(selectedTabValue)
 
             setOnValueChangeListener { newValue ->
-                configState.setSelectedTab(newValue.toTab())
+                if (newValue == TAB_VEHICLE_MORE) {
+                    // Launch native vehicle settings app
+                    try {
+                        val intent =
+                            Intent().apply {
+                                component =
+                                    ComponentName(
+                                        "com.qinggan.app.vehiclesetting",
+                                        "com.qinggan.app.vehiclesetting.CarSettingActivity",
+                                    )
+                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            }
+                        context.startActivity(intent)
+                    } catch (e: Exception) {
+                        // Expected to fail on non-Voyah devices
+                    }
+                    // Do not save vehicle_more as active tab
+                } else {
+                    configState.setSelectedTab(newValue.toTab())
+                }
             }
         }
     screen.setTabs(tabs)
 
-    // Create panel definitions
-    val panelDefinitions =
-        listOf(
-            createStorePanel(configState),
-            createApplicationsPanel(configState),
-            createInterfacePanel(configState),
-            createVehiclePanel(configState),
-            createSettingsPanel(configState),
-        )
-
-    // Build native Panel views from definitions
+    // Create panels (one per tab item)
     val panels =
-        panelDefinitions.map { panelDef ->
-            buildPanelView(context, panelDef, configState)
-        }.toTypedArray()
-
+        arrayOf(
+            createStorePanel(context, configState),
+            createApplicationsPanel(context, configState),
+            createInterfacePanel(context, configState),
+            createVehiclePanel(context, configState),
+            createSettingsPanel(context, configState),
+            // empty for Vehicle >
+            LibraryPanel(context).apply { setTheme(currentTheme) },
+        )
     screen.setPanels(panels)
 
     // Set initial active panel
@@ -126,8 +148,7 @@ fun buildScreen(
 }
 
 /**
- * Sets up reactive subscriptions to update the view hierarchy when
- * config state changes (theme, language, tab selection, offsets).
+ * Sets up reactive subscriptions for theme, language, tab selection, and offset changes.
  */
 private fun setupReactiveUpdates(
     screen: LibraryScreen,
@@ -183,10 +204,6 @@ private fun setupReactiveUpdates(
     }
 }
 
-/**
- * Updates theme on all Section children within a Panel.
- * Handles both direct Section children and ScrollView > LinearLayout > Section hierarchy.
- */
 private fun updateSectionThemes(
     panel: LibraryPanel,
     theme: Theme,
@@ -200,28 +217,10 @@ private fun updateSectionThemes(
                 child.setLanguage(language)
                 updateRadioThemes(child, theme, language)
             }
-            is android.widget.ScrollView -> {
-                if (child.childCount > 0) {
-                    val scrollChild = child.getChildAt(0)
-                    if (scrollChild is android.widget.LinearLayout) {
-                        for (j in 0 until scrollChild.childCount) {
-                            val layoutChild = scrollChild.getChildAt(j)
-                            if (layoutChild is ru.voboost.components.section.Section) {
-                                layoutChild.setTheme(theme)
-                                layoutChild.setLanguage(language)
-                                updateRadioThemes(layoutChild, theme, language)
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 }
 
-/**
- * Updates language on all Section children within a Panel.
- */
 private fun updateSectionLanguages(
     panel: LibraryPanel,
     language: Language,
@@ -233,27 +232,10 @@ private fun updateSectionLanguages(
                 child.setLanguage(language)
                 updateRadioLanguages(child, language)
             }
-            is android.widget.ScrollView -> {
-                if (child.childCount > 0) {
-                    val scrollChild = child.getChildAt(0)
-                    if (scrollChild is android.widget.LinearLayout) {
-                        for (j in 0 until scrollChild.childCount) {
-                            val layoutChild = scrollChild.getChildAt(j)
-                            if (layoutChild is ru.voboost.components.section.Section) {
-                                layoutChild.setLanguage(language)
-                                updateRadioLanguages(layoutChild, language)
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 }
 
-/**
- * Updates theme on Radio children within a Section.
- */
 private fun updateRadioThemes(
     section: ru.voboost.components.section.Section,
     theme: Theme,
@@ -268,9 +250,6 @@ private fun updateRadioThemes(
     }
 }
 
-/**
- * Updates language on Radio children within a Section.
- */
 private fun updateRadioLanguages(
     section: ru.voboost.components.section.Section,
     language: Language,

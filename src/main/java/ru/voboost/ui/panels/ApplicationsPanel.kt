@@ -1,19 +1,14 @@
 package ru.voboost.ui.panels
 
-import ru.voboost.config.models.Tab
+import android.content.Context
 import ru.voboost.ui.ConfigState
-import ru.voboost.ui.components.PanelDefinition
-import ru.voboost.ui.components.panel
+import ru.voboost.components.panel.Panel as LibraryPanel
 
 fun createApplicationsPanel(
-    @Suppress("UNUSED_PARAMETER") configState: ConfigState,
-): PanelDefinition {
-    return panel(Tab.applications, "tab_applications") {
-        section("applications_placeholder", "tab_applications") {
-            text(
-                id = "applications_placeholder",
-                textKey = "applications_placeholder_text",
-            )
-        }
+    context: Context,
+    configState: ConfigState,
+): LibraryPanel {
+    return LibraryPanel(context).apply {
+        setTheme(configState.currentTheme)
     }
 }

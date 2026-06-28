@@ -1,123 +1,83 @@
 package ru.voboost.ui.components
 
 import android.content.Context
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import ru.voboost.components.i18n.Language
-import ru.voboost.components.theme.Theme
 import ru.voboost.ui.ConfigState
 import ru.voboost.ui.resolveLanguage
-import ru.voboost.ui.resolveTheme
 import ru.voboost.components.radio.Radio as LibraryRadio
 import ru.voboost.components.radio.RadioButton as LibraryRadioButton
 
 /**
- * Radio button option data class
- * Matches library naming for consistency
- */
-data class RadioButton(
-    val labelKey: String,
-    val value: String,
-)
-
-/**
- * Radio element for use in Section DSL
- */
-data class Radio(
-    override val id: String,
-    val fieldPath: String?,
-    val options: List<RadioButton>,
-    val defaultValue: String = "",
-    override val visibility: Flow<Boolean> = flowOf(true),
-) : AbstractControl()
-
-/**
- * Creates a native Radio view using the voboost-components library Radio.
+ * Creates a Radio control bound to a ConfigState field.
+ * Uses the library Radio builder with default margins (applied by Section.addRadio).
  *
  * @param context Android context
- * @param element Radio data model
  * @param configState Application config state
- * @return Library Radio view
+ * @param fieldPath Config field path (e.g., "settingsTheme")
+ * @param options List of (labelKey, value) pairs for radio buttons
+ * @param defaultValue Default value when config field is null
+ * @return Library Radio view ready to be added to a Section via addRadio()
  */
-fun createRadioView(
+fun createConfigRadio(
     context: Context,
-    element: Radio,
     configState: ConfigState,
+    fieldPath: String,
+    options: List<Pair<String, String>>,
+    defaultValue: String,
+    titleKey: String? = null,
 ): LibraryRadio {
     val localeManager = configState.localeManager
+    val theme = configState.currentTheme
+    val language = configState.currentLanguage
 
-    // Convert RadioButton to library RadioButton with resolved i18n labels
-    val libraryButtons =
-        element.options.map { option ->
-            val labelMap: Map<String, String> =
+    val buttons =
+        options.map { (labelKey, value) ->
+            LibraryRadioButton(
+                value,
                 mapOf(
-                    Language.EN.getCode() to localeManager.get(option.labelKey, Language.EN),
-                    Language.RU.getCode() to localeManager.get(option.labelKey, Language.RU),
-                )
-            LibraryRadioButton(option.value, labelMap)
-        }
-
-    // Determine initial selected value
-    val selectedValue =
-        if (element.fieldPath != null) {
-            val rawValue = configState.getFieldValue(element.fieldPath) ?: element.defaultValue
-            when (element.fieldPath) {
-                "settingsTheme" -> resolveTheme(rawValue).getValue()
-                "settingsLanguage" -> resolveLanguage(rawValue).getCode()
-                else -> rawValue
-            }
-        } else {
-            element.defaultValue
-        }
-
-    // Get current language
-    val currentLanguage: Language =
-        if (configState.isInitialized()) {
-            configState.languageFlow.value ?: Language.EN
-        } else {
-            Language.EN
-        }
-
-    // Get current theme
-    val currentTheme: Theme =
-        if (configState.isInitialized()) {
-            configState.themeFlow.value ?: Theme.FREE_DARK
-        } else {
-            Theme.FREE_DARK
-        }
-
-    val radio =
-        LibraryRadio(context).apply {
-            setButtons(libraryButtons)
-            setLanguage(currentLanguage)
-            setTheme(currentTheme)
-            setSelectedValue(selectedValue)
-
-            setOnValueChangeListener(
-                LibraryRadio.OnValueChangeListener { newValue ->
-                    if (element.fieldPath != null) {
-                        configState.scope.launch {
-                            configState.updateField(element.fieldPath, newValue)
-                        }
-                    }
-                },
+                    Language.EN.getCode() to localeManager.get(labelKey, Language.EN),
+                    Language.RU.getCode() to localeManager.get(labelKey, Language.RU),
+                ),
             )
         }
 
-    // Subscribe to config changes for reactive updates
-    if (element.fieldPath != null) {
-        configState.scope.launch {
-            configState.fieldFlow(element.fieldPath).collect { value ->
-                if (value != null) {
-                    val resolvedValue =
-                        when (element.fieldPath) {
-                            "settingsTheme" -> resolveTheme(value).getValue()
-                            "settingsLanguage" -> resolveLanguage(value).getCode()
-                            else -> value
-                        }
-                    radio.setSelectedValue(resolvedValue)
+    val rawValue = configState.getFieldValue(fieldPath) ?: defaultValue
+    val selectedValue =
+        when (fieldPath) {
+            "settingsLanguage" -> resolveLanguage(rawValue).getCode()
+            else -> rawValue
+        }
+
+    val builder =
+        LibraryRadio.create(context, theme, language, buttons, selectedValue)
+            .onValueChange { newValue ->
+                configState.scope.launch {
+                    configState.updateField(fieldPath, newValue)
                 }
+            }
+
+    if (titleKey != null) {
+        builder.title(
+            mapOf(
+                Language.EN.getCode() to localeManager.get(titleKey, Language.EN),
+                Language.RU.getCode() to localeManager.get(titleKey, Language.RU),
+            ),
+        )
+    }
+
+    val radio = builder.build()
+
+    // Subscribe to config changes for reactive updates
+    configState.scope.launch {
+        configState.fieldFlow(fieldPath).collect { value ->
+            if (value != null) {
+                val resolvedValue =
+                    when (fieldPath) {
+                        "settingsLanguage" -> resolveLanguage(value).getCode()
+                        else -> value
+                    }
+                radio.setSelectedValue(resolvedValue)
             }
         }
     }
