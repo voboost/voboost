@@ -3,6 +3,7 @@ package ru.voboost.ota
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import ru.voboost.Logger
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -24,6 +25,16 @@ class OtaDownloader(
         private const val DOWNLOAD_TIMEOUT_SECONDS = 30L
         private const val BUFFER_SIZE = 8 * 1024
 
+        // Size caps for downloadBytes (manifest + signature). These bound
+        // the in-memory allocation before the verifier's own size check
+        // runs, so a malicious server returning a multi-GB "manifest"
+        // cannot OOM the app (R3-VBS-03). The manifest cap mirrors
+        // ReleaseManifest.MAX_SIZE_BYTES (1 MiB); the signature cap is
+        // generous for any Ed25519/PEM signature envelope (256 bytes is
+        // 4x a raw Ed25519 sig).
+        const val MAX_MANIFEST_BYTES: Long = 1024 * 1024 // 1 MiB
+        const val MAX_SIGNATURE_BYTES: Long = 256
+
         /**
          * Create default HTTP client.
          */
@@ -39,14 +50,23 @@ class OtaDownloader(
     /**
      * Download raw bytes from a URL (no integrity verification).
      *
-     * Used for fetching the release manifest and its signature.
+     * Used for fetching the release manifest and its signature. The body
+     * is streamed into a bounded buffer: if the server returns more than
+     * [maxBytes] the download is aborted mid-stream with an OtaException,
+     * so a malicious or compromised server cannot OOM the app by returning
+     * a multi-gigabyte "manifest" (R3-VBS-03). OkHttp's `body.bytes()`
+     * has no built-in cap, so we stream manually.
      *
      * @param url Absolute URL
+     * @param maxBytes Maximum accepted body size in bytes; aborts if exceeded
      * @return Downloaded bytes
-     * @throws OtaException if the download fails
+     * @throws OtaException if the download fails or the body exceeds [maxBytes]
      */
-    fun downloadBytes(url: String): ByteArray {
-        Logger.debug(LOG, "Downloading bytes: $url")
+    fun downloadBytes(
+        url: String,
+        maxBytes: Long = MAX_MANIFEST_BYTES,
+    ): ByteArray {
+        Logger.debug(LOG, "Downloading bytes (cap $maxBytes): $url")
 
         val request = Request.Builder().url(url).get().build()
 
@@ -56,7 +76,31 @@ class OtaDownloader(
                     throw OtaException("Download failed: HTTP ${response.code}")
                 }
                 val body = response.body ?: throw OtaException("Empty response body")
-                return body.bytes()
+
+                // Stream into a bounded buffer, aborting once we exceed
+                // maxBytes. ByteArrayOutputStream grows as needed but never
+                // past maxBytes because we throw first.
+                val output = ByteArrayOutputStream()
+                val buffer = ByteArray(BUFFER_SIZE)
+                var total = 0L
+                body.byteStream().use { input: InputStream ->
+                    while (true) {
+                        val read = input.read(buffer)
+                        if (read <= 0) break
+                        total += read
+                        if (total > maxBytes) {
+                            Logger.error(
+                                LOG,
+                                "Body exceeds maxBytes: >$total > $maxBytes",
+                            )
+                            throw OtaException(
+                                "Body exceeds maxBytes: >$total > $maxBytes",
+                            )
+                        }
+                        output.write(buffer, 0, read)
+                    }
+                }
+                return output.toByteArray()
             }
         } catch (e: IOException) {
             Logger.error(LOG, "Download failed: ${e.message}")

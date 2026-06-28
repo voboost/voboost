@@ -315,4 +315,29 @@ class OtaDownloaderTest {
             assertTrue(e.message!!.contains("Download failed"))
         }
     }
+
+    /**
+     * R3-VBS-03: a body larger than maxBytes must abort mid-stream with an
+     * OtaException instead of buffering the whole thing into memory.
+     */
+    @Test
+    fun testDownloadBytesRejectsOversizedBody() {
+        // Body of 64 bytes, cap of 32 bytes -> must abort.
+        val oversized = "x".repeat(64)
+        mockWebServer.enqueue(
+            MockResponse()
+                .setBody(oversized)
+                .setResponseCode(200),
+        )
+
+        try {
+            downloader.downloadBytes(
+                mockWebServer.url("/release-manifest.json").toString(),
+                maxBytes = 32,
+            )
+            fail("Should throw exception for oversized body")
+        } catch (e: OtaException) {
+            assertTrue(e.message!!.contains("exceeds maxBytes"))
+        }
+    }
 }
