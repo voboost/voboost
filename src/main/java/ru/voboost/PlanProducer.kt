@@ -4,6 +4,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import ru.voboost.config.models.Config
 import java.io.File
+import java.io.FileOutputStream
 
 /**
  * Produces inject.json plan from configuration and active features.
@@ -156,19 +157,34 @@ class PlanProducer(private val paths: Paths) {
     }
 
     /**
-     * Writes content to file atomically using temp + rename.
+     * Writes content to file atomically using temp + fsync + rename.
+     *
+     * Mirrors ApkStager.writeFileAtomically: the temp file is fsynced
+     * before the atomic rename so the plan bytes are on stable storage
+     * when the directory entry switches. Without the fsync, a power
+     * loss after the rename could leave a zero-length or partially
+     * flushed inject.json that parses as valid JSON with missing agents
+     * (R3-VBS-02). The daemon treats a missing/empty file as "no plan"
+     * (fail-safe), but a partial-but-valid file would silently drop
+     * injections.
      */
     private fun writeAtomically(
         targetFile: File,
         content: String,
     ) {
-        // Create temp file in same directory
+        // Create temp file in same directory so the rename is atomic
+        // (same filesystem).
         val tempFile =
             File(targetFile.parentFile, ".${targetFile.name}.tmp")
 
         try {
-            // Write to temp file
-            tempFile.writeText(content)
+            // Write + fsync the temp file. FileOutputStream.use closes
+            // the stream in all cases; output.fd.sync() forces the
+            // bytes to stable storage before the rename below.
+            FileOutputStream(tempFile).use { output ->
+                output.write(content.toByteArray(Charsets.UTF_8))
+                output.fd.sync()
+            }
 
             // Rename atomically
             if (!tempFile.renameTo(targetFile)) {
