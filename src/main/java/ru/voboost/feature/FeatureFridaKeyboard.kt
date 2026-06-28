@@ -1,25 +1,24 @@
 package ru.voboost.feature
 
-import org.json.JSONObject
 import ru.voboost.Logger
+import ru.voboost.PlanProducer
 
 /**
  * Russian keyboard feature implementation.
  *
- * This feature enables Russian keyboard layout support by injecting a Frida script
- * into the Qinggan IME (Input Method Editor) process. The script modifies the keyboard
- * to add Russian language layout alongside existing layouts.
+ * This feature enables Russian keyboard layout support by declaring an agent
+ * configuration in inject.json. The daemon handles the actual injection into
+ * the Qinggan IME (Input Method Editor) process.
  *
  * ## Configuration
- * - **Feature ID**: `interface-keyboard`
+ * - **Agent ID**: `keyboard-ru`
  * - **Target Process**: `com.qinggan.app.qgime`
- * - **Script Name**: `keyboard-ru-mod`
  * - **Config Key**: `interfaceKeyboard`
  *
  * ## Activation Conditions
  * The feature is enabled when configuration value is set to "enable-russian".
  *
- * ## Script Parameters
+ * ## Agent Configuration
  * - `layout`: Set to "russian" to enable Russian keyboard layout
  *
  * @see FeatureFrida
@@ -32,31 +31,37 @@ class FeatureFridaKeyboard : FeatureFrida() {
     }
 
     /**
+     * The agent ID for keyboard modifications.
+     */
+    override val agentId: String = "keyboard-ru"
+
+    /**
      * The target process for keyboard modification.
      * Targets the Qinggan IME application.
      */
     override val targetProcess: String = "com.qinggan.app.qgime"
 
     /**
-     * The Frida script name for keyboard modifications.
-     */
-    override val scriptName: String = "keyboard-ru-mod"
-
-    /**
      * Checks if the Russian keyboard feature should be enabled.
      *
      * The feature is enabled when:
      * 1. Configuration value matches "enable-russian"
-     * 2. Target process is available (checked by parent class)
      *
      * @param context The feature context containing system dependencies
      * @return Result containing true if feature should be enabled, false otherwise
      */
     override fun shouldEnableImpl(context: FeatureContext): Result<Boolean> {
         return try {
+            // Desktop doesn't support this feature
+            if (context.androidContext == null) {
+                Logger.debug(TAG, "Russian keyboard feature not supported on desktop")
+                return Result.success(false)
+            }
+
             // Check configuration value
-            val configValue = context.config.interfaceKeyboard
-            if (configValue != CONFIG_VALUE_ENABLE) {
+            val configManager = ru.voboost.config.ConfigManager(context.androidContext)
+            val configValue = configManager.getFieldValue("interfaceKeyboard")
+            if (configValue?.lowercase() != CONFIG_VALUE_ENABLE) {
                 Logger.debug(
                     TAG,
                     "Russian keyboard feature disabled in config: $configValue",
@@ -76,24 +81,38 @@ class FeatureFridaKeyboard : FeatureFrida() {
     }
 
     /**
-     * Builds script parameters for Russian keyboard modification.
+     * Builds agent configuration for Russian keyboard modification.
      *
-     * Parameters include:
+     * Configuration includes:
      * - `layout`: Set to "russian" to enable Russian keyboard layout
      *
-     * @return JSONObject containing script parameters
+     * @param context The feature context containing system dependencies
+     * @return Map of configuration key-value pairs for the agent
      */
-    override fun getScriptParameters(): JSONObject? {
-        return try {
-            JSONObject().apply {
-                put("layout", "russian")
-            }
-        } catch (e: Exception) {
-            Logger.error(
-                TAG,
-                "Failed to build script parameters: ${e.message}",
-            )
-            null
+    override fun getAgentConfig(context: FeatureContext): Map<String, Any?> {
+        return mapOf(
+            "layout" to "russian",
+        )
+    }
+
+    /**
+     * Returns the plan entry for inject.json.
+     *
+     * @param context The feature context containing system dependencies
+     * @return AgentEntry for inject.json, or null if feature not active
+     */
+    override fun planEntry(context: FeatureContext): PlanProducer.AgentEntry? {
+        val shouldEnableResult = shouldEnableImpl(context)
+        val shouldEnable = shouldEnableResult.getOrDefault(false)
+
+        if (!shouldEnable) {
+            return null
         }
+
+        return PlanProducer.AgentEntry(
+            id = agentId,
+            enabled = true,
+            config = getAgentConfig(context),
+        )
     }
 }

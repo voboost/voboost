@@ -17,12 +17,13 @@ import java.util.concurrent.TimeUnit
  * Thread-safe: uses SingleThreadExecutor to serialize all writes.
  * Rotation: old logs cleaned on init().
  *
- * Log files are stored in Context.getFilesDir() (e.g., /data/data/ru.voboost/files/)
+ * Log files are stored in Context.dataDir/logs/ (e.g., /data/data/ru.voboost/logs/)
  */
 class Logger private constructor(
     private val logDirectory: File,
     private var currentLevel: Level = Level.INFO,
     private val retentionDays: Int = 7,
+    private val consoleOutput: Boolean = false,
 ) {
     /**
      * Log levels with priority ordering.
@@ -175,6 +176,11 @@ class Logger private constructor(
         val timestamp = timestampFormat().format(Date())
         val logLine = "$timestamp ${level.tag} $source: $message"
 
+        // Print to console if enabled
+        if (consoleOutput) {
+            println(logLine)
+        }
+
         // Async write to avoid blocking caller
         executor.execute {
             writeToFile(logLine)
@@ -251,6 +257,7 @@ class Logger private constructor(
             logDirectory: File,
             level: String = "info",
             retentionDays: Int = 7,
+            console: Boolean = false,
         ): Logger {
             val logger =
                 Logger(
@@ -262,6 +269,7 @@ class Logger private constructor(
                             Level.INFO
                         },
                     retentionDays = retentionDays,
+                    consoleOutput = console,
                 )
             logger.initialize()
             return logger
@@ -281,12 +289,13 @@ class Logger private constructor(
             context: Context,
             level: String = "info",
             retentionDays: Int = 7,
+            console: Boolean = false,
         ) {
             if (instance != null) return
 
             instance =
                 Logger(
-                    logDirectory = context.filesDir,
+                    logDirectory = File(context.dataDir, "logs"),
                     currentLevel =
                         try {
                             Level.valueOf(level.uppercase())
@@ -294,6 +303,7 @@ class Logger private constructor(
                             Level.INFO
                         },
                     retentionDays = retentionDays,
+                    consoleOutput = console,
                 )
             instance?.initialize()
         }
@@ -312,6 +322,7 @@ class Logger private constructor(
             logDirectory: File,
             level: String = "info",
             retentionDays: Int = 7,
+            console: Boolean = false,
         ) {
             if (instance != null) return
             instance =
@@ -324,6 +335,7 @@ class Logger private constructor(
                             Level.INFO
                         },
                     retentionDays = retentionDays,
+                    consoleOutput = console,
                 )
             instance?.initialize()
         }

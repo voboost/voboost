@@ -1,6 +1,8 @@
 package ru.voboost
 
 import android.app.Activity
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
@@ -8,14 +10,22 @@ import ru.voboost.ui.ConfigState
 import ru.voboost.ui.components.buildScreen
 
 class MainActivity : Activity() {
-    private lateinit var paths: Paths
-    private lateinit var fridaManager: FridaManager
-    private lateinit var vehicleManager: VehicleManager
-    private lateinit var agentManager: FridaAgentManager
+    private lateinit var paths: PathsAndroid
+    private lateinit var vehicleManager: VehicleManagerAndroid
+    private lateinit var planProducer: PlanProducer
+    private lateinit var statusReader: StatusReader
     private lateinit var configState: ConfigState
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Start Voboost service
+        val serviceIntent = Intent(this, VoboostService::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent)
+        } else {
+            startService(serviceIntent)
+        }
 
         // Initialize paths
         paths = PathsAndroid(applicationContext)
@@ -24,9 +34,9 @@ class MainActivity : Activity() {
         Logger.init(this, level = "debug")
 
         // Initialize managers
-        fridaManager = FridaManagerAndroid(paths)
         vehicleManager = VehicleManagerAndroid(applicationContext)
-        agentManager = FridaAgentManager(fridaManager)
+        planProducer = PlanProducer(paths)
+        statusReader = StatusReader(paths)
 
         // Log vehicle info
         vehicleManager.getVehicleInfo().onSuccess { info ->
@@ -34,6 +44,8 @@ class MainActivity : Activity() {
                 "MainActivity",
                 "Vehicle: ${info.model} (${info.year}), Firmware: ${info.firmware}",
             )
+        }.onFailure { error ->
+            Logger.debug("MainActivity", "Could not get vehicle info: ${error.message}")
         }
 
         // Initialize ConfigState
@@ -50,7 +62,6 @@ class MainActivity : Activity() {
     override fun onDestroy() {
         super.onDestroy()
         configState.shutdown()
-        fridaManager.shutdown()
         Logger.shutdown()
     }
 

@@ -1,15 +1,23 @@
-# Voboost Configuration File
+# Voboost 1.0.0 alpha1 - Default Configuration
+#
+# This file is the default configuration. It is copied to the app data
+# directory on first launch. Edit the copy in the app data directory
+# to change settings.
 
 # Application Settings
+# Language: en, ru
 settings-language: ru
-settings-theme: free-dark
-settings-interface-shift-x: 0
-settings-interface-shift-y: 0
-settings-active-tab: store
+# Theme: dark, light
+settings-theme: dark
+# Car Model: free, dreamer
+settings-car-model: free
+settings-interface-shift-x: 145
+settings-interface-shift-y: 50
+settings-active-tab: settings
+# Startup Mode: off, hidden, interface
+settings-startup: interface
 
-# Vehicle Configuration
-vehicle-fuel-mode: electric
-vehicle-drive-mode: comfort
-
-# Vehicle Model Settings
-vehicle-model: free  # free or dreamer
+# Vehicle Pedestrian Warning Sound
+# original — vehicle default behavior
+# off — turn off pedestrian warning sound
+vehicle-pedestrian-warning: original

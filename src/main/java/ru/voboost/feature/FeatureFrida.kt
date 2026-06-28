@@ -1,91 +1,74 @@
 package ru.voboost.feature
 
 import ru.voboost.Logger
-import java.io.File
+import ru.voboost.PlanProducer
 
 /**
- * Abstract base class for Frida-based features.
- * Provides common functionality for script injection lifecycle management
- * and script file resolution based on log level.
+ * Abstract base class for Frida-based features in daemon-contract architecture.
  *
- * This class handles the boilerplate of Frida script injection, including
- * script path resolution, injection lifecycle, and cleanup operations.
- * Concrete implementations only need to provide the target process name
- * and script file name.
+ * In the new architecture, features no longer perform direct injection. Instead,
+ * they declare their agent configuration through the planEntry() method, which
+ * is collected by FeatureManager and passed to PlanProducer to generate inject.json.
+ *
+ * Concrete implementations must provide:
+ * - agentId: The agent identifier matching the daemon manifest
+ * - targetProcess: The target process name (for documentation/mapping)
+ * - planEntry(): Returns the agent configuration or null if feature not active
+ * - shouldEnableImpl(): Feature-specific enablement logic
+ *
+ * ## Example
+ * ```kotlin
+ * class FeatureFridaWeather : FeatureFrida() {
+ *     override val agentId = "weather-widget"
+ *     override val targetProcess = "com.qinggan.app.launcher"
+ *
+ *     override fun shouldEnableImpl(context: FeatureContext): Result<Boolean> {
+ *         // Check config, vehicle model, etc.
+ *         return Result.success(configValue == "enable-non-chinese-cities")
+ *     }
+ *
+ *     override fun planEntry(context: FeatureContext): PlanProducer.AgentEntry? {
+ *         if (!shouldEnableImpl(context).getOrDefault(false)) return null
+ *         return PlanProducer.AgentEntry(
+ *             id = agentId,
+ *             enabled = true,
+ *             config = mapOf("language" to "en")
+ *         )
+ *     }
+ * }
+ * ```
  */
 abstract class FeatureFrida : Feature {
+    companion object {
+        private const val TAG = "FeatureFrida"
+    }
+
     /**
-     * The target process name for script injection.
+     * The agent identifier matching the daemon manifest.
      * Concrete implementations must provide this value.
-     *
-     * @return The target process name (e.g., "com.qinggan.app.launcher")
      */
-    protected abstract val targetProcess: String
+    abstract val agentId: String
 
     /**
-     * The base script file name without extension or log level suffix.
-     * Concrete implementations must provide this value.
-     *
-     * @return The base script file name (e.g., "weather-widget-mod")
+     * The target process name for documentation/mapping purposes.
+     * This is NOT used for injection in daemon-contract architecture.
      */
-    protected abstract val scriptName: String
-
-    /**
-     * Optional parameters to pass to the Frida script.
-     * Default implementation returns null.
-     *
-     * @return JSONObject with parameters or null if no parameters needed
-     */
-    protected open fun getScriptParameters(): org.json.JSONObject? = null
-
-    /**
-     * The current injection ID for tracking purposes.
-     * This is managed internally by the base class.
-     */
-    private var injectionId: String? = null
+    abstract val targetProcess: String
 
     /**
      * Checks if the feature should be enabled based on current system state.
-     * This method first delegates to shouldEnableImpl() for feature-specific checks
-     * (config, vehicle model, etc.), and only if those pass, checks target process availability.
-     * This order is more efficient as it avoids unnecessary process checks when the feature
-     * is disabled in configuration.
+     * This method delegates to shouldEnableImpl() for feature-specific checks.
      *
      * @param context The feature context containing system dependencies
      * @return Result containing true if feature should be enabled, false otherwise
      */
     override fun shouldEnable(context: FeatureContext): Result<Boolean> {
         return try {
-            // First check feature-specific conditions (config, vehicle model, etc.)
-            val shouldEnableResult = shouldEnableImpl(context)
-
-            // If feature-specific checks fail, return early
-            shouldEnableResult.fold(
-                onSuccess = { shouldEnable ->
-                    if (!shouldEnable) {
-                        return Result.success(false)
-                    }
-                },
-                onFailure = { error ->
-                    return Result.failure(error)
-                },
-            )
-
-            // Only check target process availability if feature should be enabled
-            val isTargetAvailable = checkTargetProcessAvailability(context)
-            if (!isTargetAvailable) {
-                Logger.info(
-                    "FeatureFrida",
-                    "Target process not available: $targetProcess",
-                )
-                return Result.success(false)
-            }
-
-            Result.success(true)
+            shouldEnableImpl(context)
         } catch (e: Exception) {
             Logger.error(
-                "FeatureFrida",
-                "Failed to check if feature should be enabled: ${e.message}",
+                TAG,
+                "Failed to check if $agentId should be enabled: ${e.message}",
             )
             Result.failure(e)
         }
@@ -93,11 +76,10 @@ abstract class FeatureFrida : Feature {
 
     /**
      * Implementation-specific check for whether the feature should be enabled.
-     * This method is called after the target process availability check passes.
      * Concrete implementations should override this method to provide their
-     * specific enablement logic.
+     * specific enablement logic (config checks, vehicle model checks, etc.).
      *
-     * Default implementation returns true (feature should be enabled if target is available).
+     * Default implementation returns true (feature should be enabled).
      *
      * @param context The feature context containing system dependencies
      * @return Result containing true if feature should be enabled, false otherwise
@@ -107,162 +89,70 @@ abstract class FeatureFrida : Feature {
     }
 
     /**
-     * Enables the feature by injecting the appropriate Frida script.
-     * Resolves script file based on current log level and manages injection lifecycle.
+     * Returns the agent configuration for inject.json, or null if not active.
+     * This is the key method in daemon-contract architecture - it declares
+     * what should be injected rather than performing injection itself.
+     *
+     * Default implementation checks shouldEnableImpl() and returns null if
+     * not enabled, otherwise returns a basic enabled entry with empty config.
+     *
+     * Concrete implementations should override this to provide agent-specific
+     * configuration in the config map.
      *
      * @param context The feature context containing system dependencies
-     * @return Result indicating success or failure of enable operation
+     * @return AgentEntry for inject.json, or null if feature not active
+     */
+    open fun planEntry(context: FeatureContext): PlanProducer.AgentEntry? {
+        val shouldEnableResult = shouldEnableImpl(context)
+        val shouldEnable = shouldEnableResult.getOrDefault(false)
+
+        if (!shouldEnable) {
+            Logger.debug(TAG, "Feature $agentId not active, skipping plan entry")
+            return null
+        }
+
+        return PlanProducer.AgentEntry(
+            id = agentId,
+            enabled = true,
+            config = getAgentConfig(context),
+        )
+    }
+
+    /**
+     * Returns the agent-specific configuration map.
+     * Concrete implementations should override this to provide their
+     * specific configuration values.
+     *
+     * Default implementation returns empty map.
+     *
+     * @param context The feature context containing system dependencies
+     * @return Map of configuration key-value pairs for the agent
+     */
+    protected open fun getAgentConfig(context: FeatureContext): Map<String, Any?> {
+        return emptyMap()
+    }
+
+    /**
+     * Enables the feature - no-op in daemon-contract architecture.
+     * Actual injection is handled by the daemon based on inject.json.
+     *
+     * @param context The feature context containing system dependencies
+     * @return Result.success(Unit) - always succeeds
      */
     override fun enable(context: FeatureContext): Result<Unit> {
-        return try {
-            // Check if already enabled
-            if (injectionId != null) {
-                Logger.info(
-                    "FeatureFrida",
-                    "Feature already enabled for target: $targetProcess",
-                )
-                return Result.success(Unit)
-            }
-
-            // Resolve script path based on log level
-            val scriptPath = resolveScriptPath(context)
-            if (!scriptPath.exists()) {
-                val error = "Script file not found: $scriptPath"
-                Logger.error("FeatureFrida", error)
-                return Result.failure(Exception(error))
-            }
-
-            // Get script parameters
-            val params = getScriptParameters()
-
-            // Inject the script
-            val injectResult =
-                context.fridaManager.injectScript(
-                    targetProcess = targetProcess,
-                    scriptPath = scriptPath.absolutePath,
-                    params = params,
-                )
-
-            injectResult.fold(
-                onSuccess = { id: String ->
-                    injectionId = id
-                    Logger.info(
-                        "FeatureFrida",
-                        "Successfully enabled feature for target: $targetProcess " +
-                            "with injection ID: $id",
-                    )
-                    Result.success(Unit)
-                },
-                onFailure = { error: Throwable ->
-                    Logger.error(
-                        "FeatureFrida",
-                        "Failed to inject script for target: $targetProcess, " +
-                            "error: ${error.message}",
-                    )
-                    Result.failure(error)
-                },
-            )
-        } catch (e: Exception) {
-            Logger.error(
-                "FeatureFrida",
-                "Failed to enable feature for target: $targetProcess, error: ${e.message}",
-            )
-            Result.failure(e)
-        }
+        Logger.debug(TAG, "Feature $agentId enable requested (no-op in daemon-contract)")
+        return Result.success(Unit)
     }
 
     /**
-     * Disables the feature by stopping the active injection.
-     * Performs cleanup of all feature-related changes.
+     * Disables the feature - no-op in daemon-contract architecture.
+     * Actual injection lifecycle is managed by the daemon.
      *
      * @param context The feature context containing system dependencies
-     * @return Result indicating success or failure of disable operation
+     * @return Result.success(Unit) - always succeeds
      */
     override fun disable(context: FeatureContext): Result<Unit> {
-        return try {
-            val currentInjectionId = injectionId
-            if (currentInjectionId == null) {
-                Logger.info(
-                    "FeatureFrida",
-                    "Feature not enabled for target: $targetProcess",
-                )
-                return Result.success(Unit)
-            }
-
-            // Stop the injection
-            val stopResult = context.fridaManager.stopInjection(currentInjectionId)
-
-            stopResult.fold(
-                onSuccess = { _: Unit ->
-                    injectionId = null
-                    Logger.info(
-                        "FeatureFrida",
-                        "Successfully disabled feature for target: $targetProcess",
-                    )
-                    Result.success(Unit)
-                },
-                onFailure = { error: Throwable ->
-                    Logger.error(
-                        "FeatureFrida",
-                        "Failed to stop injection for target: $targetProcess, " +
-                            "error: ${error.message}",
-                    )
-                    Result.failure(error)
-                },
-            )
-        } catch (e: Exception) {
-            Logger.error(
-                "FeatureFrida",
-                "Failed to disable feature for target: $targetProcess, error: ${e.message}",
-            )
-            Result.failure(e)
-        }
+        Logger.debug(TAG, "Feature $agentId disable requested (no-op in daemon-contract)")
+        return Result.success(Unit)
     }
-
-    /**
-     * Resolves the script file path based on current log level.
-     * Uses debug version of script if log level is debug, otherwise uses standard version.
-     *
-     * @param context The feature context containing system dependencies
-     * @return File object representing the resolved script path
-     */
-    private fun resolveScriptPath(context: FeatureContext): File {
-        val logLevel = Logger.getLevel()
-        val scriptFileName =
-            if (logLevel == "debug") {
-                "${scriptName}_debug.js"
-            } else {
-                "$scriptName.js"
-            }
-
-        return File(context.paths.scriptsDirectory, scriptFileName)
-    }
-
-    /**
-     * Checks if the target process is available for injection.
-     * Default implementation always returns true, but can be overridden
-     * by concrete implementations to perform specific checks.
-     *
-     * @param context The feature context containing system dependencies
-     * @return true if target process is available, false otherwise
-     */
-    protected open fun checkTargetProcessAvailability(context: FeatureContext): Boolean {
-        // Default implementation assumes target is always available
-        // Concrete implementations can override this to perform actual checks
-        return true
-    }
-
-    /**
-     * Gets the current injection ID for this feature.
-     *
-     * @return The injection ID if feature is enabled, null otherwise
-     */
-    fun getInjectionId(): String? = injectionId
-
-    /**
-     * Checks if the feature is currently enabled.
-     *
-     * @return true if feature is enabled (injection active), false otherwise
-     */
-    fun isEnabled(): Boolean = injectionId != null
 }

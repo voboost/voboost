@@ -1,28 +1,26 @@
 package ru.voboost.feature
 
-import org.json.JSONObject
 import ru.voboost.Logger
+import ru.voboost.PlanProducer
 
 /**
  * Weather widget feature implementation.
  *
  * This feature enables weather widget modifications to support non-Chinese cities
- * by injecting a Frida script into the launcher process. The script modifies the
- * weather widget behavior to allow city selection and weather data display for
- * international locations.
+ * by declaring an agent configuration in inject.json. The daemon handles the actual
+ * injection into the launcher process.
  *
  * ## Configuration
- * - **Feature ID**: `interface-widget-weather`
+ * - **Agent ID**: `weather-widget`
  * - **Target Process**: `com.qinggan.app.launcher`
- * - **Script Name**: `weather-widget-mod`
  * - **Config Key**: `interfaceWidgetWeather`
  *
  * ## Activation Conditions
- *  The feature is enabled when:
+ * The feature is enabled when:
  * 1. Configuration value is set to "enable-non-chinese-cities"
  * 2. The feature is supported by the vehicle
  *
- * ## Script Parameters
+ * ## Agent Configuration
  * - `enableNonChineseCities`: Always set to true when enabled
  * - `language`: Current vehicle language setting
  *
@@ -37,15 +35,15 @@ class FeatureFridaWeather : FeatureFrida() {
     }
 
     /**
+     * The agent ID for weather widget modifications.
+     */
+    override val agentId: String = "weather-widget"
+
+    /**
      * The target process for weather widget modification.
      * Targets the Qinggan launcher application.
      */
     override val targetProcess: String = "com.qinggan.app.launcher"
-
-    /**
-     * The Frida script name for weather widget modifications.
-     */
-    override val scriptName: String = "weather-widget-mod"
 
     /**
      * Checks if the weather widget feature should be enabled.
@@ -53,16 +51,22 @@ class FeatureFridaWeather : FeatureFrida() {
      * The feature is enabled when:
      * 1. Configuration value matches "enable-non-chinese-cities"
      * 2. The feature is supported by the vehicle
-     * 3. Target process is available (checked by parent class)
      *
      * @param context The feature context containing system dependencies
      * @return Result containing true if feature should be enabled, false otherwise
      */
     override fun shouldEnableImpl(context: FeatureContext): Result<Boolean> {
         return try {
+            // Desktop doesn't support this feature
+            if (context.androidContext == null) {
+                Logger.debug(TAG, "Weather widget feature not supported on desktop")
+                return Result.success(false)
+            }
+
             // Check configuration value
-            val configValue = context.config.interfaceWidgetWeather
-            if (configValue != CONFIG_VALUE_ENABLE) {
+            val configManager = ru.voboost.config.ConfigManager(context.androidContext)
+            val configValue = configManager.getFieldValue("interfaceWidgetWeather")
+            if (configValue?.lowercase() != CONFIG_VALUE_ENABLE) {
                 Logger.debug(
                     TAG,
                     "Weather widget feature disabled in config: $configValue",
@@ -103,28 +107,41 @@ class FeatureFridaWeather : FeatureFrida() {
     }
 
     /**
-     * Builds script parameters for weather widget modification.
+     * Builds agent configuration for weather widget modification.
      *
-     * Parameters include:
+     * Configuration includes:
      * - `enableNonChineseCities`: Set to true to enable non-Chinese city support
      * - `language`: Current vehicle language setting for localization
      *
-     * @return JSONObject containing script parameters
+     * @param context The feature context containing system dependencies
+     * @return Map of configuration key-value pairs for the agent
      */
-    override fun getScriptParameters(): JSONObject? {
-        return try {
-            JSONObject().apply {
-                put("enableNonChineseCities", true)
-                // Language will be determined by the script based on system settings
-                // but we can pass it explicitly if needed
-                put("language", "en") // Default to English for international cities
-            }
-        } catch (e: Exception) {
-            Logger.error(
-                TAG,
-                "Failed to build script parameters: ${e.message}",
-            )
-            null
+    override fun getAgentConfig(context: FeatureContext): Map<String, Any?> {
+        return mapOf(
+            "enableNonChineseCities" to true,
+            // Default to English for international cities
+            "language" to "en",
+        )
+    }
+
+    /**
+     * Returns the plan entry for inject.json.
+     *
+     * @param context The feature context containing system dependencies
+     * @return AgentEntry for inject.json, or null if feature not active
+     */
+    override fun planEntry(context: FeatureContext): PlanProducer.AgentEntry? {
+        val shouldEnableResult = shouldEnableImpl(context)
+        val shouldEnable = shouldEnableResult.getOrDefault(false)
+
+        if (!shouldEnable) {
+            return null
         }
+
+        return PlanProducer.AgentEntry(
+            id = agentId,
+            enabled = true,
+            config = getAgentConfig(context),
+        )
     }
 }
