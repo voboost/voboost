@@ -31,6 +31,14 @@ import org.json.JSONObject
 class StatusReader(private val paths: Paths) {
     companion object {
         private const val LOG = "StatusReader"
+
+        // Cap on the status file size before reading. The daemon writes
+        // inject-status.json atomically (temp + rename) and it is always
+        // small (a few KiB). A pathologically large file signals a corrupt
+        // or hostile write; reject it instead of loading unbounded bytes
+        // into memory (R4-VBS carried finding: StatusReader.readText() had
+        // no size cap).
+        private const val MAX_STATUS_BYTES = 64 * 1024L
     }
 
     /**
@@ -96,6 +104,19 @@ class StatusReader(private val paths: Paths) {
         // Return null if file doesn't exist
         if (!statusFile.exists()) {
             Logger.debug(LOG, "Status file not found: ${statusFile.absolutePath}")
+            return null
+        }
+
+        // Reject an oversized file before reading it into memory. The status
+        // file is daemon-written and always small; a large file signals a
+        // corrupt or hostile write (R4-VBS: no size cap on readText()).
+        val length = statusFile.length()
+        if (length > MAX_STATUS_BYTES) {
+            Logger.error(
+                LOG,
+                "Status file exceeds size cap ($length > $MAX_STATUS_BYTES)" +
+                    ": ${statusFile.absolutePath}",
+            )
             return null
         }
 
