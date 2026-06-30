@@ -41,6 +41,14 @@ class VoboostService : Service() {
         private const val CHANNEL_ID = "VoboostServiceChannel"
         private const val CHANNEL_NAME = "Voboost Service"
         private const val OTA_CHECK_INTERVAL_MS = 12 * 60 * 60 * 1000L // 12 hours
+
+        // Delay before re-checking OTA readiness when config or daemon
+        // status is not yet available. The first periodic check used to run
+        // before config was loaded and before the daemon had written
+        // inject-status.json, so it would no-op or fail on every boot until
+        // both were ready (R4-VBS-02). Gate the check and back off briefly
+        // instead of hammering the cycle.
+        private const val OTA_NOT_READY_DELAY_MS = 30 * 1000L // 30 seconds
     }
 
     private lateinit var paths: PathsAndroid
@@ -195,26 +203,47 @@ class VoboostService : Service() {
     private fun startPeriodicOtaChecks() {
         serviceScope.launch {
             while (true) {
+                var delayMs = OTA_CHECK_INTERVAL_MS
                 try {
-                    checkOtaUpdates()
+                    delayMs = checkOtaUpdates()
                 } catch (e: Exception) {
                     Logger.error(LOG, "OTA check failed: ${e.message}")
                 }
 
-                delay(OTA_CHECK_INTERVAL_MS)
+                delay(delayMs)
             }
         }
     }
 
     /**
      * Check for OTA updates and stage if available.
+     *
+     * Returns the delay (ms) the caller should wait before the next cycle.
+     * Returns [OTA_NOT_READY_DELAY_MS] when config or daemon status is not
+     * yet available, so the first check does not run before the config is
+     * loaded and the daemon has written inject-status.json (R4-VBS-02).
+     * Otherwise returns [OTA_CHECK_INTERVAL_MS].
      */
-    private fun checkOtaUpdates() {
+    private fun checkOtaUpdates(): Long {
         val client =
             otaClient ?: run {
                 Logger.debug(LOG, "OTA client not initialized")
-                return
+                return OTA_CHECK_INTERVAL_MS
             }
+
+        // Gate: do not run the OTA cycle until config is loaded and the
+        // daemon has published a status file. The first periodic check used
+        // to fire before either was ready (R4-VBS-02), no-op'ing or failing
+        // on every boot until they became available. Back off briefly and
+        // re-check instead of consuming a full 12h interval on a no-op.
+        if (configManager.getConfig() == null) {
+            Logger.debug(LOG, "OTA check skipped: config not ready")
+            return OTA_NOT_READY_DELAY_MS
+        }
+        if (statusReader.read() == null) {
+            Logger.debug(LOG, "OTA check skipped: daemon status not ready")
+            return OTA_NOT_READY_DELAY_MS
+        }
 
         try {
             Logger.info(LOG, "Checking for OTA updates...")
@@ -235,6 +264,7 @@ class VoboostService : Service() {
             Logger.error(LOG, "OTA update check failed: ${e.message}")
             // Don't crash the service on OTA errors
         }
+        return OTA_CHECK_INTERVAL_MS
     }
 
     /**
