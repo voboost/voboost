@@ -148,4 +148,13 @@ openspec/                    # specs (local-emulator-testing, ota-client)
 
 ## License
 
-GPL-3.0
+This project is dual-licensed:
+
+1. **PolyForm Noncommercial License 1.0.0** — free for personal, non-commercial use.
+   See [LICENSE](LICENSE) for the full text.
+2. **Commercial License** — required for any commercial use (e.g., bundling into
+   vehicles for sale, paid installation services, fleet deployment).
+   See [COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md) or contact vitaly@voboost.ru.
+
+Contributors must agree to the [Contributor License Agreement](.github/CLA.md)
+before their contributions can be accepted.
