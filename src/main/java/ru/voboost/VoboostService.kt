@@ -83,8 +83,12 @@ class VoboostService : Service() {
         statusReader = StatusReader(paths)
         featureManager = FeatureManager()
 
-        // Initialize OTA client if configured
-        initializeOtaClient()
+        // NOTE: OTA client initialization is deferred to onStartCommand(),
+        // after configManager.loadConfig() has completed. Running it here in
+        // onCreate() caused the first periodic check to fire before config
+        // was loaded, so it was skipped ("config not ready") and delayed 30s
+        // (M1). Initializing after config load lets the first check run
+        // immediately on the normal cycle.
 
         // Log vehicle info
         vehicleManager.getVehicleInfo().onSuccess { info ->
@@ -119,6 +123,14 @@ class VoboostService : Service() {
             return START_NOT_STICKY
         }
         config = configResult.getOrThrow()
+
+        // Initialize the OTA client now that config is loaded, so the first
+        // periodic check runs against a ready config instead of being
+        // skipped and delayed 30s (M1). Guarded against re-init on repeated
+        // onStartCommand() invocations.
+        if (otaClient == null) {
+            initializeOtaClient()
+        }
 
         when (startupMode) {
             StartupMode.off -> {
@@ -159,13 +171,24 @@ class VoboostService : Service() {
      */
     private fun initializeOtaClient() {
         try {
-            // OTA base URL - configurable via BuildConfig or constant
-            val baseUrl = BuildConfig.OTA_BASE_URL
+            // OTA manifest URL - configurable via BuildConfig. Full URL to the
+            // unified manifest.json (GitHub raw for production, file:// for
+            // local emulator testing). The signature URL is derived by
+            // replacing the .json suffix with .sig.
+            val manifestUrl = BuildConfig.OTA_MANIFEST_URL
 
-            if (baseUrl.isEmpty() || baseUrl == "TODO_SET_PRODUCTION_URL") {
-                Logger.debug(LOG, "OTA base URL not configured, skipping OTA client initialization")
+            if (manifestUrl.isEmpty() || manifestUrl == "TODO_SET_PRODUCTION_URL") {
+                Logger.debug(
+                    LOG,
+                    "OTA manifest URL not configured, skipping OTA client initialization",
+                )
                 return
             }
+
+            // Release track (dev/testing/production). Read from the on-device
+            // config.yaml `ota.track` key (default production). The emulator
+            // test overrides this to "testing" via the config file on device.
+            val track = readOtaTrack()
 
             // Public key file for manifest verification
             val publicKeyFile = File(filesDir, "config/release-public.pem")
@@ -178,7 +201,8 @@ class VoboostService : Service() {
             // daemon version read from inject-status.json's `daemon` field.
             val otaConfig =
                 OtaConfig(
-                    baseUrl = baseUrl,
+                    manifestUrl = manifestUrl,
+                    track = track,
                     publicKeyFile = publicKeyFile,
                     currentAppVersion = BuildConfig.VERSION_NAME,
                     daemonVersionReader = {
@@ -188,12 +212,35 @@ class VoboostService : Service() {
                 )
 
             otaClient = OtaClient(paths, otaConfig)
-            Logger.info(LOG, "OTA client initialized with base URL: $baseUrl")
+            Logger.info(LOG, "OTA client initialized (manifest=$manifestUrl, track=$track)")
 
             // Start periodic OTA checks
             startPeriodicOtaChecks()
         } catch (e: Exception) {
             Logger.error(LOG, "Failed to initialize OTA client: ${e.message}")
+        }
+    }
+
+    /**
+     * Read the `ota.track` setting from the on-device config.yaml.
+     *
+     * The config is flat kebab-case YAML (e.g. `ota.track: testing`). Returns
+     * the configured track, or [OtaConfig.DEFAULT_TRACK] ("production") when
+     * the key is absent or the file cannot be read. Read directly from the
+     * config file rather than the typed [ru.voboost.config.models.Config]
+     * model so the `ota.track` key does not require a change to the
+     * voboost-config library.
+     */
+    private fun readOtaTrack(): String {
+        return try {
+            val configFile = paths.configFile
+            if (!configFile.exists()) return OtaConfig.DEFAULT_TRACK
+            val line = configFile.readLines().find { it.startsWith("ota.track:") }
+            val value = line?.substringAfter("ota.track:")?.trim()
+            if (value.isNullOrEmpty()) OtaConfig.DEFAULT_TRACK else value
+        } catch (e: Exception) {
+            Logger.debug(LOG, "Failed to read ota.track, defaulting to production: ${e.message}")
+            OtaConfig.DEFAULT_TRACK
         }
     }
 

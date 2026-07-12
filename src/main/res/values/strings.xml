@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">Voboost</string>
 
-    <!-- Settings panel title -->
-    <string name="settings_title">Voboost 1.0.0 alpha1</string>
+    <!-- Settings panel title (fallback; runtime appends BuildConfig.VERSION_NAME) -->
+    <string name="settings_title">Voboost</string>
 
     <!-- Tab names -->
     <string name="tab_store">Store</string>
@@ -45,6 +45,31 @@
     <!-- Vehicle settings -->
     <string name="vehicle_settings">Vehicle Settings</string>
 
+    <!-- Interface settings -->
+    <string name="interface_settings">Interface Settings</string>
+    <string name="interface_phone_numbers">Phone numbers</string>
+    <string name="phone_numbers_original">Original</string>
+    <string name="phone_numbers_always_full_number">Always full number</string>
+    <string name="interface_multidisplay">Multi-display</string>
+    <string name="multidisplay_original">Original</string>
+    <string name="multidisplay_allow_for_all_applications">Allow for all applications</string>
+
+    <!-- Applications settings -->
+    <string name="applications_settings">Applications Settings</string>
+    <string name="applications_launcher">Launcher</string>
+    <string name="launcher_original">Original</string>
+    <string name="launcher_voboost">Voboost</string>
+    <string name="applications_dpi">DPI</string>
+    <string name="dpi_small">Small</string>
+    <string name="dpi_normal">Normal</string>
+    <string name="dpi_large">Large</string>
+    <string name="dpi_huge">Huge</string>
+    <string name="applications_dns">DNS</string>
+    <string name="dns_original">Original</string>
+    <string name="dns_default">Default</string>
+    <string name="dns_yandex">Yandex</string>
+    <string name="dns_one">One</string>
+
     <!-- Vehicle pedestrian warning -->
     <string name="vehicle_pedestrian_warning">Pedestrian Warning</string>
     <string name="pedestrian_warning_original">Original</string>
@@ -62,6 +87,7 @@
     <string name="fuel_mode_electric_forced">Forced EV</string>
 
     <!-- Drive mode options -->
+    <string name="drive_mode_original">Original</string>
     <string name="drive_mode_eco">Eco</string>
     <string name="drive_mode_comfort">Comfort</string>
     <string name="drive_mode_sport">Sport</string>
@@ -74,17 +100,12 @@
     <string name="applications_placeholder_text">List of installed applications will be here</string>
     <string name="interface_placeholder_text">Interface settings will be here</string>
 
+    <!-- Applications panel -->
+    <string name="section_yandex_navigator">Yandex Navigator</string>
+    <string name="section_yandex_music">Yandex Music</string>
+    <string name="button_launch">Launch</string>
+    <string name="app_not_installed">App not installed</string>
+
     <!-- Daemon status -->
     <string name="daemon_status_title">Daemon Status</string>
-    <string name="daemon_status_unavailable">Daemon status unavailable</string>
-    <string name="daemon_state_ready">Ready</string>
-    <string name="daemon_state_degraded">Degraded</string>
-    <string name="daemon_injection_none">No injections</string>
-    <string name="daemon_flag_killed">KILLED</string>
-    <string name="daemon_flag_panic">PANIC</string>
-    <string name="injection_state_active">Active</string>
-    <string name="injection_state_failed">Failed</string>
-    <string name="injection_state_waiting">Waiting</string>
-    <string name="injection_state_quarantined">Quarantined</string>
-    <string name="injection_state_skipped_coexist">Skipped (coexist)</string>
 </resources>

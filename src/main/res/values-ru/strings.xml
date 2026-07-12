@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">Voboost</string>
 
-    <!-- Settings panel title -->
-    <string name="settings_title">Voboost 1.0.0 alpha1</string>
+    <!-- Settings panel title (fallback; runtime appends BuildConfig.VERSION_NAME) -->
+    <string name="settings_title">Voboost</string>
 
     <!-- Tab names -->
     <string name="tab_store">Магазин</string>
@@ -45,6 +45,31 @@
     <!-- Vehicle settings -->
     <string name="vehicle_settings">Настройки машины</string>
 
+    <!-- Interface settings -->
+    <string name="interface_settings">Настройки интерфейса</string>
+    <string name="interface_phone_numbers">Телефонные номера</string>
+    <string name="phone_numbers_original">Оригинал</string>
+    <string name="phone_numbers_always_full_number">Всегда полный номер</string>
+    <string name="interface_multidisplay">Несколько экранов</string>
+    <string name="multidisplay_original">Оригинал</string>
+    <string name="multidisplay_allow_for_all_applications">Разрешить для всех приложений</string>
+
+    <!-- Applications settings -->
+    <string name="applications_settings">Настройки приложений</string>
+    <string name="applications_launcher">Лаунчер</string>
+    <string name="launcher_original">Оригинал</string>
+    <string name="launcher_voboost">Voboost</string>
+    <string name="applications_dpi">DPI</string>
+    <string name="dpi_small">Малый</string>
+    <string name="dpi_normal">Обычный</string>
+    <string name="dpi_large">Крупный</string>
+    <string name="dpi_huge">Огромный</string>
+    <string name="applications_dns">DNS</string>
+    <string name="dns_original">Оригинал</string>
+    <string name="dns_default">По умолчанию</string>
+    <string name="dns_yandex">Яндекс</string>
+    <string name="dns_one">One</string>
+
     <!-- Vehicle pedestrian warning -->
     <string name="vehicle_pedestrian_warning">Предупреждение пешеходов</string>
     <string name="pedestrian_warning_original">Оригинал</string>
@@ -62,6 +87,7 @@
     <string name="fuel_mode_electric_forced">Принудительный ЭВ</string>
 
     <!-- Drive mode options -->
+    <string name="drive_mode_original">Оригинал</string>
     <string name="drive_mode_eco">Эко</string>
     <string name="drive_mode_comfort">Комфорт</string>
     <string name="drive_mode_sport">Спорт</string>
@@ -74,17 +100,12 @@
     <string name="applications_placeholder_text">Список установленных приложений будет здесь</string>
     <string name="interface_placeholder_text">Настройки интерфейса будут здесь</string>
 
+    <!-- Applications panel -->
+    <string name="section_yandex_navigator">Яндекс Навигатор</string>
+    <string name="section_yandex_music">Яндекс Музыка</string>
+    <string name="button_launch">Запустить</string>
+    <string name="app_not_installed">Приложение не установлено</string>
+
     <!-- Daemon status -->
     <string name="daemon_status_title">Статус демона</string>
-    <string name="daemon_status_unavailable">Статус демона недоступен</string>
-    <string name="daemon_state_ready">Готов</string>
-    <string name="daemon_state_degraded">Деградировал</string>
-    <string name="daemon_injection_none">Нет инъекций</string>
-    <string name="daemon_flag_killed">УБИТ</string>
-    <string name="daemon_flag_panic">ПАНИКА</string>
-    <string name="injection_state_active">Активен</string>
-    <string name="injection_state_failed">Сбой</string>
-    <string name="injection_state_waiting">Ожидание</string>
-    <string name="injection_state_quarantined">Карантин</string>
-    <string name="injection_state_skipped_coexist">Пропущен (совместимость)</string>
 </resources>

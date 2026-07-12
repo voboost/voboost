@@ -24,7 +24,8 @@ private const val TAB_VEHICLE_MORE = "vehicle_more"
  * Tab definitions for the main navigation.
  *
  * Layout:
- * - Store, Applications, Interface: disabled (placeholder)
+ * - Store, Interface: disabled (placeholder)
+ * - Applications: Yandex Navigator + Yandex Music launch buttons
  * - Vehicle: pedestrian warning settings
  * - Settings: theme, car model, language
  * - Vehicle >: launches native CarSettingActivity
@@ -32,7 +33,7 @@ private const val TAB_VEHICLE_MORE = "vehicle_more"
 private val TAB_ITEMS: List<TabItem> =
     listOf(
         TabItem("store", mapOf("en" to "Store", "ru" to "Магазин"), false),
-        TabItem("applications", mapOf("en" to "Applications", "ru" to "Приложения"), false),
+        TabItem("applications", mapOf("en" to "Applications", "ru" to "Приложения")),
         TabItem("interface", mapOf("en" to "Interface", "ru" to "Интерфейс"), false),
         TabItem("vehicle", mapOf("en" to "Vehicle", "ru" to "Машина")),
         TabItem("settings", mapOf("en" to "Settings", "ru" to "Настройки")),
