@@ -16,8 +16,9 @@ import org.robolectric.RobolectricTestRunner
  * Tests for [OtaVerifier] (APK-level release manifest verification).
  *
  * Covers: valid signature trusted, invalid signature rejected, missing field
- * rejected, invalid channel rejected, oversized manifest rejected, too-many-
- * entries rejected, and the {app, core} channels accepted.
+ * rejected, invalid component rejected, oversized manifest rejected, too-many-
+ * entries rejected, and the {app, inject} components accepted (mapped to
+ * APP/CORE channels).
  */
 @RunWith(RobolectricTestRunner::class)
 class OtaVerifierTest {
@@ -44,13 +45,12 @@ class OtaVerifierTest {
     fun testValidSignatureIsTrusted() {
         val manifest =
             OtaTestUtils.createTestManifest(
-                version = "1.0.0",
-                channel = "core",
-                files =
+                releases =
                     listOf(
                         OtaTestUtils.TestApkEntry(
-                            path = "voboost-inject.apk",
-                            channel = "core",
+                            component = "inject",
+                            track = "production",
+                            downloadUrl = "https://host/voboost-inject.apk",
                             sha256 = "abc123",
                             size = 1024,
                             version = "1.0.0",
@@ -69,18 +69,15 @@ class OtaVerifierTest {
             )
 
         assertNotNull(result)
-        assertEquals("1.0.0", result.version)
-        assertEquals(1, result.files.size)
-        assertEquals(Channel.CORE, result.files[0].channel)
+        assertEquals(1, result.releases.size)
+        assertEquals(Channel.CORE, result.releases[0].channel)
     }
 
     @Test
     fun testInvalidSignatureIsRejected() {
         val manifest =
             OtaTestUtils.createTestManifest(
-                version = "1.0.0",
-                channel = "core",
-                files = emptyList(),
+                releases = emptyList(),
             )
 
         val manifestJson = manifest.toJson().toString()
@@ -101,20 +98,21 @@ class OtaVerifierTest {
 
     @Test
     fun testMissingFieldRejectsManifest() {
-        // Create manifest with missing "size" field
-        val filesArray = JSONArray()
-        val fileEntry = JSONObject()
-        fileEntry.put("path", "voboost.apk")
-        fileEntry.put("channel", "app")
-        fileEntry.put("sha256", "abc123")
+        // Create a unified-schema manifest with a missing "size" field.
+        val releasesArray = JSONArray()
+        val entry = JSONObject()
+        entry.put("component", "app")
+        entry.put("track", "production")
+        entry.put("downloadUrl", "https://host/voboost.apk")
+        entry.put("sha256", "abc123")
         // Missing "size" field
-        fileEntry.put("version", "1.0.0")
-        filesArray.put(fileEntry)
+        entry.put("version", "1.0.0")
+        releasesArray.put(entry)
 
         val invalidJson = JSONObject()
-        invalidJson.put("version", "1.0.0")
-        invalidJson.put("channel", "core")
-        invalidJson.put("files", filesArray)
+        invalidJson.put("schemaVersion", 1)
+        invalidJson.put("generatedAt", "")
+        invalidJson.put("releases", releasesArray)
 
         val manifestJson = invalidJson.toString()
         val signature = OtaTestUtils.signManifest(manifestJson, testPrivateKeyPem)
@@ -128,27 +126,28 @@ class OtaVerifierTest {
             )
             fail("Should throw exception for missing field")
         } catch (e: OtaException) {
-            assertTrue(e.message!!.contains("Invalid file entry"))
+            assertTrue(e.message!!.contains("Invalid release entry"))
         }
     }
 
     @Test
-    fun testInvalidChannelRejectsManifest() {
-        // An entry whose channel is "agents" (dropped) is rejected even with a
-        // valid signature.
-        val filesArray = JSONArray()
-        val fileEntry = JSONObject()
-        fileEntry.put("path", "voboost.apk")
-        fileEntry.put("channel", "agents") // Invalid channel (dropped)
-        fileEntry.put("sha256", "abc123")
-        fileEntry.put("size", 1024)
-        fileEntry.put("version", "1.0.0")
-        filesArray.put(fileEntry)
+    fun testInvalidComponentRejectsManifest() {
+        // An entry whose component is "installer" (dropped) is rejected even
+        // with a valid signature.
+        val releasesArray = JSONArray()
+        val entry = JSONObject()
+        entry.put("component", "installer") // Invalid component (dropped)
+        entry.put("track", "production")
+        entry.put("downloadUrl", "https://host/voboost.apk")
+        entry.put("sha256", "abc123")
+        entry.put("size", 1024)
+        entry.put("version", "1.0.0")
+        releasesArray.put(entry)
 
         val invalidJson = JSONObject()
-        invalidJson.put("version", "1.0.0")
-        invalidJson.put("channel", "core")
-        invalidJson.put("files", filesArray)
+        invalidJson.put("schemaVersion", 1)
+        invalidJson.put("generatedAt", "")
+        invalidJson.put("releases", releasesArray)
 
         val manifestJson = invalidJson.toString()
         val signature = OtaTestUtils.signManifest(manifestJson, testPrivateKeyPem)
@@ -160,9 +159,9 @@ class OtaVerifierTest {
                 manifestJson.toByteArray(Charsets.UTF_8),
                 signature,
             )
-            fail("Should throw exception for invalid channel")
+            fail("Should throw exception for invalid component")
         } catch (e: OtaException) {
-            assertTrue(e.message!!.contains("Invalid channel"))
+            assertTrue(e.message!!.contains("Invalid component"))
         }
     }
 
@@ -187,21 +186,22 @@ class OtaVerifierTest {
     @Test
     fun testTooManyEntriesIsRejected() {
         // Create manifest with more than 4096 entries
-        val filesArray = JSONArray()
+        val releasesArray = JSONArray()
         for (i in 0..4100) {
-            val fileEntry = JSONObject()
-            fileEntry.put("path", "voboost-$i.apk")
-            fileEntry.put("channel", "app")
-            fileEntry.put("sha256", "abc123")
-            fileEntry.put("size", 1024)
-            fileEntry.put("version", "1.0.0")
-            filesArray.put(fileEntry)
+            val entry = JSONObject()
+            entry.put("component", "app")
+            entry.put("track", "production")
+            entry.put("downloadUrl", "https://host/voboost-$i.apk")
+            entry.put("sha256", "abc123")
+            entry.put("size", 1024)
+            entry.put("version", "1.0.0")
+            releasesArray.put(entry)
         }
 
         val invalidJson = JSONObject()
-        invalidJson.put("version", "1.0.0")
-        invalidJson.put("channel", "core")
-        invalidJson.put("files", filesArray)
+        invalidJson.put("schemaVersion", 1)
+        invalidJson.put("generatedAt", "")
+        invalidJson.put("releases", releasesArray)
 
         val manifestJson = invalidJson.toString()
         val signature = OtaTestUtils.signManifest(manifestJson, testPrivateKeyPem)
@@ -226,9 +226,7 @@ class OtaVerifierTest {
 
         val manifest =
             OtaTestUtils.createTestManifest(
-                version = "1.0.0",
-                channel = "core",
-                files = emptyList(),
+                releases = emptyList(),
             )
 
         val manifestJson = manifest.toJson().toString()
@@ -241,24 +239,23 @@ class OtaVerifierTest {
             )
 
         assertNotNull(result)
-        assertEquals("1.0.0", result.version)
     }
 
     @Test
-    fun testAppAndCoreChannelsAccepted() {
-        // Only {app, core} channels are valid for APK-level OTA.
-        val channels = listOf("app", "core")
+    fun testAppAndInjectComponentsAccepted() {
+        // Only {app, inject} components are valid; both map to channels.
+        val components = listOf("app", "inject")
+        val expectedChannels = listOf(Channel.APP, Channel.CORE)
 
-        for (channel in channels) {
+        for ((component, expectedChannel) in components.zip(expectedChannels)) {
             val manifest =
                 OtaTestUtils.createTestManifest(
-                    version = "1.0.0",
-                    channel = "core",
-                    files =
+                    releases =
                         listOf(
                             OtaTestUtils.TestApkEntry(
-                                path = "voboost.apk",
-                                channel = channel,
+                                component = component,
+                                track = "production",
+                                downloadUrl = "https://host/voboost.apk",
                                 sha256 = "abc123",
                                 size = 1024,
                                 version = "1.0.0",
@@ -277,8 +274,8 @@ class OtaVerifierTest {
                 )
 
             assertNotNull(result)
-            assertEquals(1, result.files.size)
-            assertEquals(channel.uppercase(), result.files[0].channel.name)
+            assertEquals(1, result.releases.size)
+            assertEquals(expectedChannel, result.releases[0].channel)
         }
     }
 }

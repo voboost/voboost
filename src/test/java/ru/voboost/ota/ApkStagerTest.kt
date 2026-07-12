@@ -62,8 +62,9 @@ class ApkStagerTest {
 
         val entry =
             ReleaseFileEntry(
-                path = "voboost.apk",
+                downloadUrl = "https://host/voboost.apk",
                 channel = Channel.APP,
+                track = "production",
                 sha256 = OtaTestUtils.calculateSha256(content),
                 size = content.length.toLong(),
                 version = "1.0.0",
@@ -88,10 +89,11 @@ class ApkStagerTest {
 
         val entry =
             ReleaseFileEntry(
-                // Even if the manifest path differs, the daemon APK is staged
-                // to the fixed name expected by voboost-inject.
-                path = "voboost-inject-1.2.3.apk",
+                // Even if the downloadUrl basename differs, the daemon APK is
+                // staged to the fixed name expected by voboost-inject.
+                downloadUrl = "https://host/voboost-inject-1.2.3.apk",
                 channel = Channel.CORE,
+                track = "production",
                 sha256 = OtaTestUtils.calculateSha256(content),
                 size = content.length.toLong(),
                 version = "1.2.3",
@@ -115,8 +117,9 @@ class ApkStagerTest {
 
         val entry =
             ReleaseFileEntry(
-                path = "voboost-inject.apk",
+                downloadUrl = "https://host/voboost-inject.apk",
                 channel = Channel.CORE,
+                track = "production",
                 sha256 = OtaTestUtils.calculateSha256(content),
                 size = content.length.toLong(),
                 version = "1.0.0",
@@ -143,8 +146,9 @@ class ApkStagerTest {
 
         val entry =
             ReleaseFileEntry(
-                path = "voboost-inject.apk",
+                downloadUrl = "https://host/voboost-inject.apk",
                 channel = Channel.CORE,
+                track = "production",
                 sha256 = OtaTestUtils.calculateSha256(content),
                 size = content.length.toLong(),
                 version = "1.0.0",
@@ -169,8 +173,9 @@ class ApkStagerTest {
 
         val entry1 =
             ReleaseFileEntry(
-                path = "voboost-inject.apk",
+                downloadUrl = "https://host/voboost-inject.apk",
                 channel = Channel.CORE,
+                track = "production",
                 sha256 = OtaTestUtils.calculateSha256(content1),
                 size = content1.length.toLong(),
                 version = "1.0.0",
@@ -184,8 +189,9 @@ class ApkStagerTest {
 
         val entry2 =
             ReleaseFileEntry(
-                path = "voboost-inject.apk",
+                downloadUrl = "https://host/voboost-inject.apk",
                 channel = Channel.CORE,
+                track = "production",
                 sha256 = OtaTestUtils.calculateSha256(content2),
                 size = content2.length.toLong(),
                 version = "1.0.1",

@@ -18,7 +18,8 @@ import java.io.File
  *
  * Covers: successful download, size-mismatch rejection (before hashing),
  * sha-mismatch rejection, multiple APKs, HTTP error, empty body, large APK,
- * and the [downloadBytes] helper used for the manifest/signature.
+ * the [downloadBytes] helper used for the manifest/signature, and `file://`
+ * scheme support for local testing.
  */
 @RunWith(RobolectricTestRunner::class)
 class OtaDownloaderTest {
@@ -57,15 +58,16 @@ class OtaDownloaderTest {
 
         val entry =
             ReleaseFileEntry(
-                path = "/voboost.apk",
+                downloadUrl = mockWebServer.url("/voboost.apk").toString(),
                 channel = Channel.APP,
+                track = "production",
                 sha256 = sha256,
                 size = content.length.toLong(),
                 version = "1.0.0",
             )
 
         val targetFile = File(tempDir, "voboost.apk")
-        downloader.downloadFile(entry, mockWebServer.url("").toString(), targetFile)
+        downloader.downloadFile(entry, targetFile)
 
         assertTrue(targetFile.exists())
         assertEquals(content, targetFile.readText())
@@ -84,15 +86,16 @@ class OtaDownloaderTest {
 
         val entry =
             ReleaseFileEntry(
-                path = "/voboost-inject.apk",
+                downloadUrl = mockWebServer.url("/voboost-inject.apk").toString(),
                 channel = Channel.CORE,
+                track = "production",
                 sha256 = sha256,
                 size = content.length.toLong(),
                 version = "1.0.0",
             )
 
         val targetFile = File(tempDir, "voboost-inject.apk")
-        downloader.downloadFile(entry, mockWebServer.url("").toString(), targetFile)
+        downloader.downloadFile(entry, targetFile)
 
         assertTrue(targetFile.exists())
         assertEquals(content, targetFile.readText())
@@ -111,8 +114,9 @@ class OtaDownloaderTest {
 
         val entry =
             ReleaseFileEntry(
-                path = "/voboost.apk",
+                downloadUrl = mockWebServer.url("/voboost.apk").toString(),
                 channel = Channel.APP,
+                track = "production",
                 sha256 = sha256,
                 // wrong size triggers size pre-check rejection before hashing
                 size = 9999L,
@@ -122,7 +126,7 @@ class OtaDownloaderTest {
         val targetFile = File(tempDir, "voboost.apk")
 
         try {
-            downloader.downloadFile(entry, mockWebServer.url("").toString(), targetFile)
+            downloader.downloadFile(entry, targetFile)
             fail("Should throw exception for size mismatch")
         } catch (e: OtaException) {
             assertTrue(e.message!!.contains("Size mismatch"))
@@ -144,8 +148,9 @@ class OtaDownloaderTest {
 
         val entry =
             ReleaseFileEntry(
-                path = "/voboost.apk",
+                downloadUrl = mockWebServer.url("/voboost.apk").toString(),
                 channel = Channel.APP,
+                track = "production",
                 sha256 = "wrongsha256",
                 size = content.length.toLong(),
                 version = "1.0.0",
@@ -154,7 +159,7 @@ class OtaDownloaderTest {
         val targetFile = File(tempDir, "voboost.apk")
 
         try {
-            downloader.downloadFile(entry, mockWebServer.url("").toString(), targetFile)
+            downloader.downloadFile(entry, targetFile)
             fail("Should throw exception for SHA mismatch")
         } catch (e: OtaException) {
             assertTrue(e.message!!.contains("SHA256 mismatch"))
@@ -184,22 +189,24 @@ class OtaDownloaderTest {
         val entries =
             listOf(
                 ReleaseFileEntry(
-                    path = "/voboost.apk",
+                    downloadUrl = mockWebServer.url("/voboost.apk").toString(),
                     channel = Channel.APP,
+                    track = "production",
                     sha256 = sha1,
                     size = content1.length.toLong(),
                     version = "1.0.0",
                 ),
                 ReleaseFileEntry(
-                    path = "/voboost-inject.apk",
+                    downloadUrl = mockWebServer.url("/voboost-inject.apk").toString(),
                     channel = Channel.CORE,
+                    track = "production",
                     sha256 = sha2,
                     size = content2.length.toLong(),
                     version = "1.0.0",
                 ),
             )
 
-        val results = downloader.downloadFiles(entries, mockWebServer.url("").toString(), tempDir)
+        val results = downloader.downloadFiles(entries, tempDir)
 
         assertEquals(2, results.size)
         assertEquals(content1, results[entries[0]]?.readText())
@@ -215,8 +222,9 @@ class OtaDownloaderTest {
 
         val entry =
             ReleaseFileEntry(
-                path = "/voboost.apk",
+                downloadUrl = mockWebServer.url("/voboost.apk").toString(),
                 channel = Channel.APP,
+                track = "production",
                 sha256 = "abc123",
                 size = 1024,
                 version = "1.0.0",
@@ -225,7 +233,7 @@ class OtaDownloaderTest {
         val targetFile = File(tempDir, "voboost.apk")
 
         try {
-            downloader.downloadFile(entry, mockWebServer.url("").toString(), targetFile)
+            downloader.downloadFile(entry, targetFile)
             fail("Should throw exception for HTTP error")
         } catch (e: OtaException) {
             assertTrue(e.message!!.contains("Download failed"))
@@ -242,8 +250,9 @@ class OtaDownloaderTest {
 
         val entry =
             ReleaseFileEntry(
-                path = "/voboost.apk",
+                downloadUrl = mockWebServer.url("/voboost.apk").toString(),
                 channel = Channel.APP,
+                track = "production",
                 sha256 = OtaTestUtils.calculateSha256(""),
                 size = 0,
                 version = "1.0.0",
@@ -252,7 +261,7 @@ class OtaDownloaderTest {
         val targetFile = File(tempDir, "voboost.apk")
 
         // Empty body with size 0 and matching SHA256 is valid.
-        downloader.downloadFile(entry, mockWebServer.url("").toString(), targetFile)
+        downloader.downloadFile(entry, targetFile)
 
         assertTrue(targetFile.exists())
         assertEquals(0L, targetFile.length())
@@ -271,15 +280,16 @@ class OtaDownloaderTest {
 
         val entry =
             ReleaseFileEntry(
-                path = "/voboost.apk",
+                downloadUrl = mockWebServer.url("/voboost.apk").toString(),
                 channel = Channel.APP,
+                track = "production",
                 sha256 = sha256,
                 size = largeContent.length.toLong(),
                 version = "1.0.0",
             )
 
         val targetFile = File(tempDir, "voboost.apk")
-        downloader.downloadFile(entry, mockWebServer.url("").toString(), targetFile)
+        downloader.downloadFile(entry, targetFile)
 
         assertTrue(targetFile.exists())
         assertEquals(largeContent.length.toLong(), targetFile.length())
@@ -288,7 +298,8 @@ class OtaDownloaderTest {
 
     @Test
     fun testDownloadBytesForManifest() {
-        val manifestContent = """{"version":"1.0.0","channel":"core","files":[]}"""
+        val manifestContent =
+            """{"schemaVersion":1,"generatedAt":"","releases":[]}"""
 
         mockWebServer.enqueue(
             MockResponse()
@@ -296,7 +307,7 @@ class OtaDownloaderTest {
                 .setResponseCode(200),
         )
 
-        val bytes = downloader.downloadBytes(mockWebServer.url("/release-manifest.json").toString())
+        val bytes = downloader.downloadBytes(mockWebServer.url("/manifest.json").toString())
 
         assertEquals(manifestContent, String(bytes, Charsets.UTF_8))
     }
@@ -309,7 +320,7 @@ class OtaDownloaderTest {
         )
 
         try {
-            downloader.downloadBytes(mockWebServer.url("/release-manifest.json").toString())
+            downloader.downloadBytes(mockWebServer.url("/manifest.json").toString())
             fail("Should throw exception for HTTP error")
         } catch (e: OtaException) {
             assertTrue(e.message!!.contains("Download failed"))
@@ -332,12 +343,107 @@ class OtaDownloaderTest {
 
         try {
             downloader.downloadBytes(
-                mockWebServer.url("/release-manifest.json").toString(),
+                mockWebServer.url("/manifest.json").toString(),
                 maxBytes = 32,
             )
             fail("Should throw exception for oversized body")
         } catch (e: OtaException) {
             assertTrue(e.message!!.contains("exceeds maxBytes"))
         }
+    }
+
+    /**
+     * `file://` scheme: downloadBytes reads a local file with the same
+     * maxBytes enforcement as the HTTP path.
+     */
+    @Test
+    fun testDownloadBytesFileSchemeSuccess() {
+        val content = """{"schemaVersion":1,"generatedAt":"","releases":[]}"""
+        val localFile = File(tempDir, "manifest.json")
+        localFile.writeText(content)
+
+        val url = localFile.toURI().toString() // file:///.../manifest.json
+        val bytes = downloader.downloadBytes(url)
+
+        assertEquals(content, String(bytes, Charsets.UTF_8))
+    }
+
+    @Test
+    fun testDownloadBytesFileSchemeRejectsOversizedFile() {
+        val oversized = "x".repeat(64)
+        val localFile = File(tempDir, "manifest.json")
+        localFile.writeText(oversized)
+
+        try {
+            downloader.downloadBytes(localFile.toURI().toString(), maxBytes = 32)
+            fail("Should throw exception for oversized file")
+        } catch (e: OtaException) {
+            assertTrue(e.message!!.contains("exceeds maxBytes"))
+        }
+    }
+
+    @Test
+    fun testDownloadBytesFileSchemeMissingFile() {
+        val missing = File(tempDir, "nope.json").toURI().toString()
+        try {
+            downloader.downloadBytes(missing)
+            fail("Should throw exception for missing file")
+        } catch (e: OtaException) {
+            assertTrue(e.message!!.contains("File not found"))
+        }
+    }
+
+    /**
+     * `file://` scheme: downloadFile copies a local APK to the target with
+     * the same size+sha256 enforcement as the HTTP path.
+     */
+    @Test
+    fun testDownloadFileFileSchemeSuccess() {
+        val content = "local app apk bytes"
+        val sha256 = OtaTestUtils.calculateSha256(content)
+        val sourceFile = File(tempDir, "source-voboost.apk")
+        sourceFile.writeText(content)
+
+        val entry =
+            ReleaseFileEntry(
+                downloadUrl = sourceFile.toURI().toString(),
+                channel = Channel.APP,
+                track = "production",
+                sha256 = sha256,
+                size = content.length.toLong(),
+                version = "1.0.0",
+            )
+
+        val targetFile = File(tempDir, "voboost.apk")
+        downloader.downloadFile(entry, targetFile)
+
+        assertTrue(targetFile.exists())
+        assertEquals(content, targetFile.readText())
+    }
+
+    @Test
+    fun testDownloadFileFileSchemeShaMismatchRejects() {
+        val content = "local app apk bytes"
+        val sourceFile = File(tempDir, "source-voboost.apk")
+        sourceFile.writeText(content)
+
+        val entry =
+            ReleaseFileEntry(
+                downloadUrl = sourceFile.toURI().toString(),
+                channel = Channel.APP,
+                track = "production",
+                sha256 = "wrongsha256",
+                size = content.length.toLong(),
+                version = "1.0.0",
+            )
+
+        val targetFile = File(tempDir, "voboost.apk")
+        try {
+            downloader.downloadFile(entry, targetFile)
+            fail("Should throw exception for SHA mismatch")
+        } catch (e: OtaException) {
+            assertTrue(e.message!!.contains("SHA256 mismatch"))
+        }
+        assertFalse(targetFile.exists())
     }
 }

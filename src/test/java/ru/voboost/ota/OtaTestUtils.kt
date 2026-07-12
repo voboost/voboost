@@ -120,29 +120,30 @@ object OtaTestUtils {
     }
 
     /**
-     * Create a test APK-level release manifest.
+     * Create a test unified-schema release manifest.
      *
-     * @param version Manifest version
-     * @param channel Manifest channel string
-     * @param files APK file entries
+     * @param schemaVersion Manifest schema version (default 1)
+     * @param generatedAt Manifest generation timestamp (default empty)
+     * @param releases APK release entries
      */
     fun createTestManifest(
-        version: String = "1.0.0",
-        channel: String = "core",
-        files: List<TestApkEntry> = emptyList(),
+        schemaVersion: Int = 1,
+        generatedAt: String = "",
+        releases: List<TestApkEntry> = emptyList(),
     ): ReleaseManifest {
-        val fileEntries =
-            files.map { entry ->
+        val entries =
+            releases.map { entry ->
                 ReleaseFileEntry(
-                    path = entry.path,
+                    downloadUrl = entry.downloadUrl,
                     channel =
-                        when (entry.channel) {
-                            "core" -> Channel.CORE
+                        when (entry.component) {
+                            "inject" -> Channel.CORE
                             "app" -> Channel.APP
                             else -> throw IllegalArgumentException(
-                                "Invalid channel: ${entry.channel}",
+                                "Invalid component: ${entry.component}",
                             )
                         },
+                    track = entry.track,
                     sha256 = entry.sha256,
                     size = entry.size,
                     version = entry.version,
@@ -150,18 +151,23 @@ object OtaTestUtils {
             }
 
         return ReleaseManifest(
-            version = version,
-            channel = channel,
-            files = fileEntries,
+            schemaVersion = schemaVersion,
+            generatedAt = generatedAt,
+            releases = entries,
         )
     }
 
     /**
-     * A test APK entry for building a release manifest.
+     * A test APK release entry for building a unified-schema manifest.
+     *
+     * @param component `app` (voboost client) or `inject` (voboost-inject daemon)
+     * @param track release track: `dev`/`testing`/`production`
+     * @param downloadUrl full URL to the APK (https:// or file://)
      */
     data class TestApkEntry(
-        val path: String,
-        val channel: String,
+        val component: String,
+        val track: String,
+        val downloadUrl: String,
         val sha256: String,
         val size: Long,
         val version: String,

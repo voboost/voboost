@@ -89,13 +89,24 @@ class OtaClient(
                 return false
             }
 
-            // 3. Download + apply each newer APK per channel.
+            // 3. Download + apply each newer APK per channel. Each channel is
+            //    isolated: a failure in one channel (download/verify/stage) is
+            //    logged but does NOT abort the other channel. The app and core
+            //    channels are independent update planes (C3: channel isolation).
+            //    A channel failure is tracked so the summary line reflects
+            //    partial failure (F6: surface per-channel outcome to the caller).
             var applied = false
+            val failedChannels = mutableListOf<String>()
 
             if (appUpdateAvailable && appEntry != null) {
                 Logger.info(LOG, "App update available: ${appEntry.version} > $currentAppVersion")
-                downloadAndApplyApp(appEntry)
-                applied = true
+                try {
+                    downloadAndApplyApp(appEntry)
+                    applied = true
+                } catch (e: Exception) {
+                    Logger.error(LOG, "App channel update failed: ${e.message}")
+                    failedChannels.add("app")
+                }
             }
 
             if (coreUpdateAvailable && coreEntry != null) {
@@ -103,14 +114,28 @@ class OtaClient(
                     LOG,
                     "Core update available: ${coreEntry.version} > $currentDaemonVersion",
                 )
-                downloadAndApplyCore(coreEntry)
-                applied = true
+                try {
+                    downloadAndApplyCore(coreEntry)
+                    applied = true
+                } catch (e: Exception) {
+                    Logger.error(LOG, "Core channel update failed: ${e.message}")
+                    failedChannels.add("core")
+                }
             }
 
             // Persist the verified manifest as the last good one.
             persistCurrentManifest(manifest)
 
-            Logger.info(LOG, "Update flow complete (applied=$applied)")
+            if (failedChannels.isNotEmpty()) {
+                Logger.error(
+                    LOG,
+                    "Update flow complete (applied=$applied, failed=${failedChannels.joinToString(
+                        ",",
+                    )})",
+                )
+            } else {
+                Logger.info(LOG, "Update flow complete (applied=$applied)")
+            }
             applied
         } catch (e: Exception) {
             Logger.error(LOG, "Update failed: ${e.message}")
@@ -147,13 +172,16 @@ class OtaClient(
     /**
      * Fetch and verify the release manifest.
      *
-     * The manifest is verified (signature + structure + bounds) before use.
-     * A failed manifest is never persisted.
+     * The manifest is fetched from [OtaConfig.manifestUrl] (a full URL to
+     * `manifest.json`). The signature URL is derived by replacing the `.json`
+     * suffix with `.sig`. The manifest is verified (signature + structure +
+     * bounds) before use, then filtered by [OtaConfig.track]. A failed
+     * manifest is never persisted.
      */
     private fun fetchAndVerifyManifest(): ReleaseManifest {
         return retryWithBackoff("fetch manifest") {
-            val manifestUrl = "${config.baseUrl}/release-manifest.json"
-            val signatureUrl = "${config.baseUrl}/release-manifest.sig"
+            val manifestUrl = config.manifestUrl
+            val signatureUrl = deriveSignatureUrl(manifestUrl)
 
             Logger.debug(LOG, "Fetching manifest from: $manifestUrl")
 
@@ -169,8 +197,56 @@ class OtaClient(
 
             // verify() enforces size bounds, signature, and structural validation.
             // It throws on failure — the manifest is never persisted in that case.
-            verifier.verify(manifestContent, signatureContent)
+            val manifest = verifier.verify(manifestContent, signatureContent)
+
+            // Filter releases to the configured track. Entries on other
+            // tracks are ignored for version comparison and download. A
+            // manifest with no entries on the configured track yields no
+            // updates (not an error).
+            filterByTrack(manifest)
         }
+    }
+
+    /**
+     * Derive the signature URL from the manifest URL by replacing the `.json`
+     * suffix with `.sig`.
+     *
+     * Only the trailing `.json` is replaced, so a URL like
+     * `https://host/path/manifest.json` becomes
+     * `https://host/path/manifest.sig`. A URL without a `.json` suffix gets
+     * `.sig` appended (defensive; the configured URL is expected to end in
+     * `.json`).
+     */
+    private fun deriveSignatureUrl(manifestUrl: String): String {
+        return if (manifestUrl.endsWith(".json", ignoreCase = true)) {
+            manifestUrl.substring(0, manifestUrl.length - ".json".length) + ".sig"
+        } else {
+            "$manifestUrl.sig"
+        }
+    }
+
+    /**
+     * Filter the manifest's releases to only those on the configured track.
+     *
+     * Returns a new [ReleaseManifest] whose [ReleaseManifest.releases] list
+     * contains only entries with `track == config.track`. The schema metadata
+     * (schemaVersion, generatedAt) is preserved.
+     */
+    private fun filterByTrack(manifest: ReleaseManifest): ReleaseManifest {
+        val filtered = manifest.releases.filter { it.track == config.track }
+        if (filtered.size == manifest.releases.size) {
+            return manifest
+        }
+        Logger.debug(
+            LOG,
+            "Filtered manifest to track='${config.track}': " +
+                "${filtered.size}/${manifest.releases.size} entries",
+        )
+        return ReleaseManifest(
+            schemaVersion = manifest.schemaVersion,
+            generatedAt = manifest.generatedAt,
+            releases = filtered,
+        )
     }
 
     /**
@@ -208,8 +284,10 @@ class OtaClient(
         return retryWithBackoff("download APK ${entry.path}") {
             val tempDir = File(paths.stagingDir, "downloads")
             tempDir.mkdirs()
-            val targetFile = File(tempDir, entry.path.substringAfterLast('/'))
-            downloader.downloadFile(entry, config.baseUrl, targetFile)
+            // Name the target by the downloadUrl basename (entry.path is already
+            // that basename, derived from entry.downloadUrl).
+            val targetFile = File(tempDir, entry.downloadUrl.substringAfterLast('/'))
+            downloader.downloadFile(entry, targetFile)
             targetFile
         }
     }
@@ -225,7 +303,10 @@ class OtaClient(
             val manifestFile = File(paths.stagingDir, CURRENT_MANIFEST_NAME)
             manifestFile.parentFile?.mkdirs()
             manifestFile.writeText(manifest.toJson().toString(2))
-            Logger.debug(LOG, "Persisted current manifest: ${manifest.version}")
+            Logger.debug(
+                LOG,
+                "Persisted current manifest: ${manifest.releases.size} releases",
+            )
         } catch (e: Exception) {
             // Persisting the last-good manifest is best-effort; a failure here
             // does not invalidate an already-applied update.
@@ -275,8 +356,12 @@ class OtaClient(
 /**
  * OTA client configuration.
  *
- * @param baseUrl Base URL where `release-manifest.json` / `.sig` and the APKs
- *   are served.
+ * @param manifestUrl Full URL to the unified `manifest.json` (e.g.
+ *   `https://raw.githubusercontent.com/voboost/voboost-install/main/releases/manifest.json`
+ *   for production, or `file:///path/to/manifest.json` for local testing).
+ *   The signature URL is derived by replacing the `.json` suffix with `.sig`.
+ * @param track Release track to consider (`dev`/`testing`/`production`,
+ *   default `production`). Entries on other tracks are ignored.
  * @param publicKeyFile Optional file containing the release public key PEM.
  * @param publicKeyPem Optional release public key PEM content (used if no file).
  * @param currentAppVersion The installed app version (BuildConfig.VERSION_NAME).
@@ -287,7 +372,8 @@ class OtaClient(
  *   app-channel install intent. Null in JVM tests.
  */
 data class OtaConfig(
-    val baseUrl: String,
+    val manifestUrl: String,
+    val track: String = DEFAULT_TRACK,
     val publicKeyFile: File? = null,
     val publicKeyPem: String? = null,
     val currentAppVersion: String,
@@ -304,5 +390,8 @@ data class OtaConfig(
     companion object {
         /** Default retry count for transient network errors. */
         const val DEFAULT_MAX_RETRIES = 3
+
+        /** Default release track (production). */
+        const val DEFAULT_TRACK = "production"
     }
 }
