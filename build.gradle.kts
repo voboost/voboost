@@ -26,8 +26,8 @@ android {
         applicationId = "ru.voboost"
         minSdk = 28
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0.0-alpha1"
+        versionCode = 3
+        versionName = "1.0.0-beta5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -35,9 +35,22 @@ android {
             useSupportLibrary = true
         }
 
-        // OTA configuration
-        // TODO: Set production OTA base URL before release
-        buildConfigField("String", "OTA_BASE_URL", "\"TODO_SET_PRODUCTION_URL\"")
+        // OTA manifest URL. Read from local.properties key `ota.manifestUrl`
+        // so the production GitHub raw URL (or a local file:// test URL) is
+        // not baked into the release APK. The sentinel default is recognized
+        // by VoboostService.initializeOtaClient() which skips OTA init when it
+        // is unchanged, so a release build without the key does no OTA work.
+        // Production: set `ota.manifestUrl=https://...` in local.properties
+        // (or a CI secret) before building a release that should self-update.
+        // The Gradle fallback (when the key is absent) is the GitHub raw URL;
+        // the local.properties default stays the sentinel so an unset key
+        // disables OTA (matching the prior ota.baseUrl behavior).
+        val otaManifestUrl =
+            localProperties.getProperty(
+                "ota.manifestUrl",
+                "TODO_SET_PRODUCTION_URL",
+            )
+        buildConfigField("String", "OTA_MANIFEST_URL", "\"$otaManifestUrl\"")
     }
 
     signingConfigs {
@@ -51,7 +64,8 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             // Single release build; the debug variant is disabled below. Enable
             // JDWP for deep debugging with: ./gradlew build -Pdebuggable=true
             isDebuggable = (project.findProperty("debuggable")?.toString() == "true")
@@ -72,6 +86,12 @@ android {
         }
     }
 
+    lint {
+        // voboost is a system-level automotive app installed via ADB with
+        // privileged permissions. These are legitimate for the use case.
+        disable.add("ProtectedPermissions")
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -90,6 +110,16 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            // Test screenshots co-located with voboost-components sources (BEM
+            // structure) leak in as Java classpath resources via that module's
+            // resources.srcDir("src/main/java"). Drop them from the final APK.
+            excludes += "**/*.screenshots/**"
+            // Fonts ship via assets (Typeface.createFromAsset); the identical
+            // copies bundled as classpath resources are pure duplicates.
+            excludes += "**/*.ttf"
+            // BouncyCastle Picnic/LowMC post-quantum data files. Only Ed25519 is
+            // used for OTA signatures, so these ~1.2 MB resources are dead weight.
+            excludes += "org/bouncycastle/pqc/**"
         }
     }
 }
@@ -140,8 +170,6 @@ dependencies {
 
     // Android Core
     implementation("androidx.core:core-ktx:1.12.0")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.11.0")
 
     // Lifecycle components
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")

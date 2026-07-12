@@ -36,3 +36,32 @@
 -keepclasseswithmembers class kotlinx.serialization.json.** {
     kotlinx.serialization.KSerializer serializer(...);
 }
+
+# --- APK size reduction: R8 (isMinifyEnabled = true) keep rules ---
+
+# Kotlin reflection metadata required by Hoplite YAML decoding of config models.
+-keepattributes RuntimeVisibleAnnotations,RuntimeVisibleParameterAnnotations,AnnotationDefault,Signature,InnerClasses,EnclosingMethod,Exceptions
+-keep class kotlin.Metadata { *; }
+-keep class kotlin.reflect.** { *; }
+-dontwarn kotlin.reflect.**
+
+# Hoplite + SnakeYAML config parsing (voboost-config). Config model classes are
+# kept by voboost-config's consumer-rules.pro; silence optional-dependency warnings.
+-dontwarn com.sksamuel.hoplite.**
+-dontwarn org.yaml.snakeyaml.**
+
+# OkHttp / Okio reference optional TLS providers absent on Android.
+-dontwarn okhttp3.**
+-dontwarn okio.**
+-dontwarn org.conscrypt.**
+-dontwarn org.openjsse.**
+-dontwarn org.bouncycastle.jsse.**
+
+# BouncyCastle powers OTA Ed25519 signature verification. Keep it intact so R8
+# never strips a class the signature path reaches; the unused Picnic/LowMC data
+# files are dropped via packaging{} excludes instead.
+-keep class org.bouncycastle.** { *; }
+-dontwarn org.bouncycastle.**
+
+# Preserve feature class simple names used in diagnostic logs.
+-keepnames class ru.voboost.feature.** { *; }

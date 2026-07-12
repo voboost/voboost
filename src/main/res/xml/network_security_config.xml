@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!--
+      Emulator-only cleartext exception.
+
+      10.0.2.2 is the Android emulator's alias for the host loopback; on a
+      real device it routes to the device's own loopback and is inert. This
+      exception exists solely so the OTA client can reach a local dev OTA
+      server (see ota.manifestUrl in local.properties / build.gradle.kts)
+      during emulator E2E testing. It does NOT permit cleartext to any other
+      host.
+
+      Production OTA servers MUST use HTTPS; do not add production domains
+      here. The OTA manifest URL for a release build must be an https:// URL.
+    -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">10.0.2.2</domain>
+    </domain-config>
+</network-security-config>

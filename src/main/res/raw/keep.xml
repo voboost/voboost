@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  All string resources are resolved dynamically by name via
+  Resources.getIdentifier(...) in ui/I18n.kt (LocaleManager), so resource
+  shrinking cannot see them as used. Keep every string.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@string/*" />

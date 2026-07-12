@@ -11,8 +11,8 @@ settings-language: ru
 settings-theme: dark
 # Car Model: free, dreamer
 settings-car-model: free
-settings-interface-shift-x: 145
-settings-interface-shift-y: 50
+settings-interface-shift-x: 0
+settings-interface-shift-y: 0
 settings-active-tab: settings
 # Startup Mode: off, hidden, interface
 settings-startup: interface
@@ -21,3 +21,36 @@ settings-startup: interface
 # original — vehicle default behavior
 # off — turn off pedestrian warning sound
 vehicle-pedestrian-warning: original
+
+# Interface — Phone numbers display
+# original — vehicle default behavior
+# always-full-number — always show full phone numbers
+interface-phone-numbers: original
+
+# Interface — Multi-display (move apps between screens)
+# original — vehicle default behavior
+# allow-for-all-applications — allow all apps on secondary displays
+interface-multidisplay: original
+
+# Applications — Launcher replacement
+# original — vehicle default launcher
+# voboost — replace launcher with voboost
+applications-launcher: original
+
+# Applications — DPI density (applied via adb)
+# small / normal / large / huge
+applications-dpi: normal
+
+# Applications — DNS provider (applied via adb)
+# original / default / yandex / one
+applications-dns: original
+
+# Vehicle — Drive mode
+# original — vehicle default behavior
+# eco / comfort / sport / snow / outing / individual
+vehicle-drive-mode: original
+
+# OTA release track: dev, testing, production
+# The app only considers manifest entries whose track matches this setting.
+# Override to "testing" on the emulator config file for the beta cycle.
+ota.track: production

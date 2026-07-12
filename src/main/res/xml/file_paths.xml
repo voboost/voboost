@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- ApkStager writes staged APKs to paths.stagingDir, which resolves to
+         Context.getDataDir()/staging/ = /data/data/ru.voboost/staging/.
+         FileProvider has NO element that maps to Context.getDataDir() directly:
+         <files-path> -> getFilesDir() (dataDir/files/), <root-path> -> "/"
+         (device root). So the staging dir is exposed via <root-path> with the
+         full relative path from the device root. The package id (ru.voboost)
+         is fixed by build.gradle.kts applicationId. -->
+    <root-path name="staging" path="data/data/ru.voboost/staging/" />
+
+    <!-- files-path maps to Context.getFilesDir() (dataDir/files/). Covers the
+         config/ dir holding the OTA public key and any future files/-based
+         staging. -->
+    <files-path name="files_staging" path="staging/" />
+    <files-path name="downloads" path="downloads/" />
+    <files-path name="config" path="config/" />
+
+    <!-- external-files-path maps to Context.getExternalFilesDir(). Covers any
+         APK staged to external storage on devices that use it. -->
+    <external-files-path name="external" path="." />
+</paths>
