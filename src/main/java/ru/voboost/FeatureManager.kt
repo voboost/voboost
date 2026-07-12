@@ -5,8 +5,16 @@ import ru.voboost.feature.FeatureContext
 import ru.voboost.feature.FeatureFrida
 import ru.voboost.feature.FeatureFridaForcedEV
 import ru.voboost.feature.FeatureFridaKeyboard
+import ru.voboost.feature.FeatureFridaLauncher
+import ru.voboost.feature.FeatureFridaMultiDisplay
+import ru.voboost.feature.FeatureFridaNavbarLauncher
+import ru.voboost.feature.FeatureFridaPhoneNumbers
 import ru.voboost.feature.FeatureFridaSettingsMenu
+import ru.voboost.feature.FeatureFridaVoboostToMenu
 import ru.voboost.feature.FeatureFridaWeather
+import ru.voboost.feature.FeatureNativeDns
+import ru.voboost.feature.FeatureNativeDpi
+import ru.voboost.feature.FeatureNativeDriveMode
 import ru.voboost.feature.FeatureVehiclePedestrianWarning
 
 /**
@@ -28,6 +36,14 @@ class FeatureManager {
             FeatureFridaForcedEV(),
             FeatureFridaSettingsMenu(),
             FeatureVehiclePedestrianWarning(),
+            FeatureFridaPhoneNumbers(),
+            FeatureFridaMultiDisplay(),
+            FeatureFridaLauncher(),
+            FeatureFridaNavbarLauncher(),
+            FeatureFridaVoboostToMenu(),
+            FeatureNativeDpi(),
+            FeatureNativeDns(),
+            FeatureNativeDriveMode(),
         )
 
     private val enabledFeatures = mutableSetOf<String>()
