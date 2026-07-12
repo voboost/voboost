@@ -79,7 +79,9 @@ root_and_permissive
 
 DAEMON_BIN="$(resolve_daemon_bin)"
 AGENTS_DIR="$(resolve_agents_dir)"
-read -r MANIFEST MANIFEST_SIG < <(resolve_manifest)
+# resolve_manifest prints two lines (manifest path, sig path); read each
+# separately so both are captured (a single `read -r A B` only gets line 1).
+{ read -r MANIFEST; read -r MANIFEST_SIG; } < <(resolve_manifest)
 log "daemon:   ${DAEMON_BIN}"
 log "agents:   ${AGENTS_DIR}"
 log "manifest: ${MANIFEST} (+ sig)"
@@ -129,7 +131,17 @@ case "${START_MODE}" in
   manual-start)
     log "starting daemon manually (root shell)..."
     stop_running_daemon
-    adb_cmd shell "su 0 sh -c 'cd ${ROOT_ZONE} && nohup ${ROOT_ZONE}/voboost-inject >>${ROOT_ZONE}/logs/manual-start.log 2>&1 &'" \
+    # Detach fully: setsid + </dev/null so adb shell does not deadlock waiting
+    # on the daemon's inherited stdin (nohup alone still holds the pty open).
+    #
+    # Quoting layers (outer to inner), kept here so future edits stay sane:
+    #   1. `adb_cmd shell "..."`  -> one arg passed to adb shell.
+    #   2. `su 0 sh -c '...'`      -> root runs sh -c with a single-quoted body.
+    #   3. `setsid sh -c "..."`   -> the daemon command, double-quoted and
+    #      backslash-escaped so it survives layer 2's single quotes.
+    # If you change the daemon command, re-verify all three layers with
+    # `set -x` locally before committing.
+    adb_cmd shell "su 0 sh -c 'setsid sh -c \"cd ${ROOT_ZONE} && ${ROOT_ZONE}/voboost-inject >>${ROOT_ZONE}/logs/manual-start.log 2>&1\" </dev/null >/dev/null 2>&1 &'" \
       || die "failed to start daemon"
     sleep 1
     ;;

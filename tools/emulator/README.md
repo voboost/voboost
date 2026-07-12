@@ -82,6 +82,24 @@ stub target process is absent, never silently dropped. Scenarios needing the
 full stub+agent matrix (spawn-gate, js/native routing, resume, coexist-skip,
 quarantine, boot-gate) are run manually after the stubs APK port.
 
+## OTA server (host-side, for self-update E2E)
+
+The OTA self-update flow serves `release-manifest.json` + APKs from the host.
+On macOS, `python3 -m http.server 8888` binds to **IPv6-only** by default, but
+the Android emulator reaches the host via `10.0.2.2` (IPv4) — this causes
+"unexpected end of stream" / connection-refused failures. Always bind IPv4:
+
+```
+cd <ota-staging-dir>   # contains release-manifest.json + voboost-inject.apk
+python3 -m http.server 8888 --bind 0.0.0.0
+```
+
+Verify the emulator can reach it before running OTA scenarios:
+
+```
+adb shell curl -s -o /dev/null -w "HTTP %{http_code}\n" http://10.0.2.2:8888/release-manifest.json
+```
+
 ## Layout
 
 ```

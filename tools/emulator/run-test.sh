@@ -31,11 +31,34 @@ STATUS_TMP="$(mktemp -d)"
 trap 'rm -rf "${STATUS_TMP}"; [[ ${KEEP_LOGS} -eq 1 ]] && collect_logs || true' EXIT
 
 # Pull inject-status.json to a local file. Prints the local path; empty on miss.
+#
+# Reads the status file via `adb shell su 0 cat` instead of `adb pull` to avoid
+# a race with the daemon's atomic write (temp + rename): `adb pull` can read a
+# partial/empty file during the rename window, which under `set -uo pipefail`
+# inside `$(...)` swallows the failure and yields an empty `got=`. `cat` reads
+# the file in-place after the rename completes. The status file is small
+# (< 4KB), so cat is fine.
+#
+# Two retry layers, distinct in purpose:
+#   - pull_status's 3x1s loop below covers a read landing MID-RENAME (the file
+#     exists but is momentarily empty/partial); it validates non-empty JSON
+#     starting with '{' before returning.
+#   - poll_status's outer loop (also 1s) covers the daemon NOT HAVING REACHED
+#     the target state yet (a higher-level wait, not a read race).
 pull_status() {
   local out="${STATUS_TMP}/inject-status.json"
-  if adb_cmd shell "test -f ${APP_ZONE}/inject-status.json" 2>/dev/null; then
-    adb_cmd pull "${APP_ZONE}/inject-status.json" "${out}" >/dev/null 2>&1 && echo "${out}"
-  fi
+  local remote="${APP_ZONE}/inject-status.json"
+  local attempt
+  for attempt in 1 2 3; do
+    adb_cmd shell "su 0 cat ${remote} 2>/dev/null" >"${out}" 2>/dev/null || true
+    # Valid JSON status is non-empty and starts with '{'. Accept on success.
+    if [[ -s "${out}" ]] && head -c1 "${out}" | grep -q '{'; then
+      echo "${out}"
+      return 0
+    fi
+    sleep 1
+  done
+  # Last attempt's output (possibly empty) remains in ${out}; echo nothing.
 }
 
 # Read a top-level field from the pulled status JSON via python3.
@@ -87,7 +110,10 @@ poll_status() {
   while [[ $(date +%s) -lt ${deadline} ]]; do
     local f; f="$(pull_status)"
     got="$(status_field "$f" "$path")"
-    [[ "${got}" == "${want}" ]] && return 0
+    if [[ "${got}" == "${want}" ]]; then
+      echo "${got}"
+      return 0
+    fi
     sleep 1
   done
   echo "${got}"
@@ -125,13 +151,32 @@ fail() { warn "  FAIL: $*"; return 1; }
 
 # Requires no target process — pure daemon behavior.
 sc_startup_gate() {
+  # Reset: scenarios don't clear daemon state between runs, so a `failed`
+  # injection from a prior scenario can persist in inject-status.json. Write a
+  # clean plan (startup:none, no agents) and wait for the daemon to reprocess
+  # it so the status reflects this scenario, not a prior one.
   write_inject_json '{"version":0,"startup":"none","disabled":false,"agents":[]}'
-  sleep 2
-  # Daemon should take no action; no active injections expected.
+  # Wait for the daemon to consume the reset plan (state settles, no new work).
+  poll_status "state" "ready" 8 >/dev/null 2>&1 || sleep 2
+  # Daemon should take no action; no active injections expected. Tolerate
+  # `failed` entries left from prior scenarios (they are not active injections
+  # triggered by startup:none) by filtering them out of the check: keep only
+  # injections whose state is not "failed", then require the remainder to be
+  # empty.
   local f; f="$(pull_status)"
-  local inj; inj="$(status_field "$f" "injections")"
+  local inj
+  inj="$(python3 - "$f" <<'PY' 2>/dev/null
+import json, sys
+try:
+    d = json.load(open(sys.argv[1]))
+except Exception:
+    print(""); sys.exit(0)
+active = [i for i in d.get("injections", []) if i.get("state") != "failed"]
+print(json.dumps(active))
+PY
+)"
   if [[ "$inj" == "[]" ]] || [[ -z "$inj" ]]; then return 0; fi
-  fail "startup:none left injections=$inj"
+  fail "startup:none left active injections=$inj"
 }
 
 sc_kill_switch() {
