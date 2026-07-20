@@ -50,7 +50,7 @@ class OtaVerifierTest {
                         OtaTestUtils.TestApkEntry(
                             component = "inject",
                             track = "production",
-                            downloadUrl = "https://host/voboost-inject.apk",
+                            downloadUrl = "https://host/voboost-inject",
                             sha256 = "abc123",
                             size = 1024,
                             version = "1.0.0",

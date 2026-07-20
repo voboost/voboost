@@ -18,8 +18,8 @@ import java.io.FileOutputStream
  * - **app** channel: stages the verified APK into `staging/` and invokes the
  *   system installer (install intent) to replace the running app. There is no
  *   apply marker for the app channel — the apply ends in the install intent.
- * - **inject** channel: stages the verified daemon APK into
- *   `staging/voboost-inject.apk` and creates the single-use
+ * - **inject** channel: stages the verified daemon payload into
+ *   `staging/voboost-inject` and creates the single-use
  *   `voboost-inject-update-ready` marker as the **last** step, signalling
  *   voboost-inject to self-update. The app never installs the daemon — the
  *   daemon verifies, replaces, and restarts itself.
@@ -38,8 +38,8 @@ class ApkStager(
         /** Single-use marker signalling voboost-inject to self-update. */
         const val INJECT_UPDATE_READY_MARKER = "voboost-inject-update-ready"
 
-        /** Fixed staging name for the daemon APK (per the voboost-inject contract). */
-        const val INJECT_APK_NAME = "voboost-inject.apk"
+        /** Fixed staging name for the daemon payload (per the voboost-inject contract). */
+        const val INJECT_FILE_NAME = "voboost-inject"
 
         /** FileProvider authority for sharing staged APKs with the installer. */
         private const val FILE_PROVIDER_AUTHORITY = "ru.voboost.fileprovider"
@@ -72,9 +72,9 @@ class ApkStager(
     }
 
     /**
-     * Stage an inject-channel APK and create the single-use marker last.
+     * Stage an inject-channel payload and create the single-use marker last.
      *
-     * The verified daemon APK is staged into `staging/$INJECT_APK_NAME`
+     * The verified daemon payload is staged into `staging/$INJECT_FILE_NAME`
      * (per the voboost-inject contract) and the `voboost-inject-update-ready`
      * marker is created as the **last** step, signalling voboost-inject to
      * self-update. The app does NOT install the daemon.
@@ -82,26 +82,26 @@ class ApkStager(
      * The marker is single-use: the daemon consumes (deletes) it after any
      * apply attempt, so a successful self-update does not loop.
      *
-     * @param apkFile Downloaded, verified daemon APK file
-     * @param entry Release file entry describing the APK
-     * @return the staged daemon APK file
+     * @param apkFile Downloaded, verified daemon payload file
+     * @param entry Release file entry describing the payload
+     * @return the staged daemon payload file
      * @throws OtaException if staging fails
      */
     fun stageInjectApk(
         apkFile: File,
         entry: ReleaseFileEntry,
     ): File {
-        Logger.info(LOG, "Staging inject APK: ${entry.path}")
+        Logger.info(LOG, "Staging inject payload: ${entry.path}")
 
-        // Stage to the fixed daemon APK name expected by voboost-inject.
-        val targetFile = stageApk(apkFile, INJECT_APK_NAME)
+        // Stage to the fixed daemon payload name expected by voboost-inject.
+        val targetFile = stageApk(apkFile, INJECT_FILE_NAME)
 
-        Logger.debug(LOG, "Inject APK staged: ${targetFile.absolutePath}")
+        Logger.debug(LOG, "Inject payload staged: ${targetFile.absolutePath}")
 
-        // Create the single-use marker LAST (atomic, after the APK is fsynced).
+        // Create the single-use marker LAST (atomic, after the payload is fsynced).
         createInjectUpdateReadyMarker()
 
-        Logger.info(LOG, "Inject APK staged and marker created")
+        Logger.info(LOG, "Inject payload staged and marker created")
         return targetFile
     }
 

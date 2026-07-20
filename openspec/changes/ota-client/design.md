@@ -77,7 +77,7 @@ same key family.
 A manifest that fails signature or structural validation is never written as the
 current manifest; the client keeps the last good one.
 
-### D7. One marker per staged inject APK
+### D7. One marker per staged inject payload
 The `inject`-apply marker is single-use: the daemon consumes (deletes) it after
 any apply attempt, so a successful self-update does not loop. The `app`-apply
 has no marker — it ends in an install intent.

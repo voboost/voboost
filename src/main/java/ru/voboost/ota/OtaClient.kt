@@ -262,9 +262,9 @@ class OtaClient(
     }
 
     /**
-     * Download and apply an inject-channel APK.
+     * Download and apply an inject-channel payload.
      *
-     * Stages the verified daemon APK into `staging/voboost-inject.apk` and
+     * Stages the verified daemon payload into `staging/voboost-inject` and
      * creates the single-use `voboost-inject-update-ready` marker last. The app
      * does NOT install the daemon — the daemon self-updates.
      */

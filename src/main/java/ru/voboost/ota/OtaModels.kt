@@ -10,9 +10,9 @@ import org.json.JSONObject
  * - [downloadUrl] — full URL to the APK (GitHub Release asset `https://` or
  *   local `file://` for testing). Replaces the old `path`+`baseUrl`
  *   concatenation.
- * - [path] — APK file name derived from [downloadUrl]'s last path segment
- *   (e.g. "voboost.apk", "voboost-inject.apk"). Kept for `ApkStager` and
- *   apply logic compatibility.
+ * - [path] — file name derived from [downloadUrl]'s last path segment
+ *   (e.g. "voboost.apk" for the app channel, "voboost-inject" for the
+ *   inject channel). Kept for `ApkStager` and apply logic compatibility.
      * - [channel] — internal APK channel: [Channel.APP] (voboost client) or
      *   [Channel.INJECT] (voboost-inject daemon). Mapped from the unified
      *   schema's `component` field (`app`→APP, `inject`→INJECT).
@@ -33,9 +33,9 @@ data class ReleaseFileEntry(
     /**
      * APK file name derived from [downloadUrl]'s last path segment.
      *
-     * Used by `ApkStager` to name the staged APK. For a URL like
+     * Used by `ApkStager` to name the staged file. For a URL like
      * `https://host/path/voboost.apk` this is `voboost.apk`; for
-     * `file:///tmp/voboost-inject.apk` it is `voboost-inject.apk`.
+     * `file:///tmp/voboost-inject` it is `voboost-inject`.
      */
     val path: String
         get() = downloadUrl.substringAfterLast('/')

@@ -86,7 +86,7 @@ class OtaDownloaderTest {
 
         val entry =
             ReleaseFileEntry(
-                downloadUrl = mockWebServer.url("/voboost-inject.apk").toString(),
+                downloadUrl = mockWebServer.url("/voboost-inject").toString(),
                 channel = Channel.INJECT,
                 track = "production",
                 sha256 = sha256,
@@ -94,7 +94,7 @@ class OtaDownloaderTest {
                 version = "1.0.0",
             )
 
-        val targetFile = File(tempDir, "voboost-inject.apk")
+        val targetFile = File(tempDir, "voboost-inject")
         downloader.downloadFile(entry, targetFile)
 
         assertTrue(targetFile.exists())
@@ -197,7 +197,7 @@ class OtaDownloaderTest {
                     version = "1.0.0",
                 ),
                 ReleaseFileEntry(
-                    downloadUrl = mockWebServer.url("/voboost-inject.apk").toString(),
+                    downloadUrl = mockWebServer.url("/voboost-inject").toString(),
                     channel = Channel.INJECT,
                     track = "production",
                     sha256 = sha2,

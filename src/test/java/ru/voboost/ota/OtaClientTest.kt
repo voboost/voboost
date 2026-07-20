@@ -137,7 +137,7 @@ class OtaClientTest {
                         OtaTestUtils.TestApkEntry(
                             component = "inject",
                             track = "production",
-                            downloadUrl = mockWebServer.url("/voboost-inject.apk").toString(),
+                            downloadUrl = mockWebServer.url("/voboost-inject").toString(),
                             sha256 = OtaTestUtils.calculateSha256(injectContent),
                             size = injectContent.length.toLong(),
                             version = "1.0.0",
@@ -157,7 +157,7 @@ class OtaClientTest {
         assertFalse(applied)
         // Nothing staged.
         assertFalse(File(paths.stagingDir, "voboost.apk").exists())
-        assertFalse(File(paths.stagingDir, ApkStager.INJECT_APK_NAME).exists())
+        assertFalse(File(paths.stagingDir, ApkStager.INJECT_FILE_NAME).exists())
         assertFalse(ApkStager(paths, null).hasInjectUpdateReadyMarker())
     }
 
@@ -205,7 +205,7 @@ class OtaClientTest {
                         OtaTestUtils.TestApkEntry(
                             component = "inject",
                             track = "production",
-                            downloadUrl = mockWebServer.url("/voboost-inject.apk").toString(),
+                            downloadUrl = mockWebServer.url("/voboost-inject").toString(),
                             sha256 = OtaTestUtils.calculateSha256(injectContent),
                             size = injectContent.length.toLong(),
                             version = "1.1.0",
@@ -226,7 +226,7 @@ class OtaClientTest {
 
         assertTrue(applied)
         // Daemon APK staged to the fixed name + marker created.
-        val stagedInject = File(paths.stagingDir, ApkStager.INJECT_APK_NAME)
+        val stagedInject = File(paths.stagingDir, ApkStager.INJECT_FILE_NAME)
         assertTrue(stagedInject.exists())
         assertEquals(injectContent, stagedInject.readText())
         assertTrue(ApkStager(paths, null).hasInjectUpdateReadyMarker())
@@ -251,7 +251,7 @@ class OtaClientTest {
                         OtaTestUtils.TestApkEntry(
                             component = "inject",
                             track = "production",
-                            downloadUrl = mockWebServer.url("/voboost-inject.apk").toString(),
+                            downloadUrl = mockWebServer.url("/voboost-inject").toString(),
                             sha256 = OtaTestUtils.calculateSha256(injectContent),
                             size = injectContent.length.toLong(),
                             version = "1.1.0",
@@ -273,7 +273,7 @@ class OtaClientTest {
 
         assertTrue(applied)
         assertTrue(File(paths.stagingDir, "voboost.apk").exists())
-        assertTrue(File(paths.stagingDir, ApkStager.INJECT_APK_NAME).exists())
+        assertTrue(File(paths.stagingDir, ApkStager.INJECT_FILE_NAME).exists())
         assertTrue(ApkStager(paths, null).hasInjectUpdateReadyMarker())
     }
 
@@ -323,7 +323,7 @@ class OtaClientTest {
                         OtaTestUtils.TestApkEntry(
                             component = "inject",
                             track = "production",
-                            downloadUrl = mockWebServer.url("/voboost-inject.apk").toString(),
+                            downloadUrl = mockWebServer.url("/voboost-inject").toString(),
                             sha256 = OtaTestUtils.calculateSha256(injectContent),
                             size = injectContent.length.toLong(),
                             version = "1.0.0",
@@ -340,7 +340,7 @@ class OtaClientTest {
         val applied = client.checkAndUpdate()
 
         assertTrue(applied)
-        assertTrue(File(paths.stagingDir, ApkStager.INJECT_APK_NAME).exists())
+        assertTrue(File(paths.stagingDir, ApkStager.INJECT_FILE_NAME).exists())
         assertTrue(ApkStager(paths, null).hasInjectUpdateReadyMarker())
     }
 
@@ -420,7 +420,7 @@ class OtaClientTest {
                         OtaTestUtils.TestApkEntry(
                             component = "inject",
                             track = "production",
-                            downloadUrl = mockWebServer.url("/voboost-inject.apk").toString(),
+                            downloadUrl = mockWebServer.url("/voboost-inject").toString(),
                             // Wrong sha -> inject download will fail verification.
                             sha256 = OtaTestUtils.calculateSha256("different content"),
                             size = injectContent.length.toLong(),
@@ -448,7 +448,7 @@ class OtaClientTest {
         assertTrue(stagedApp.exists())
         assertEquals(appContent, stagedApp.readText())
         // Inject APK is NOT staged (sha mismatch -> discarded).
-        assertFalse(File(paths.stagingDir, ApkStager.INJECT_APK_NAME).exists())
+        assertFalse(File(paths.stagingDir, ApkStager.INJECT_FILE_NAME).exists())
         // No inject marker (inject channel failed).
         assertFalse(ApkStager(paths, null).hasInjectUpdateReadyMarker())
     }
@@ -477,7 +477,7 @@ class OtaClientTest {
                         OtaTestUtils.TestApkEntry(
                             component = "inject",
                             track = "production",
-                            downloadUrl = mockWebServer.url("/voboost-inject.apk").toString(),
+                            downloadUrl = mockWebServer.url("/voboost-inject").toString(),
                             sha256 = OtaTestUtils.calculateSha256(injectContent),
                             size = injectContent.length.toLong(),
                             version = "1.1.0",
@@ -501,7 +501,7 @@ class OtaClientTest {
         // App APK is NOT staged (sha mismatch -> discarded).
         assertFalse(File(paths.stagingDir, "voboost.apk").exists())
         // Inject APK is staged + marker created.
-        val stagedInject = File(paths.stagingDir, ApkStager.INJECT_APK_NAME)
+        val stagedInject = File(paths.stagingDir, ApkStager.INJECT_FILE_NAME)
         assertTrue(stagedInject.exists())
         assertEquals(injectContent, stagedInject.readText())
         assertTrue(ApkStager(paths, null).hasInjectUpdateReadyMarker())

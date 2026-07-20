@@ -44,17 +44,17 @@ per-resource diffing.
 - **THEN** the client downloads that APK whole
 
 #### Scenario: Up-to-date channel is skipped
-- **WHEN** the manifest's `inject` APK version is not newer than the installed daemon
-- **THEN** the client does not download the inject APK
+- **WHEN** the manifest's `inject` payload version is not newer than the installed daemon
+- **THEN** the client does not download the inject payload
 
 ### Requirement: Download integrity with size pre-check
-For each downloaded APK the client SHALL compare the received byte count to the
+For each downloaded file the client SHALL compare the received byte count to the
 manifest `size` before hashing, rejecting a download whose size disagrees, and
-SHALL then verify the `sha256`. An APK that fails either check SHALL be discarded
+SHALL then verify the `sha256`. A file that fails either check SHALL be discarded
 and not staged.
 
 #### Scenario: Size mismatch rejects before hashing
-- **WHEN** a downloaded APK's byte count differs from the manifest size
+- **WHEN** a downloaded file's byte count differs from the manifest size
 - **THEN** the client discards it without hashing and does not stage it
 
 ### Requirement: Apply app channel via installer
@@ -68,15 +68,15 @@ marker for the app channel.
 - **THEN** the client stages it and issues an install intent to replace the app
 
 ### Requirement: Apply inject channel by staging and signalling the daemon
-For an `inject`-channel APK the client SHALL stage the verified daemon APK into
-the app-zone `staging/` and SHALL create a single-use marker (e.g.
+For an `inject`-channel payload the client SHALL stage the verified daemon
+payload into the app-zone `staging/` and SHALL create a single-use marker (e.g.
 `voboost-inject-update-ready`) as the last step, signalling voboost-inject to
 self-update. The client SHALL NOT install the daemon itself — the daemon
 verifies, replaces, and restarts itself. The marker is single-use: the daemon
 consumes (removes) it after any apply attempt.
 
-#### Scenario: Daemon APK is staged and signalled
-- **WHEN** a newer inject APK is downloaded and verified
+#### Scenario: Daemon payload is staged and signalled
+- **WHEN** a newer inject payload is downloaded and verified
 - **THEN** the client stages it and creates the single-use marker last; it does
   not install the daemon
 
@@ -86,9 +86,9 @@ consumes (removes) it after any apply attempt.
 
 ### Requirement: Channel producer roles
 The `app` channel SHALL be the voboost client APK; the `inject` channel SHALL be
-the voboost-inject daemon APK. The client SHALL NOT produce or sign the daemon's
+the voboost-inject daemon payload. The client SHALL NOT produce or sign the daemon's
 per-agent `manifest.json` — that is build-time, inside the daemon APK.
 
 #### Scenario: Client does not generate the daemon manifest
-- **WHEN** the client stages an inject APK
-- **THEN** it stages the APK as-is; it does not synthesize a per-agent manifest
+- **WHEN** the client stages an inject payload
+- **THEN** it stages the payload as-is; it does not synthesize a per-agent manifest
