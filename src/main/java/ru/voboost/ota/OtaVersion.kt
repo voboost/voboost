@@ -201,7 +201,7 @@ object OtaVersion {
      * any manifest version is an update.
      *
      * @param installed Current installed version (e.g. BuildConfig.VERSION_NAME for
-     *   app, or the daemon field from inject-status.json for core)
+     *   app, or the daemon field from inject-status.json for inject)
      * @param manifest Version from manifest entry
      * @return true if manifest version is newer
      */

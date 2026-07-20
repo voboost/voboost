@@ -19,8 +19,8 @@ import java.io.File
  *
  * Uses MockWebServer to serve the signed unified manifest, its detached
  * signature, and the APK bytes. Verifies the full flow:
- * fetch -> verify signature -> filter by track -> compare app/core versions
- * -> download newer APK(s) -> apply per channel (app staged, core staged +
+ * fetch -> verify signature -> filter by track -> compare app/inject versions
+ * -> download newer APK(s) -> apply per channel (app staged, inject staged +
  * marker).
  */
 @RunWith(RobolectricTestRunner::class)
@@ -121,7 +121,7 @@ class OtaClientTest {
     @Test
     fun testNoUpdateWhenBothChannelsUpToDate() {
         val appContent = "app apk"
-        val coreContent = "core apk"
+        val injectContent = "inject apk"
         val manifest =
             OtaTestUtils.createTestManifest(
                 releases =
@@ -138,8 +138,8 @@ class OtaClientTest {
                             component = "inject",
                             track = "production",
                             downloadUrl = mockWebServer.url("/voboost-inject.apk").toString(),
-                            sha256 = OtaTestUtils.calculateSha256(coreContent),
-                            size = coreContent.length.toLong(),
+                            sha256 = OtaTestUtils.calculateSha256(injectContent),
+                            size = injectContent.length.toLong(),
                             version = "1.0.0",
                         ),
                     ),
@@ -157,8 +157,8 @@ class OtaClientTest {
         assertFalse(applied)
         // Nothing staged.
         assertFalse(File(paths.stagingDir, "voboost.apk").exists())
-        assertFalse(File(paths.stagingDir, ApkStager.CORE_APK_NAME).exists())
-        assertFalse(ApkStager(paths, null).hasCoreUpdateReadyMarker())
+        assertFalse(File(paths.stagingDir, ApkStager.INJECT_APK_NAME).exists())
+        assertFalse(ApkStager(paths, null).hasInjectUpdateReadyMarker())
     }
 
     @Test
@@ -192,12 +192,12 @@ class OtaClientTest {
         val stagedApp = File(paths.stagingDir, "voboost.apk")
         assertTrue(stagedApp.exists())
         assertEquals(appContent, stagedApp.readText())
-        assertFalse(ApkStager(paths, null).hasCoreUpdateReadyMarker())
+        assertFalse(ApkStager(paths, null).hasInjectUpdateReadyMarker())
     }
 
     @Test
-    fun testCoreUpdateDownloadedStagedAndMarkerCreated() {
-        val coreContent = "new daemon apk"
+    fun testInjectUpdateDownloadedStagedAndMarkerCreated() {
+        val injectContent = "new daemon apk"
         val manifest =
             OtaTestUtils.createTestManifest(
                 releases =
@@ -206,15 +206,15 @@ class OtaClientTest {
                             component = "inject",
                             track = "production",
                             downloadUrl = mockWebServer.url("/voboost-inject.apk").toString(),
-                            sha256 = OtaTestUtils.calculateSha256(coreContent),
-                            size = coreContent.length.toLong(),
+                            sha256 = OtaTestUtils.calculateSha256(injectContent),
+                            size = injectContent.length.toLong(),
                             version = "1.1.0",
                         ),
                     ),
             )
 
         enqueueManifest(manifest)
-        enqueueApk(coreContent)
+        enqueueApk(injectContent)
 
         // Installed daemon is older (1.0.0 < 1.1.0).
         val client =
@@ -226,16 +226,16 @@ class OtaClientTest {
 
         assertTrue(applied)
         // Daemon APK staged to the fixed name + marker created.
-        val stagedCore = File(paths.stagingDir, ApkStager.CORE_APK_NAME)
-        assertTrue(stagedCore.exists())
-        assertEquals(coreContent, stagedCore.readText())
-        assertTrue(ApkStager(paths, null).hasCoreUpdateReadyMarker())
+        val stagedInject = File(paths.stagingDir, ApkStager.INJECT_APK_NAME)
+        assertTrue(stagedInject.exists())
+        assertEquals(injectContent, stagedInject.readText())
+        assertTrue(ApkStager(paths, null).hasInjectUpdateReadyMarker())
     }
 
     @Test
     fun testBothChannelsUpdated() {
         val appContent = "new app apk"
-        val coreContent = "new core apk"
+        val injectContent = "new inject apk"
         val manifest =
             OtaTestUtils.createTestManifest(
                 releases =
@@ -252,8 +252,8 @@ class OtaClientTest {
                             component = "inject",
                             track = "production",
                             downloadUrl = mockWebServer.url("/voboost-inject.apk").toString(),
-                            sha256 = OtaTestUtils.calculateSha256(coreContent),
-                            size = coreContent.length.toLong(),
+                            sha256 = OtaTestUtils.calculateSha256(injectContent),
+                            size = injectContent.length.toLong(),
                             version = "1.1.0",
                         ),
                     ),
@@ -261,7 +261,7 @@ class OtaClientTest {
 
         enqueueManifest(manifest)
         enqueueApk(appContent)
-        enqueueApk(coreContent)
+        enqueueApk(injectContent)
 
         // Both installed versions older.
         val client =
@@ -273,8 +273,8 @@ class OtaClientTest {
 
         assertTrue(applied)
         assertTrue(File(paths.stagingDir, "voboost.apk").exists())
-        assertTrue(File(paths.stagingDir, ApkStager.CORE_APK_NAME).exists())
-        assertTrue(ApkStager(paths, null).hasCoreUpdateReadyMarker())
+        assertTrue(File(paths.stagingDir, ApkStager.INJECT_APK_NAME).exists())
+        assertTrue(ApkStager(paths, null).hasInjectUpdateReadyMarker())
     }
 
     @Test
@@ -314,8 +314,8 @@ class OtaClientTest {
     }
 
     @Test
-    fun testMissingDaemonVersionTreatsCoreAsUpdate() {
-        val coreContent = "daemon apk"
+    fun testMissingDaemonVersionTreatsInjectAsUpdate() {
+        val injectContent = "daemon apk"
         val manifest =
             OtaTestUtils.createTestManifest(
                 releases =
@@ -324,24 +324,24 @@ class OtaClientTest {
                             component = "inject",
                             track = "production",
                             downloadUrl = mockWebServer.url("/voboost-inject.apk").toString(),
-                            sha256 = OtaTestUtils.calculateSha256(coreContent),
-                            size = coreContent.length.toLong(),
+                            sha256 = OtaTestUtils.calculateSha256(injectContent),
+                            size = injectContent.length.toLong(),
                             version = "1.0.0",
                         ),
                     ),
             )
 
         enqueueManifest(manifest)
-        enqueueApk(coreContent)
+        enqueueApk(injectContent)
 
-        // No installed daemon version -> core update available.
+        // No installed daemon version -> inject update available.
         val client =
             OtaClient(paths, buildConfig(currentAppVersion = "1.0.0", currentDaemonVersion = null))
         val applied = client.checkAndUpdate()
 
         assertTrue(applied)
-        assertTrue(File(paths.stagingDir, ApkStager.CORE_APK_NAME).exists())
-        assertTrue(ApkStager(paths, null).hasCoreUpdateReadyMarker())
+        assertTrue(File(paths.stagingDir, ApkStager.INJECT_APK_NAME).exists())
+        assertTrue(ApkStager(paths, null).hasInjectUpdateReadyMarker())
     }
 
     @Test
@@ -397,14 +397,14 @@ class OtaClientTest {
     }
 
     /**
-     * Channel isolation: when the app channel succeeds but the core channel
+     * Channel isolation: when the app channel succeeds but the inject channel
      * fails (sha mismatch), the app APK is still staged and applied==true.
-     * The core failure is logged but does NOT abort the app update (C3).
+     * The inject failure is logged but does NOT abort the app update (C3).
      */
     @Test
-    fun testAppSucceedsEvenWhenCoreChannelFails() {
+    fun testAppSucceedsEvenWhenInjectChannelFails() {
         val appContent = "new app apk"
-        val coreContent = "corrupted core apk"
+        val injectContent = "corrupted inject apk"
         val manifest =
             OtaTestUtils.createTestManifest(
                 releases =
@@ -421,9 +421,9 @@ class OtaClientTest {
                             component = "inject",
                             track = "production",
                             downloadUrl = mockWebServer.url("/voboost-inject.apk").toString(),
-                            // Wrong sha -> core download will fail verification.
+                            // Wrong sha -> inject download will fail verification.
                             sha256 = OtaTestUtils.calculateSha256("different content"),
-                            size = coreContent.length.toLong(),
+                            size = injectContent.length.toLong(),
                             version = "1.1.0",
                         ),
                     ),
@@ -431,9 +431,9 @@ class OtaClientTest {
 
         enqueueManifest(manifest)
         enqueueApk(appContent)
-        enqueueApk(coreContent)
+        enqueueApk(injectContent)
 
-        // Both channels have updates available; core will fail sha verify.
+        // Both channels have updates available; inject will fail sha verify.
         val client =
             OtaClient(
                 paths,
@@ -441,26 +441,26 @@ class OtaClientTest {
             )
         val applied = client.checkAndUpdate()
 
-        // App channel succeeded -> applied is true despite core failure.
+        // App channel succeeded -> applied is true despite inject failure.
         assertTrue(applied)
         // App APK is staged.
         val stagedApp = File(paths.stagingDir, "voboost.apk")
         assertTrue(stagedApp.exists())
         assertEquals(appContent, stagedApp.readText())
-        // Core APK is NOT staged (sha mismatch -> discarded).
-        assertFalse(File(paths.stagingDir, ApkStager.CORE_APK_NAME).exists())
-        // No core marker (core channel failed).
-        assertFalse(ApkStager(paths, null).hasCoreUpdateReadyMarker())
+        // Inject APK is NOT staged (sha mismatch -> discarded).
+        assertFalse(File(paths.stagingDir, ApkStager.INJECT_APK_NAME).exists())
+        // No inject marker (inject channel failed).
+        assertFalse(ApkStager(paths, null).hasInjectUpdateReadyMarker())
     }
 
     /**
-     * Channel isolation: when the core channel succeeds but the app channel
-     * fails (sha mismatch), the core APK is still staged + marker created.
+     * Channel isolation: when the inject channel succeeds but the app channel
+     * fails (sha mismatch), the inject APK is still staged + marker created.
      */
     @Test
-    fun testCoreSucceedsEvenWhenAppChannelFails() {
+    fun testInjectSucceedsEvenWhenAppChannelFails() {
         val appContent = "corrupted app apk"
-        val coreContent = "new core apk"
+        val injectContent = "new inject apk"
         val manifest =
             OtaTestUtils.createTestManifest(
                 releases =
@@ -478,8 +478,8 @@ class OtaClientTest {
                             component = "inject",
                             track = "production",
                             downloadUrl = mockWebServer.url("/voboost-inject.apk").toString(),
-                            sha256 = OtaTestUtils.calculateSha256(coreContent),
-                            size = coreContent.length.toLong(),
+                            sha256 = OtaTestUtils.calculateSha256(injectContent),
+                            size = injectContent.length.toLong(),
                             version = "1.1.0",
                         ),
                     ),
@@ -487,7 +487,7 @@ class OtaClientTest {
 
         enqueueManifest(manifest)
         enqueueApk(appContent)
-        enqueueApk(coreContent)
+        enqueueApk(injectContent)
 
         val client =
             OtaClient(
@@ -496,15 +496,15 @@ class OtaClientTest {
             )
         val applied = client.checkAndUpdate()
 
-        // Core channel succeeded -> applied is true despite app failure.
+        // Inject channel succeeded -> applied is true despite app failure.
         assertTrue(applied)
         // App APK is NOT staged (sha mismatch -> discarded).
         assertFalse(File(paths.stagingDir, "voboost.apk").exists())
-        // Core APK is staged + marker created.
-        val stagedCore = File(paths.stagingDir, ApkStager.CORE_APK_NAME)
-        assertTrue(stagedCore.exists())
-        assertEquals(coreContent, stagedCore.readText())
-        assertTrue(ApkStager(paths, null).hasCoreUpdateReadyMarker())
+        // Inject APK is staged + marker created.
+        val stagedInject = File(paths.stagingDir, ApkStager.INJECT_APK_NAME)
+        assertTrue(stagedInject.exists())
+        assertEquals(injectContent, stagedInject.readText())
+        assertTrue(ApkStager(paths, null).hasInjectUpdateReadyMarker())
     }
 
     /**

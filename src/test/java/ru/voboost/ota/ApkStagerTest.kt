@@ -16,8 +16,8 @@ import java.io.File
  *
  * Covers:
  * - app channel: stages APK to `staging/<path>` (no marker)
- * - core channel: stages APK to `staging/voboost-inject.apk` + creates
- *   `core-update-ready` marker LAST
+ * - inject channel: stages APK to `staging/voboost-inject.apk` + creates
+ *   `voboost-inject-update-ready` marker LAST
  * - marker is single-use (clearable)
  * - cleanStaging
  */
@@ -77,14 +77,14 @@ class ApkStagerTest {
         assertEquals(content, staged.readText())
 
         // No marker for the app channel.
-        assertFalse(stager.hasCoreUpdateReadyMarker())
-        assertFalse(File(testDir, ApkStager.CORE_UPDATE_READY_MARKER).exists())
+        assertFalse(stager.hasInjectUpdateReadyMarker())
+        assertFalse(File(testDir, ApkStager.INJECT_UPDATE_READY_MARKER).exists())
     }
 
     @Test
-    fun testStageCoreApkStagesToFixedDaemonName() {
+    fun testStageInjectApkStagesToFixedDaemonName() {
         val content = "fake daemon apk"
-        val apkFile = File.createTempFile("core-", ".apk")
+        val apkFile = File.createTempFile("inject-", ".apk")
         apkFile.writeText(content)
 
         val entry =
@@ -92,16 +92,16 @@ class ApkStagerTest {
                 // Even if the downloadUrl basename differs, the daemon APK is
                 // staged to the fixed name expected by voboost-inject.
                 downloadUrl = "https://host/voboost-inject-1.2.3.apk",
-                channel = Channel.CORE,
+                channel = Channel.INJECT,
                 track = "production",
                 sha256 = OtaTestUtils.calculateSha256(content),
                 size = content.length.toLong(),
                 version = "1.2.3",
             )
 
-        stager.stageCoreApk(apkFile, entry)
+        stager.stageInjectApk(apkFile, entry)
 
-        val staged = File(testDir, ApkStager.CORE_APK_NAME)
+        val staged = File(testDir, ApkStager.INJECT_APK_NAME)
         assertTrue(staged.exists())
         assertEquals(content, staged.readText())
 
@@ -110,15 +110,15 @@ class ApkStagerTest {
     }
 
     @Test
-    fun testStageCoreApkCreatesMarkerLast() {
+    fun testStageInjectApkCreatesMarkerLast() {
         val content = "fake daemon apk"
-        val apkFile = File.createTempFile("core-", ".apk")
+        val apkFile = File.createTempFile("inject-", ".apk")
         apkFile.writeText(content)
 
         val entry =
             ReleaseFileEntry(
                 downloadUrl = "https://host/voboost-inject.apk",
-                channel = Channel.CORE,
+                channel = Channel.INJECT,
                 track = "production",
                 sha256 = OtaTestUtils.calculateSha256(content),
                 size = content.length.toLong(),
@@ -126,14 +126,14 @@ class ApkStagerTest {
             )
 
         // Marker should not exist before staging.
-        assertFalse(stager.hasCoreUpdateReadyMarker())
+        assertFalse(stager.hasInjectUpdateReadyMarker())
 
-        stager.stageCoreApk(apkFile, entry)
+        stager.stageInjectApk(apkFile, entry)
 
         // Marker should exist after staging (created LAST).
-        assertTrue(stager.hasCoreUpdateReadyMarker())
+        assertTrue(stager.hasInjectUpdateReadyMarker())
 
-        val markerFile = File(testDir, ApkStager.CORE_UPDATE_READY_MARKER)
+        val markerFile = File(testDir, ApkStager.INJECT_UPDATE_READY_MARKER)
         assertTrue(markerFile.exists())
         assertEquals("ready", markerFile.readText().trim())
     }
@@ -141,66 +141,66 @@ class ApkStagerTest {
     @Test
     fun testMarkerIsSingleUseClearable() {
         val content = "fake daemon apk"
-        val apkFile = File.createTempFile("core-", ".apk")
+        val apkFile = File.createTempFile("inject-", ".apk")
         apkFile.writeText(content)
 
         val entry =
             ReleaseFileEntry(
                 downloadUrl = "https://host/voboost-inject.apk",
-                channel = Channel.CORE,
+                channel = Channel.INJECT,
                 track = "production",
                 sha256 = OtaTestUtils.calculateSha256(content),
                 size = content.length.toLong(),
                 version = "1.0.0",
             )
 
-        stager.stageCoreApk(apkFile, entry)
-        assertTrue(stager.hasCoreUpdateReadyMarker())
+        stager.stageInjectApk(apkFile, entry)
+        assertTrue(stager.hasInjectUpdateReadyMarker())
 
         // Daemon consumes (deletes) the marker after apply.
-        stager.clearCoreUpdateReadyMarker()
-        assertFalse(stager.hasCoreUpdateReadyMarker())
+        stager.clearInjectUpdateReadyMarker()
+        assertFalse(stager.hasInjectUpdateReadyMarker())
 
         // The staged APK remains after the marker is consumed.
-        assertTrue(File(testDir, ApkStager.CORE_APK_NAME).exists())
+        assertTrue(File(testDir, ApkStager.INJECT_APK_NAME).exists())
     }
 
     @Test
-    fun testStageCoreApkOverwritesPreviousStagedApk() {
+    fun testStageInjectApkOverwritesPreviousStagedApk() {
         val content1 = "daemon v1"
-        val apkFile1 = File.createTempFile("core1-", ".apk")
+        val apkFile1 = File.createTempFile("inject1-", ".apk")
         apkFile1.writeText(content1)
 
         val entry1 =
             ReleaseFileEntry(
                 downloadUrl = "https://host/voboost-inject.apk",
-                channel = Channel.CORE,
+                channel = Channel.INJECT,
                 track = "production",
                 sha256 = OtaTestUtils.calculateSha256(content1),
                 size = content1.length.toLong(),
                 version = "1.0.0",
             )
-        stager.stageCoreApk(apkFile1, entry1)
-        stager.clearCoreUpdateReadyMarker()
+        stager.stageInjectApk(apkFile1, entry1)
+        stager.clearInjectUpdateReadyMarker()
 
         val content2 = "daemon v2"
-        val apkFile2 = File.createTempFile("core2-", ".apk")
+        val apkFile2 = File.createTempFile("inject2-", ".apk")
         apkFile2.writeText(content2)
 
         val entry2 =
             ReleaseFileEntry(
                 downloadUrl = "https://host/voboost-inject.apk",
-                channel = Channel.CORE,
+                channel = Channel.INJECT,
                 track = "production",
                 sha256 = OtaTestUtils.calculateSha256(content2),
                 size = content2.length.toLong(),
                 version = "1.0.1",
             )
-        stager.stageCoreApk(apkFile2, entry2)
+        stager.stageInjectApk(apkFile2, entry2)
 
-        val staged = File(testDir, ApkStager.CORE_APK_NAME)
+        val staged = File(testDir, ApkStager.INJECT_APK_NAME)
         assertEquals(content2, staged.readText())
-        assertTrue(stager.hasCoreUpdateReadyMarker())
+        assertTrue(stager.hasInjectUpdateReadyMarker())
     }
 
     @Test
@@ -208,7 +208,7 @@ class ApkStagerTest {
         val testFile = File(testDir, "voboost-inject.apk")
         testFile.writeText("test")
 
-        val marker = File(testDir, ApkStager.CORE_UPDATE_READY_MARKER)
+        val marker = File(testDir, ApkStager.INJECT_UPDATE_READY_MARKER)
         marker.writeText("ready")
 
         assertTrue(testFile.exists())

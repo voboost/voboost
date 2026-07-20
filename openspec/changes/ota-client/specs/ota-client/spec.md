@@ -4,9 +4,9 @@
 The OTA client SHALL verify a fetched release manifest's detached ed25519
 signature (`release-manifest.json` + `.sig`) against the committed
 `release-public.pem` before trusting any of its contents. Each entry SHALL
-describe a whole APK: `path` (APK file name), `channel ∈ {app, core}`, `sha256`,
+describe a whole APK: `path` (APK file name), `channel ∈ {app, inject}`, `sha256`,
 `size`, and `version`. An entry missing any field, or whose `channel` is not in
-`{app, core}`, SHALL be rejected even if the signature is otherwise valid. A
+`{app, inject}`, SHALL be rejected even if the signature is otherwise valid. A
 manifest that fails signature or structural validation SHALL NOT be persisted as
 the current manifest.
 
@@ -44,8 +44,8 @@ per-resource diffing.
 - **THEN** the client downloads that APK whole
 
 #### Scenario: Up-to-date channel is skipped
-- **WHEN** the manifest's `core` APK version is not newer than the installed daemon
-- **THEN** the client does not download the core APK
+- **WHEN** the manifest's `inject` APK version is not newer than the installed daemon
+- **THEN** the client does not download the inject APK
 
 ### Requirement: Download integrity with size pre-check
 For each downloaded APK the client SHALL compare the received byte count to the
@@ -67,28 +67,28 @@ marker for the app channel.
 - **WHEN** a newer app APK is downloaded and verified
 - **THEN** the client stages it and issues an install intent to replace the app
 
-### Requirement: Apply core channel by staging and signalling the daemon
-For a `core`-channel APK the client SHALL stage the verified daemon APK into the
-app-zone `staging/` and SHALL create a single-use marker (e.g.
-`core-update-ready`) as the last step, signalling voboost-inject to self-update.
-The client SHALL NOT install the daemon itself — the daemon verifies, replaces,
-and restarts itself. The marker is single-use: the daemon consumes (removes) it
-after any apply attempt.
+### Requirement: Apply inject channel by staging and signalling the daemon
+For an `inject`-channel APK the client SHALL stage the verified daemon APK into
+the app-zone `staging/` and SHALL create a single-use marker (e.g.
+`voboost-inject-update-ready`) as the last step, signalling voboost-inject to
+self-update. The client SHALL NOT install the daemon itself — the daemon
+verifies, replaces, and restarts itself. The marker is single-use: the daemon
+consumes (removes) it after any apply attempt.
 
 #### Scenario: Daemon APK is staged and signalled
-- **WHEN** a newer core APK is downloaded and verified
+- **WHEN** a newer inject APK is downloaded and verified
 - **THEN** the client stages it and creates the single-use marker last; it does
   not install the daemon
 
 #### Scenario: Marker is single-use
-- **WHEN** the daemon applies (or rejects) a staged core update
+- **WHEN** the daemon applies (or rejects) a staged inject update
 - **THEN** it consumes the marker, so a successful self-update does not loop
 
 ### Requirement: Channel producer roles
-The `app` channel SHALL be the voboost client APK; the `core` channel SHALL be
+The `app` channel SHALL be the voboost client APK; the `inject` channel SHALL be
 the voboost-inject daemon APK. The client SHALL NOT produce or sign the daemon's
 per-agent `manifest.json` — that is build-time, inside the daemon APK.
 
 #### Scenario: Client does not generate the daemon manifest
-- **WHEN** the client stages a core APK
+- **WHEN** the client stages an inject APK
 - **THEN** it stages the APK as-is; it does not synthesize a per-agent manifest

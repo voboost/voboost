@@ -14,7 +14,7 @@ import org.robolectric.RobolectricTestRunner
 /**
  * Tests for [OtaVersion] (semver compare + daemon version extraction).
  *
- * Covers: newer/older/equal for app and core channels, missing daemon
+ * Covers: newer/older/equal for app and inject channels, missing daemon
  * version, and extraction of the version from the inject-status.json `daemon`
  * field (e.g. "voboost-inject 1.0.0" -> "1.0.0").
  */
@@ -72,8 +72,8 @@ class OtaVersionTest {
     }
 
     @Test
-    fun testIsUpdateAvailableCoreChannel() {
-        // Same logic applies to the core channel.
+    fun testIsUpdateAvailableInjectChannel() {
+        // Same logic applies to the inject channel.
         assertTrue(OtaVersion.isUpdateAvailable("1.0.0", "1.1.0"))
         assertFalse(OtaVersion.isUpdateAvailable("1.1.0", "1.0.0"))
     }

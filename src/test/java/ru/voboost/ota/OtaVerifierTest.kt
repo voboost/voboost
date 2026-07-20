@@ -18,7 +18,7 @@ import org.robolectric.RobolectricTestRunner
  * Covers: valid signature trusted, invalid signature rejected, missing field
  * rejected, invalid component rejected, oversized manifest rejected, too-many-
  * entries rejected, and the {app, inject} components accepted (mapped to
- * APP/CORE channels).
+ * APP/INJECT channels).
  */
 @RunWith(RobolectricTestRunner::class)
 class OtaVerifierTest {
@@ -70,7 +70,7 @@ class OtaVerifierTest {
 
         assertNotNull(result)
         assertEquals(1, result.releases.size)
-        assertEquals(Channel.CORE, result.releases[0].channel)
+        assertEquals(Channel.INJECT, result.releases[0].channel)
     }
 
     @Test
@@ -245,7 +245,7 @@ class OtaVerifierTest {
     fun testAppAndInjectComponentsAccepted() {
         // Only {app, inject} components are valid; both map to channels.
         val components = listOf("app", "inject")
-        val expectedChannels = listOf(Channel.APP, Channel.CORE)
+        val expectedChannels = listOf(Channel.APP, Channel.INJECT)
 
         for ((component, expectedChannel) in components.zip(expectedChannels)) {
             val manifest =

@@ -13,9 +13,9 @@ import org.json.JSONObject
  * - [path] — APK file name derived from [downloadUrl]'s last path segment
  *   (e.g. "voboost.apk", "voboost-inject.apk"). Kept for `ApkStager` and
  *   apply logic compatibility.
- * - [channel] — internal APK channel: [Channel.APP] (voboost client) or
- *   [Channel.CORE] (voboost-inject daemon). Mapped from the unified schema's
- *   `component` field (`app`→APP, `inject`→CORE).
+     * - [channel] — internal APK channel: [Channel.APP] (voboost client) or
+     *   [Channel.INJECT] (voboost-inject daemon). Mapped from the unified
+     *   schema's `component` field (`app`→APP, `inject`→INJECT).
  * - [track] — release track (`dev`/`testing`/`production`). The client filters
  *   entries by track before version comparison.
  * - [sha256] — hex SHA-256 of the APK bytes (authoritative integrity check)
@@ -86,8 +86,7 @@ data class ReleaseFileEntry(
 /**
  * Map a unified-schema `component` string to the internal [Channel].
  *
- * `app` → [Channel.APP]; `inject` → [Channel.CORE] (the daemon APK, renamed
- * from the old `core` value to match the `voboost-inject` repo name). Any
+ * `app` → [Channel.APP]; `inject` → [Channel.INJECT] (the daemon APK). Any
  * other value is rejected.
  *
  * @throws OtaException if [component] is not `app` or `inject`
@@ -95,7 +94,7 @@ data class ReleaseFileEntry(
 private fun componentToChannel(component: String): Channel {
     return when (component) {
         "app" -> Channel.APP
-        "inject" -> Channel.CORE
+        "inject" -> Channel.INJECT
         else -> throw OtaException("Invalid component: $component")
     }
 }
@@ -106,7 +105,7 @@ private fun componentToChannel(component: String): Channel {
 private fun channelToComponent(channel: Channel): String {
     return when (channel) {
         Channel.APP -> "app"
-        Channel.CORE -> "inject"
+        Channel.INJECT -> "inject"
     }
 }
 
@@ -204,7 +203,7 @@ data class ReleaseManifest(
  * Channel enum for release APKs (internal representation).
  *
  * - [APP] — the voboost client APK (this repo). Mapped from `component:"app"`.
- * - [CORE] — the voboost-inject daemon APK (sibling repo). Mapped from
+ * - [INJECT] — the voboost-inject daemon APK (sibling repo). Mapped from
  *   `component:"inject"`.
  *
  * There is intentionally no "agents" channel: every update is a whole APK,
@@ -212,7 +211,7 @@ data class ReleaseManifest(
  */
 enum class Channel {
     APP,
-    CORE,
+    INJECT,
 }
 
 /**

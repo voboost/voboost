@@ -74,7 +74,7 @@ class OtaDownloaderTest {
     }
 
     @Test
-    fun testDownloadCoreApkSuccess() {
+    fun testDownloadInjectApkSuccess() {
         val content = "fake daemon apk bytes"
         val sha256 = OtaTestUtils.calculateSha256(content)
 
@@ -87,7 +87,7 @@ class OtaDownloaderTest {
         val entry =
             ReleaseFileEntry(
                 downloadUrl = mockWebServer.url("/voboost-inject.apk").toString(),
-                channel = Channel.CORE,
+                channel = Channel.INJECT,
                 track = "production",
                 sha256 = sha256,
                 size = content.length.toLong(),
@@ -198,7 +198,7 @@ class OtaDownloaderTest {
                 ),
                 ReleaseFileEntry(
                     downloadUrl = mockWebServer.url("/voboost-inject.apk").toString(),
-                    channel = Channel.CORE,
+                    channel = Channel.INJECT,
                     track = "production",
                     sha256 = sha2,
                     size = content2.length.toLong(),

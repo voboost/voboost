@@ -17,8 +17,8 @@ import java.io.File
  * 3. download each newer APK **whole** (size pre-check + sha256 verify);
  * 4. apply per channel:
  *    - **app** → stage + invoke the system installer to replace the running app;
- *    - **core** → stage + create the single-use `core-update-ready` marker
- *      (the daemon self-updates; the app never installs the daemon).
+ *    - **inject** → stage + create the single-use `voboost-inject-update-ready`
+ *      marker (the daemon self-updates; the app never installs the daemon).
  *
  * A manifest that fails signature or structural validation is never persisted
  * as the current manifest — the client keeps the last good one.
@@ -74,15 +74,15 @@ class OtaClient(
             val currentDaemonVersion = config.readCurrentDaemonVersion()
 
             val appEntry = manifest.getEntryByChannel(Channel.APP)
-            val coreEntry = manifest.getEntryByChannel(Channel.CORE)
+            val injectEntry = manifest.getEntryByChannel(Channel.INJECT)
 
             val appUpdateAvailable = isChannelUpdate(appEntry, currentAppVersion)
-            val coreUpdateAvailable = isChannelUpdate(coreEntry, currentDaemonVersion)
+            val injectUpdateAvailable = isChannelUpdate(injectEntry, currentDaemonVersion)
 
-            if (!appUpdateAvailable && !coreUpdateAvailable) {
+            if (!appUpdateAvailable && !injectUpdateAvailable) {
                 Logger.info(
                     LOG,
-                    "No updates available (app=$currentAppVersion, core=$currentDaemonVersion)",
+                    "No updates available (app=$currentAppVersion, inject=$currentDaemonVersion)",
                 )
                 // Still persist the verified manifest as the last good one.
                 persistCurrentManifest(manifest)
@@ -91,7 +91,7 @@ class OtaClient(
 
             // 3. Download + apply each newer APK per channel. Each channel is
             //    isolated: a failure in one channel (download/verify/stage) is
-            //    logged but does NOT abort the other channel. The app and core
+            //    logged but does NOT abort the other channel. The app and inject
             //    channels are independent update planes (C3: channel isolation).
             //    A channel failure is tracked so the summary line reflects
             //    partial failure (F6: surface per-channel outcome to the caller).
@@ -109,17 +109,17 @@ class OtaClient(
                 }
             }
 
-            if (coreUpdateAvailable && coreEntry != null) {
+            if (injectUpdateAvailable && injectEntry != null) {
                 Logger.info(
                     LOG,
-                    "Core update available: ${coreEntry.version} > $currentDaemonVersion",
+                    "Inject update available: ${injectEntry.version} > $currentDaemonVersion",
                 )
                 try {
-                    downloadAndApplyCore(coreEntry)
+                    downloadAndApplyInject(injectEntry)
                     applied = true
                 } catch (e: Exception) {
-                    Logger.error(LOG, "Core channel update failed: ${e.message}")
-                    failedChannels.add("core")
+                    Logger.error(LOG, "Inject channel update failed: ${e.message}")
+                    failedChannels.add("inject")
                 }
             }
 
@@ -157,12 +157,12 @@ class OtaClient(
             val currentDaemonVersion = config.readCurrentDaemonVersion()
 
             val appEntry = manifest.getEntryByChannel(Channel.APP)
-            val coreEntry = manifest.getEntryByChannel(Channel.CORE)
+            val injectEntry = manifest.getEntryByChannel(Channel.INJECT)
 
             val appUpdateAvailable = isChannelUpdate(appEntry, currentAppVersion)
-            val coreUpdateAvailable = isChannelUpdate(coreEntry, currentDaemonVersion)
+            val injectUpdateAvailable = isChannelUpdate(injectEntry, currentDaemonVersion)
 
-            appUpdateAvailable || coreUpdateAvailable
+            appUpdateAvailable || injectUpdateAvailable
         } catch (e: Exception) {
             Logger.error(LOG, "Update check failed: ${e.message}")
             false
@@ -262,15 +262,15 @@ class OtaClient(
     }
 
     /**
-     * Download and apply a core-channel APK.
+     * Download and apply an inject-channel APK.
      *
      * Stages the verified daemon APK into `staging/voboost-inject.apk` and
-     * creates the single-use `core-update-ready` marker last. The app does NOT
-     * install the daemon — the daemon self-updates.
+     * creates the single-use `voboost-inject-update-ready` marker last. The app
+     * does NOT install the daemon — the daemon self-updates.
      */
-    private fun downloadAndApplyCore(entry: ReleaseFileEntry) {
+    private fun downloadAndApplyInject(entry: ReleaseFileEntry) {
         val apkFile = downloadApk(entry)
-        stager.stageCoreApk(apkFile, entry)
+        stager.stageInjectApk(apkFile, entry)
         apkFile.delete()
     }
 

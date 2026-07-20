@@ -33,7 +33,7 @@ signal for the daemon.
   - downloads each newer APK **whole**, with a size pre-check and sha256 verify;
   - **applies per channel**: the `app` APK is staged and handed to the installer
     (PackageInstaller / `voboost-install`) to replace the running app; the
-    `core` APK is staged into the app zone and a marker signals voboost-inject
+    `inject` APK is staged into the app zone and a marker signals voboost-inject
     to self-update (the actual replace is the daemon's responsibility);
   - enforces manifest size/entry bounds and never persists a manifest that fails
     verification.
@@ -42,7 +42,7 @@ signal for the daemon.
 
 - **New project** `voboost/voboost`: the OTA client, replacing the earlier
   file-level incremental/staging design.
-- **`voboost-inject`** (sibling repo): owns the `core` self-update — verify a
+- **`voboost-inject`** (sibling repo): owns the `inject` self-update — verify a
   staged APK against the daemon's embedded trust, replace itself, restart via
   init. The voboost client only **stages and signals**, never installs the
   daemon.

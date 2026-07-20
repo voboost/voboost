@@ -18,11 +18,11 @@ import java.io.FileOutputStream
  * - **app** channel: stages the verified APK into `staging/` and invokes the
  *   system installer (install intent) to replace the running app. There is no
  *   apply marker for the app channel — the apply ends in the install intent.
- * - **core** channel: stages the verified daemon APK into
- *   `staging/voboost-inject.apk` and creates the single-use `core-update-ready`
- *   marker as the **last** step, signalling voboost-inject to self-update. The
- *   app never installs the daemon — the daemon verifies, replaces, and restarts
- *   itself.
+ * - **inject** channel: stages the verified daemon APK into
+ *   `staging/voboost-inject.apk` and creates the single-use
+ *   `voboost-inject-update-ready` marker as the **last** step, signalling
+ *   voboost-inject to self-update. The app never installs the daemon — the
+ *   daemon verifies, replaces, and restarts itself.
  *
  * @param paths Path resolution for the app zone.
  * @param context Android context used to issue the app-channel install intent.
@@ -36,10 +36,10 @@ class ApkStager(
         private const val LOG = "ApkStager"
 
         /** Single-use marker signalling voboost-inject to self-update. */
-        const val CORE_UPDATE_READY_MARKER = "core-update-ready"
+        const val INJECT_UPDATE_READY_MARKER = "voboost-inject-update-ready"
 
         /** Fixed staging name for the daemon APK (per the voboost-inject contract). */
-        const val CORE_APK_NAME = "voboost-inject.apk"
+        const val INJECT_APK_NAME = "voboost-inject.apk"
 
         /** FileProvider authority for sharing staged APKs with the installer. */
         private const val FILE_PROVIDER_AUTHORITY = "ru.voboost.fileprovider"
@@ -72,12 +72,12 @@ class ApkStager(
     }
 
     /**
-     * Stage a core-channel APK and create the single-use marker last.
+     * Stage an inject-channel APK and create the single-use marker last.
      *
-     * The verified daemon APK is staged into `staging/$CORE_APK_NAME`
-     * (per the voboost-inject contract) and the `core-update-ready` marker is
-     * created as the **last** step, signalling voboost-inject to self-update.
-     * The app does NOT install the daemon.
+     * The verified daemon APK is staged into `staging/$INJECT_APK_NAME`
+     * (per the voboost-inject contract) and the `voboost-inject-update-ready`
+     * marker is created as the **last** step, signalling voboost-inject to
+     * self-update. The app does NOT install the daemon.
      *
      * The marker is single-use: the daemon consumes (deletes) it after any
      * apply attempt, so a successful self-update does not loop.
@@ -87,21 +87,21 @@ class ApkStager(
      * @return the staged daemon APK file
      * @throws OtaException if staging fails
      */
-    fun stageCoreApk(
+    fun stageInjectApk(
         apkFile: File,
         entry: ReleaseFileEntry,
     ): File {
-        Logger.info(LOG, "Staging core APK: ${entry.path}")
+        Logger.info(LOG, "Staging inject APK: ${entry.path}")
 
         // Stage to the fixed daemon APK name expected by voboost-inject.
-        val targetFile = stageApk(apkFile, CORE_APK_NAME)
+        val targetFile = stageApk(apkFile, INJECT_APK_NAME)
 
-        Logger.debug(LOG, "Core APK staged: ${targetFile.absolutePath}")
+        Logger.debug(LOG, "Inject APK staged: ${targetFile.absolutePath}")
 
         // Create the single-use marker LAST (atomic, after the APK is fsynced).
-        createCoreUpdateReadyMarker()
+        createInjectUpdateReadyMarker()
 
-        Logger.info(LOG, "Core APK staged and marker created")
+        Logger.info(LOG, "Inject APK staged and marker created")
         return targetFile
     }
 
@@ -162,7 +162,7 @@ class ApkStager(
     }
 
     /**
-     * Create the core-update-ready marker LAST.
+     * Create the voboost-inject-update-ready marker LAST.
      *
      * The marker is created only after the daemon APK is written and fsynced,
      * so its presence is a reliable signal that a complete, verified daemon APK
@@ -170,10 +170,10 @@ class ApkStager(
      *
      * Written atomically (temp + rename) so the marker never appears partially.
      */
-    private fun createCoreUpdateReadyMarker() {
-        val markerFile = File(paths.stagingDir, CORE_UPDATE_READY_MARKER)
+    private fun createInjectUpdateReadyMarker() {
+        val markerFile = File(paths.stagingDir, INJECT_UPDATE_READY_MARKER)
         val tempFile =
-            File(paths.stagingDir, "$CORE_UPDATE_READY_MARKER.${System.currentTimeMillis()}.tmp")
+            File(paths.stagingDir, "$INJECT_UPDATE_READY_MARKER.${System.currentTimeMillis()}.tmp")
 
         try {
             // Write marker content and fsync in a single stream so the temp
@@ -183,9 +183,9 @@ class ApkStager(
                 output.fd.sync()
             }
             if (!tempFile.renameTo(markerFile)) {
-                throw OtaException("Failed to create core-update-ready marker")
+                throw OtaException("Failed to create voboost-inject-update-ready marker")
             }
-            Logger.debug(LOG, "Core-update-ready marker created")
+            Logger.debug(LOG, "voboost-inject-update-ready marker created")
         } catch (e: Exception) {
             tempFile.delete()
             if (e is OtaException) throw e
@@ -231,20 +231,20 @@ class ApkStager(
     }
 
     /**
-     * Check if the core-update-ready marker exists.
+     * Check if the voboost-inject-update-ready marker exists.
      */
-    fun hasCoreUpdateReadyMarker(): Boolean {
-        return File(paths.stagingDir, CORE_UPDATE_READY_MARKER).exists()
+    fun hasInjectUpdateReadyMarker(): Boolean {
+        return File(paths.stagingDir, INJECT_UPDATE_READY_MARKER).exists()
     }
 
     /**
-     * Clear the core-update-ready marker (for testing/cleanup).
+     * Clear the voboost-inject-update-ready marker (for testing/cleanup).
      */
-    fun clearCoreUpdateReadyMarker() {
-        val markerFile = File(paths.stagingDir, CORE_UPDATE_READY_MARKER)
+    fun clearInjectUpdateReadyMarker() {
+        val markerFile = File(paths.stagingDir, INJECT_UPDATE_READY_MARKER)
         if (markerFile.exists()) {
             markerFile.delete()
-            Logger.debug(LOG, "Core-update-ready marker cleared")
+            Logger.debug(LOG, "voboost-inject-update-ready marker cleared")
         }
     }
 

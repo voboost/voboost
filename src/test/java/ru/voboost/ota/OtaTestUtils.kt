@@ -137,7 +137,7 @@ object OtaTestUtils {
                     downloadUrl = entry.downloadUrl,
                     channel =
                         when (entry.component) {
-                            "inject" -> Channel.CORE
+                            "inject" -> Channel.INJECT
                             "app" -> Channel.APP
                             else -> throw IllegalArgumentException(
                                 "Invalid component: ${entry.component}",

@@ -3,7 +3,7 @@
 ## 1. Release-manifest = APK list (verify)
 
 - [x] 1.1 `ReleaseFileEntry` трактуется как APK-запись: `path` = имя APK,
-      `channel ∈ {app, core}`, `sha256`, `size`, `version` (semver)
+      `channel ∈ {app, inject}`, `sha256`, `size`, `version` (semver)
 - [x] 1.2 `OtaVerifier` (ed25519 detached, BouncyCastle, API 28) — без изменений:
       verify release-manifest.json+.sig против `release-public.pem`; struct-
       validation (missing field / bad channel); bounds (≤ 1 MiB, ≤ 4096 entries)
@@ -16,7 +16,7 @@
 - [x] 2.2 Текущая версия **daemon** — из `inject-status.json` (`daemon` field)
 - [x] 2.3 Semver compare: APK в манифесте newer установленной → кандидат на
       download. Нет version в entry → skip channel
-- [x] 2.4 Unit: newer/older/equal для app и core; missing daemon version
+- [x] 2.4 Unit: newer/older/equal для app и inject; missing daemon version
 
 ## 3. Whole-APK download + verify (download)
 
@@ -32,10 +32,10 @@
 - [x] 4.3 Никакого marker для app — apply заканчивается install-intent
 - [x] 4.4 Unit: install-intent build; staging path
 
-## 5. Apply: `core` channel — stage + signal daemon
+## 5. Apply: `inject` channel — stage + signal daemon
 
 - [x] 5.1 Stage verified daemon APK в app-zone `staging/`
-- [x] 5.2 Single-use marker (e.g. `core-update-ready`) создаётся последним —
+- [x] 5.2 Single-use marker (e.g. `voboost-inject-update-ready`) создаётся последним —
       сигнал voboost-inject self-update (D7). Демон потребляет (удаляет) marker
 - [x] 5.3 App НЕ устанавливает daemon — только stage+signal
 - [x] 5.4 Unit: marker-created-last; single-use
