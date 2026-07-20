@@ -63,6 +63,20 @@ Release signing reads `KEYSTORE_PASSWORD` from `local.properties`; the keystore
 manifests as assets; they are provisioned into `/data/voboost` by the operator installer
 (`voboost-install`) or the test harness — not by the app.
 
+The OTA base URL is read from the `ota.baseUrl` key in `local.properties`. The
+default is the sentinel `TODO_SET_PRODUCTION_URL`, which `VoboostService`
+recognizes and skips OTA initialization, so a release build without the key
+performs no OTA work. For local emulator OTA E2E, set:
+
+```properties
+# local.properties
+ota.baseUrl=http://10.0.2.2:8888
+```
+
+Production builds must set an `https://` URL. Cleartext HTTP is permitted only
+to `10.0.2.2` (the emulator host loopback) via `network_security_config.xml`;
+on a real device that address is inert.
+
 ## Local emulator testing
 
 The full app → daemon → stub-APK → agent cycle is exercised on a rooted arm64 API-28 AVD

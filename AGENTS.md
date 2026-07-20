@@ -4,7 +4,7 @@
 - This project follows ALL common rules from ../voboost-codestyle/AGENTS.md
 
 ## Commands
-- `./gradlew assembleDebug`: Build APK (NEVER use installDebug)
+- `./gradlew build`: Build APK (release-only; NEVER use installDebug/installRelease)
 - `./gradlew emulatorTest`: Run emulator E2E harness (tools/emulator/) against AVD 'free'
 - `./gradlew openspecValidate`: Validate openspec changes (strict)
 
@@ -13,6 +13,11 @@
 - Features: `src/main/java/ru/voboost/feature/`
 - UI components: `src/main/java/ru/voboost/ui/`
 - Resources: `src/main/res/`
+
+## UI
+- Button style: NEVER use `ButtonStyle.PRIMARY` unless explicitly instructed.
+  In the car all buttons MUST be `ButtonStyle.SECONDARY`. PRIMARY is reserved
+  for rare, explicitly-approved call-to-action cases only.
 
 ## OpenSpec
 - Spec-driven; truth is openspec, no code without an applied change, invariants live in specs
