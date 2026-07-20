@@ -133,32 +133,81 @@ androidComponents {
     }
 }
 
-// Task to copy Frida scripts from voboost-script build directory to assets
-// NOTE: These are carrier assets only. In daemon-contract architecture, the app does
-// not use these scripts directly. They are provided for the daemon/harness.
-tasks.register<Copy>("copyFridaScripts") {
+// Carrier-assets task: embeds the Frida agents produced by the sibling
+// voboost-script repo into this APK as `assets/agents/`. The app is the
+// carrier; at runtime ScriptExtractor writes these into the staging dir,
+// and the voboost-inject daemon picks them up from there (verified against
+// its embedded key — see docs/17-ota-architecture.md).
+//
+// Source layout (voboost-script/build/):
+//   <name>-mod.js                      built, minified agent (Rollup output)
+//   manifest.json                      per-agent metadata + sha256
+//   manifest.json.sig                  detached ed25519 over manifest.json
+//
+// Destination layout (src/main/assets/agents/):
+//   <name>.js                          renamed from <name>-mod.js to match
+//                                      the manifest's `file: "agents/<name>.js"`
+//   agents-manifest.json               manifest.json (renamed for clarity)
+//   agents-manifest.json.sig           manifest.json.sig
+tasks.register<Copy>("copyAgents") {
     group = "build"
-    description = "Copy Frida scripts from voboost-script/build to assets"
+    description = "Copy Frida agents + signed manifest from voboost-script/build to assets/agents/"
 
-    val scriptSourceDir = file("../voboost-script/build")
-    val scriptDestDir = file("src/main/assets/scripts")
+    // The `rename {}` blocks below use closures that the Gradle configuration
+    // cache cannot serialize. This task is a build-time side-effect (it copies
+    // sibling-repo artifacts into assets); it does not benefit from caching, so
+    // opt out explicitly instead of fighting the cache rules.
+    notCompatibleWithConfigurationCache("uses rename closures over sibling-repo files")
 
-    // Ensure destination directory exists
+    val agentsSourceDir = file("../voboost-script/build")
+    val agentsDestDir = file("src/main/assets/agents")
+
     doFirst {
-        scriptDestDir.mkdirs()
+        if (!agentsSourceDir.isDirectory) {
+            throw GradleException(
+                "voboost-script build output not found at ${agentsSourceDir.path}. " +
+                    "Run 'npm run build' in ../voboost-script first."
+            )
+        }
+        if (!file("${agentsSourceDir.path}/manifest.json").isFile) {
+            throw GradleException(
+                "agents manifest not found at ${agentsSourceDir.path}/manifest.json. " +
+                    "Run 'npm run build' in ../voboost-script first."
+            )
+        }
+        agentsDestDir.mkdirs()
     }
 
-    // Copy all *_3debug.js files
-    from(scriptSourceDir) {
-        include("*_3debug.js")
+    // Agents: <name>-mod.js -> <name>.js (drop the build-only "-mod" suffix
+    // so the on-disk filename matches the manifest's `file` field).
+    from(agentsSourceDir) {
+        include("*-mod.js")
+        rename { name -> name.removeSuffix("-mod.js") + ".js" }
     }
-    into(scriptDestDir)
+
+    // Signed manifest: manifest.json{,.sig} -> agents-manifest.json{,.sig}.
+    // Renamed on arrival so the app assets dir makes the role explicit and
+    // avoids confusion with other manifests (release-manifest, inject-manifest).
+    // The .sig is optional at this stage (voboost-script does not yet sign);
+    // if absent it is simply not copied. Once voboost-script starts emitting
+    // manifest.json.sig in CI, it will flow through automatically.
+    from(agentsSourceDir) {
+        include("manifest.json", "manifest.json.sig")
+        rename { name ->
+            when (name) {
+                "manifest.json" -> "agents-manifest.json"
+                "manifest.json.sig" -> "agents-manifest.json.sig"
+                else -> name
+            }
+        }
+    }
+
+    into(agentsDestDir)
 }
 
-// Ensure scripts are prepared before Android asset merging
-// NOTE: downloadFridaInject removed in daemon-contract architecture
+// Ensure agents are staged before Android asset merging runs.
 tasks.named("preBuild") {
-    dependsOn("copyFridaScripts")
+    dependsOn("copyAgents")
 }
 
 dependencies {
