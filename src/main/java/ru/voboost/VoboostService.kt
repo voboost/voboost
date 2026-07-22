@@ -18,6 +18,7 @@ import ru.voboost.feature.FeatureContext
 import ru.voboost.ota.OtaClient
 import ru.voboost.ota.OtaConfig
 import ru.voboost.ota.OtaVersion
+import ru.voboost.ota.ScriptExtractor
 import java.io.File
 
 /**
@@ -61,6 +62,10 @@ class VoboostService : Service() {
 
     // OTA client
     private var otaClient: OtaClient? = null
+
+    // Extracts embedded agents from the APK assets to staging so the daemon
+    // can consume them. Constructed once paths + applicationContext exist.
+    private lateinit var scriptExtractor: ScriptExtractor
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override fun onCreate() {
@@ -73,6 +78,9 @@ class VoboostService : Service() {
 
         // Initialize paths
         paths = PathsAndroid(applicationContext)
+
+        // The agent extractor needs paths + assets (applicationContext).
+        scriptExtractor = ScriptExtractor(paths, applicationContext)
 
         // Initialize config manager
         configManager = ru.voboost.config.ConfigManager(applicationContext)
@@ -123,6 +131,15 @@ class VoboostService : Service() {
             return START_NOT_STICKY
         }
         config = configResult.getOrThrow()
+
+        // Extract embedded agents from the APK assets to staging. Covers a
+        // fresh install and the first boot after an adb install/OTA. Idempotent:
+        // a no-op when the staged content already matches the bundled manifest.
+        // Runs before the OTA client init so a staged daemon update is not
+        // delayed by an agent extraction that has nothing to do.
+        scriptExtractor.extractIfChanged().onFailure { error ->
+            Logger.error(LOG, "Agent extraction failed: ${error.message}")
+        }
 
         // Initialize the OTA client now that config is loaded, so the first
         // periodic check runs against a ready config instead of being
@@ -304,6 +321,13 @@ class VoboostService : Service() {
 
             if (staged) {
                 Logger.info(LOG, "OTA updates staged successfully")
+
+                // An OTA app-channel stage replaces the running APK, which may
+                // bundle new agents. Re-extract so the staged set matches the
+                // new APK. Idempotent: a no-op when the new agents equal the old.
+                scriptExtractor.extractIfChanged().onFailure { error ->
+                    Logger.error(LOG, "Post-OTA agent extraction failed: ${error.message}")
+                }
             } else {
                 Logger.debug(LOG, "No OTA updates available")
             }
