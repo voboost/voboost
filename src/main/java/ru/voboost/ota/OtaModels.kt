@@ -13,9 +13,9 @@ import org.json.JSONObject
  * - [path] — file name derived from [downloadUrl]'s last path segment
  *   (e.g. "voboost.apk" for the app channel, "voboost-inject" for the
  *   inject channel). Kept for `ApkStager` and apply logic compatibility.
-     * - [channel] — internal APK channel: [Channel.APP] (voboost client) or
-     *   [Channel.INJECT] (voboost-inject daemon). Mapped from the unified
-     *   schema's `component` field (`app`→APP, `inject`→INJECT).
+ * - [channel] — internal APK channel: [Channel.APP] (voboost client) or
+ *   [Channel.INJECT] (voboost-inject daemon). Mapped from the unified
+ *   schema's `component` field (`app`→APP, `inject`→INJECT).
  * - [track] — release track (`dev`/`testing`/`production`). The client filters
  *   entries by track before version comparison.
  * - [sha256] — hex SHA-256 of the APK bytes (authoritative integrity check)

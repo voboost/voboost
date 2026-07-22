@@ -166,13 +166,13 @@ tasks.register<Copy>("copyAgents") {
         if (!agentsSourceDir.isDirectory) {
             throw GradleException(
                 "voboost-script build output not found at ${agentsSourceDir.path}. " +
-                    "Run 'npm run build' in ../voboost-script first."
+                    "Run 'npm run build' in ../voboost-script first.",
             )
         }
         if (!file("${agentsSourceDir.path}/manifest.json").isFile) {
             throw GradleException(
                 "agents manifest not found at ${agentsSourceDir.path}/manifest.json. " +
-                    "Run 'npm run build' in ../voboost-script first."
+                    "Run 'npm run build' in ../voboost-script first.",
             )
         }
         agentsDestDir.mkdirs()

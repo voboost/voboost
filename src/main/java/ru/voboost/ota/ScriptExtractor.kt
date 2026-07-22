@@ -109,10 +109,11 @@ class ScriptExtractor(
      */
     fun extractIfChanged(): Result<Unit> {
         return try {
-            val manifestBytes = readAssetBytes(MANIFEST_ASSET)
-                ?: return Result.failure(
-                    OtaException("Agents manifest asset not found: $MANIFEST_ASSET"),
-                )
+            val manifestBytes =
+                readAssetBytes(MANIFEST_ASSET)
+                    ?: return Result.failure(
+                        OtaException("Agents manifest asset not found: $MANIFEST_ASSET"),
+                    )
 
             val assetsSha = sha256Hex(manifestBytes)
             val storedSha = readStoredFingerprint()
@@ -209,7 +210,13 @@ class ScriptExtractor(
      */
     private fun readStoredFingerprint(): String? {
         val file = File(paths.appZone, EXTRACTED_VERSION_FILE)
-        return if (file.exists()) file.readText(Charsets.UTF_8).trim().takeIf { it.isNotEmpty() } else null
+        return if (file.exists()) {
+            file.readText(
+                Charsets.UTF_8,
+            ).trim().takeIf { it.isNotEmpty() }
+        } else {
+            null
+        }
     }
 
     /**
@@ -277,7 +284,10 @@ class ScriptExtractor(
      * @throws OtaException if the write fails.
      */
     private fun writeFingerprintAtomically(sha: String) {
-        writeBytesAtomically(sha.toByteArray(Charsets.UTF_8), File(paths.appZone, EXTRACTED_VERSION_FILE))
+        writeBytesAtomically(
+            sha.toByteArray(Charsets.UTF_8),
+            File(paths.appZone, EXTRACTED_VERSION_FILE),
+        )
     }
 
     /**
@@ -307,4 +317,3 @@ private fun readAssetFromContext(
         null
     }
 }
-

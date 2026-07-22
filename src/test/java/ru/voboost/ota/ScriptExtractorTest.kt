@@ -60,9 +60,11 @@ class ScriptExtractorTest {
 
     @Test
     fun firstExtractionCopiesAgentsManifestAndCreatesMarker() {
-        val assets = fakeAssets(agents = mapOf("agents/a.js" to "a-body", "agents/b.js" to "b-body"))
+        val assets =
+            fakeAssets(agents = mapOf("agents/a.js" to "a-body", "agents/b.js" to "b-body"))
 
-        val extractor = ScriptExtractor(paths, context = fakeContext(), assetReader = assets::readAsset)
+        val extractor =
+            ScriptExtractor(paths, context = fakeContext(), assetReader = assets::readAsset)
 
         val result = extractor.extractIfChanged()
 
@@ -74,7 +76,10 @@ class ScriptExtractorTest {
         assertTrue(File(stagingDir, "agents-manifest.json").exists())
         // Marker created.
         assertTrue(File(stagingDir, ScriptExtractor.AGENTS_UPDATE_READY_MARKER).exists())
-        assertEquals("ready", File(stagingDir, ScriptExtractor.AGENTS_UPDATE_READY_MARKER).readText().trim())
+        assertEquals(
+            "ready",
+            File(stagingDir, ScriptExtractor.AGENTS_UPDATE_READY_MARKER).readText().trim(),
+        )
         // Fingerprint persisted in app zone (not staging).
         assertTrue(File(appZone, ScriptExtractor.EXTRACTED_VERSION_FILE).exists())
         assertEquals(
@@ -88,7 +93,8 @@ class ScriptExtractorTest {
     @Test
     fun secondCallIsNoOpWhenFingerprintMatchesAndFilesPresent() {
         val assets = fakeAssets(agents = mapOf("agents/a.js" to "a-body"))
-        val extractor = ScriptExtractor(paths, context = fakeContext(), assetReader = assets::readAsset)
+        val extractor =
+            ScriptExtractor(paths, context = fakeContext(), assetReader = assets::readAsset)
 
         extractor.extractIfChanged()
 
@@ -113,8 +119,10 @@ class ScriptExtractorTest {
 
     @Test
     fun missingAgentIsRestoredOnNextCall() {
-        val assets = fakeAssets(agents = mapOf("agents/a.js" to "a-body", "agents/b.js" to "b-body"))
-        val extractor = ScriptExtractor(paths, context = fakeContext(), assetReader = assets::readAsset)
+        val assets =
+            fakeAssets(agents = mapOf("agents/a.js" to "a-body", "agents/b.js" to "b-body"))
+        val extractor =
+            ScriptExtractor(paths, context = fakeContext(), assetReader = assets::readAsset)
 
         extractor.extractIfChanged()
 
@@ -134,7 +142,8 @@ class ScriptExtractorTest {
     @Test
     fun signatureAbsentDoesNotCrashAndMarkerCreated() {
         val assets = fakeAssets(agents = mapOf("agents/a.js" to "a-body"), withSig = false)
-        val extractor = ScriptExtractor(paths, context = fakeContext(), assetReader = assets::readAsset)
+        val extractor =
+            ScriptExtractor(paths, context = fakeContext(), assetReader = assets::readAsset)
 
         val result = extractor.extractIfChanged()
 
@@ -152,7 +161,8 @@ class ScriptExtractorTest {
                 withSig = true,
                 sigBytes = "fake-signature".toByteArray(Charsets.UTF_8),
             )
-        val extractor = ScriptExtractor(paths, context = fakeContext(), assetReader = assets::readAsset)
+        val extractor =
+            ScriptExtractor(paths, context = fakeContext(), assetReader = assets::readAsset)
 
         val result = extractor.extractIfChanged()
 
@@ -164,7 +174,11 @@ class ScriptExtractorTest {
     @Test
     fun changedManifestReExtractsAndUpdatesFingerprint() {
         var assets = fakeAssets(agents = mapOf("agents/a.js" to "a-v1"))
-        val extractor = ScriptExtractor(paths, context = fakeContext(), assetReader = { path -> assets.readAsset(path) })
+        val extractor =
+            ScriptExtractor(paths, context = fakeContext(), assetReader = {
+                    path ->
+                assets.readAsset(path)
+            })
 
         extractor.extractIfChanged()
         val firstSha = File(appZone, ScriptExtractor.EXTRACTED_VERSION_FILE).readText().trim()
@@ -195,7 +209,8 @@ class ScriptExtractorTest {
     @Test
     fun cleanStagingDoesNotResetFingerprint() {
         val assets = fakeAssets(agents = mapOf("agents/a.js" to "a-body"))
-        val extractor = ScriptExtractor(paths, context = fakeContext(), assetReader = assets::readAsset)
+        val extractor =
+            ScriptExtractor(paths, context = fakeContext(), assetReader = assets::readAsset)
         extractor.extractIfChanged()
         val shaBefore = File(appZone, ScriptExtractor.EXTRACTED_VERSION_FILE).readText().trim()
 
@@ -210,7 +225,10 @@ class ScriptExtractorTest {
         assertTrue(File(stagingDir, "agents/a.js").exists())
         assertTrue(File(stagingDir, ScriptExtractor.AGENTS_UPDATE_READY_MARKER).exists())
         // Fingerprint was in app zone, so the sha is still the same content.
-        assertEquals(shaBefore, File(appZone, ScriptExtractor.EXTRACTED_VERSION_FILE).readText().trim())
+        assertEquals(
+            shaBefore,
+            File(appZone, ScriptExtractor.EXTRACTED_VERSION_FILE).readText().trim(),
+        )
     }
 
     @Test
@@ -235,7 +253,8 @@ class ScriptExtractorTest {
                     }
             }
 
-        val extractor = ScriptExtractor(paths, context = fakeContext(), assetReader = assets::readAsset)
+        val extractor =
+            ScriptExtractor(paths, context = fakeContext(), assetReader = assets::readAsset)
 
         val result = extractor.extractIfChanged()
 
@@ -243,7 +262,12 @@ class ScriptExtractorTest {
         // Marker must NOT be created when extraction fails mid-way.
         assertFalse(File(stagingDir, ScriptExtractor.AGENTS_UPDATE_READY_MARKER).exists())
         // And fingerprint must NOT be persisted for a failed extraction.
-        assertNull(File(appZone, ScriptExtractor.EXTRACTED_VERSION_FILE).takeIf { it.exists() }?.readText())
+        assertNull(
+            File(
+                appZone,
+                ScriptExtractor.EXTRACTED_VERSION_FILE,
+            ).takeIf { it.exists() }?.readText(),
+        )
     }
 
     /**
@@ -258,11 +282,16 @@ class ScriptExtractorTest {
      * Build a manifest JSON object string from a list of agent asset paths.
      */
     private fun manifestJson(files: List<String>): String {
-        val agents = files.joinToString(separator = ",") { f ->
-            """
-            {"id":"${f.substringAfterLast('/').removeSuffix(".js")}","channel":"agents","file":"$f","sha256":"x","process":"p","boot":false}
-            """.trimIndent()
-        }
+        val agents =
+            files.joinToString(separator = ",") { f ->
+                """
+                {"id":"${f.substringAfterLast(
+                    '/',
+                ).removeSuffix(
+                    ".js",
+                )}","channel":"agents","file":"$f","sha256":"x","process":"p","boot":false}
+                """.trimIndent()
+            }
         return """{"version":1,"agents":[$agents]}"""
     }
 
