@@ -33,18 +33,10 @@ class ApkStagerTest {
         testDir.delete()
         testDir.mkdirs()
 
-        // Paths with a temp staging dir; context is null so the app-channel
-        // install intent is skipped (staging still succeeds).
-        paths =
-            object : Paths {
-                override val appZone: File get() = testDir
-                override val injectJson: File get() = File(appZone, "inject.json")
-                override val injectStatusJson: File get() = File(appZone, "inject-status.json")
-                override val stagingDir: File get() = testDir
-                override val configFile: File get() = File(appZone, "config.yaml")
-                override val logsDir: File get() = File(appZone, "logs")
-                override val scriptsDirectory: File get() = File(appZone, "scripts")
-            }
+        // Paths rooted at the temp dir; stagingDir resolves to testDir/staging.
+        // context is null so the app-channel install intent is skipped (staging
+        // still succeeds).
+        paths = Paths(testDir)
 
         stager = ApkStager(paths, context = null)
     }
@@ -72,13 +64,13 @@ class ApkStagerTest {
 
         stager.stageAppApk(apkFile, entry)
 
-        val staged = File(testDir, "voboost.apk")
+        val staged = File(paths.stagingDir, "voboost.apk")
         assertTrue(staged.exists())
         assertEquals(content, staged.readText())
 
         // No marker for the app channel.
         assertFalse(stager.hasInjectUpdateReadyMarker())
-        assertFalse(File(testDir, ApkStager.INJECT_UPDATE_READY_MARKER).exists())
+        assertFalse(File(paths.stagingDir, ApkStager.INJECT_UPDATE_READY_MARKER).exists())
     }
 
     @Test
@@ -101,12 +93,12 @@ class ApkStagerTest {
 
         stager.stageInjectApk(apkFile, entry)
 
-        val staged = File(testDir, ApkStager.INJECT_FILE_NAME)
+        val staged = File(paths.stagingDir, ApkStager.INJECT_FILE_NAME)
         assertTrue(staged.exists())
         assertEquals(content, staged.readText())
 
         // The original manifest path is NOT used as the staging name.
-        assertFalse(File(testDir, "voboost-inject-1.2.3").exists())
+        assertFalse(File(paths.stagingDir, "voboost-inject-1.2.3").exists())
     }
 
     @Test
@@ -133,7 +125,7 @@ class ApkStagerTest {
         // Marker should exist after staging (created LAST).
         assertTrue(stager.hasInjectUpdateReadyMarker())
 
-        val markerFile = File(testDir, ApkStager.INJECT_UPDATE_READY_MARKER)
+        val markerFile = File(paths.stagingDir, ApkStager.INJECT_UPDATE_READY_MARKER)
         assertTrue(markerFile.exists())
         assertEquals("ready", markerFile.readText().trim())
     }
@@ -162,7 +154,7 @@ class ApkStagerTest {
         assertFalse(stager.hasInjectUpdateReadyMarker())
 
         // The staged APK remains after the marker is consumed.
-        assertTrue(File(testDir, ApkStager.INJECT_FILE_NAME).exists())
+        assertTrue(File(paths.stagingDir, ApkStager.INJECT_FILE_NAME).exists())
     }
 
     @Test
@@ -198,17 +190,17 @@ class ApkStagerTest {
             )
         stager.stageInjectApk(apkFile2, entry2)
 
-        val staged = File(testDir, ApkStager.INJECT_FILE_NAME)
+        val staged = File(paths.stagingDir, ApkStager.INJECT_FILE_NAME)
         assertEquals(content2, staged.readText())
         assertTrue(stager.hasInjectUpdateReadyMarker())
     }
 
     @Test
     fun testCleanStaging() {
-        val testFile = File(testDir, "voboost-inject")
+        val testFile = File(paths.stagingDir, "voboost-inject")
         testFile.writeText("test")
 
-        val marker = File(testDir, ApkStager.INJECT_UPDATE_READY_MARKER)
+        val marker = File(paths.stagingDir, ApkStager.INJECT_UPDATE_READY_MARKER)
         marker.writeText("ready")
 
         assertTrue(testFile.exists())
@@ -217,7 +209,7 @@ class ApkStagerTest {
         stager.cleanStaging()
 
         // Only empty staging directory should remain.
-        assertTrue(testDir.exists())
+        assertTrue(paths.stagingDir.exists())
         assertFalse(testFile.exists())
         assertFalse(marker.exists())
     }

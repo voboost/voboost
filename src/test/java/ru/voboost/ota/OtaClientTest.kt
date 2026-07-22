@@ -40,16 +40,8 @@ class OtaClientTest {
         testDir.delete()
         testDir.mkdirs()
 
-        paths =
-            object : Paths {
-                override val appZone: File get() = testDir
-                override val injectJson: File get() = File(appZone, "inject.json")
-                override val injectStatusJson: File get() = File(appZone, "inject-status.json")
-                override val stagingDir: File get() = File(appZone, "staging").also { it.mkdirs() }
-                override val configFile: File get() = File(appZone, "config.yaml")
-                override val logsDir: File get() = File(appZone, "logs")
-                override val scriptsDirectory: File get() = File(appZone, "scripts")
-            }
+        // Real Paths rooted at testDir; stagingDir resolves to testDir/staging.
+        paths = Paths(testDir)
 
         val (privateKeyPem, publicKeyPem) = OtaTestUtils.generateTestKeyPair()
         testPrivateKeyPem = privateKeyPem

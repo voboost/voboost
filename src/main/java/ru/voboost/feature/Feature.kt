@@ -1,7 +1,7 @@
 package ru.voboost.feature
 
 import android.content.Context
-import ru.voboost.PathsAndroid
+import ru.voboost.Paths
 import ru.voboost.VehicleManagerAndroid
 import ru.voboost.config.models.Config
 
@@ -18,7 +18,7 @@ data class FeatureContext(
     val androidContext: Context?,
     val vehicleManager: VehicleManagerAndroid,
     val config: Config,
-    val paths: PathsAndroid,
+    val paths: Paths,
 )
 
 /**

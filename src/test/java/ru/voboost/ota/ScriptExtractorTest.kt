@@ -41,16 +41,8 @@ class ScriptExtractorTest {
         stagingDir = File(appZone, "staging")
         stagingDir.mkdirs()
 
-        paths =
-            object : Paths {
-                override val appZone: File get() = this@ScriptExtractorTest.appZone
-                override val injectJson: File get() = File(appZone, "inject.json")
-                override val injectStatusJson: File get() = File(appZone, "inject-status.json")
-                override val stagingDir: File get() = this@ScriptExtractorTest.stagingDir
-                override val configFile: File get() = File(appZone, "config.yaml")
-                override val logsDir: File get() = File(appZone, "logs")
-                override val scriptsDirectory: File get() = File(appZone, "scripts")
-            }
+        // Real Paths rooted at appZone; stagingDir resolves to appZone/staging.
+        paths = Paths(appZone)
     }
 
     @After

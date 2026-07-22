@@ -52,7 +52,7 @@ class VoboostService : Service() {
         private const val OTA_NOT_READY_DELAY_MS = 30 * 1000L // 30 seconds
     }
 
-    private lateinit var paths: PathsAndroid
+    private lateinit var paths: Paths
     private lateinit var vehicleManager: VehicleManagerAndroid
     private lateinit var planProducer: PlanProducer
     private lateinit var statusReader: StatusReader
@@ -77,7 +77,7 @@ class VoboostService : Service() {
         createNotificationChannel()
 
         // Initialize paths
-        paths = PathsAndroid(applicationContext)
+        paths = Paths(applicationContext)
 
         // The agent extractor needs paths + assets (applicationContext).
         scriptExtractor = ScriptExtractor(paths, applicationContext)

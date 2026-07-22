@@ -26,22 +26,9 @@ class StatusReaderTest {
         testDir = File(System.getProperty("java.io.tmpdir"), testDirName)
         testDir.mkdirs()
 
-        // Create test-specific paths implementation
-        paths = TestPathsAndroid(testDir)
+        // Construct a real Paths rooted at the temp dir (no Android Context needed).
+        paths = Paths(testDir)
         statusReader = StatusReader(paths)
-    }
-
-    /**
-     * Test-only paths implementation that doesn't require Android Context.
-     */
-    class TestPathsAndroid(private val baseDir: File) : Paths {
-        override val appZone: File get() = baseDir
-        override val injectJson: File get() = File(appZone, "inject.json")
-        override val injectStatusJson: File get() = File(appZone, "inject-status.json")
-        override val stagingDir: File get() = File(appZone, "staging").also { it.mkdirs() }
-        override val configFile: File get() = File(appZone, "config.yaml")
-        override val logsDir: File get() = File(appZone, "logs").also { it.mkdirs() }
-        override val scriptsDirectory: File get() = File(appZone, "scripts").also { it.mkdirs() }
     }
 
     @After

@@ -12,7 +12,7 @@ import ru.voboost.feature.FeatureContext
  */
 class Main(
     private val configManager: ConfigManager,
-    private val paths: PathsAndroid,
+    private val paths: Paths,
     private val vehicleManager: VehicleManagerAndroid,
     private val planProducer: PlanProducer,
     private val statusReader: StatusReader,

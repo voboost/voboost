@@ -31,7 +31,7 @@ class PlanProducerTest {
         val testDirName = "voboost-test-${System.currentTimeMillis()}"
         testDir = File(System.getProperty("java.io.tmpdir"), testDirName)
         testDir.mkdirs()
-        paths = TestPaths(testDir)
+        paths = Paths(testDir)
         planProducer = PlanProducer(paths)
     }
 
@@ -185,15 +185,4 @@ class PlanProducerTest {
 
         assertTrue("Removing non-existent plan should succeed", planProducer.removePlan().isSuccess)
     }
-}
-
-/** Test-only Paths implementation that does not require an Android Context. */
-class TestPaths(private val baseDir: File) : Paths {
-    override val appZone: File get() = baseDir
-    override val injectJson: File get() = File(appZone, "inject.json")
-    override val injectStatusJson: File get() = File(appZone, "inject-status.json")
-    override val stagingDir: File get() = File(appZone, "staging").also { it.mkdirs() }
-    override val configFile: File get() = File(appZone, "config.yaml")
-    override val logsDir: File get() = File(appZone, "logs").also { it.mkdirs() }
-    override val scriptsDirectory: File get() = File(appZone, "scripts").also { it.mkdirs() }
 }

@@ -180,7 +180,7 @@ class ConfigState private constructor() {
         configManager = ConfigManager(context)
 
         // Create StatusState for daemon status
-        daemonStatusState = StatusState(ru.voboost.PathsAndroid(context))
+        daemonStatusState = StatusState(ru.voboost.Paths(context))
         daemonStatusState?.startPolling()
 
         // Set up listener for configuration changes

@@ -10,7 +10,7 @@ import ru.voboost.ui.ConfigState
 import ru.voboost.ui.components.buildScreen
 
 class MainActivity : Activity() {
-    private lateinit var paths: PathsAndroid
+    private lateinit var paths: Paths
     private lateinit var vehicleManager: VehicleManagerAndroid
     private lateinit var planProducer: PlanProducer
     private lateinit var statusReader: StatusReader
@@ -28,7 +28,7 @@ class MainActivity : Activity() {
         }
 
         // Initialize paths
-        paths = PathsAndroid(applicationContext)
+        paths = Paths(applicationContext)
 
         // Initialize logger
         Logger.init(this, level = "debug")
