@@ -2,7 +2,6 @@ package ru.voboost.ui.panels
 
 import android.content.Context
 import ru.voboost.components.i18n.Language
-import ru.voboost.config.models.DriveMode
 import ru.voboost.config.models.PedestrianWarning
 import ru.voboost.ui.ConfigState
 import ru.voboost.ui.components.createConfigRadio
@@ -52,19 +51,19 @@ fun createVehiclePanel(
     )
 
     // Drive mode: original / eco / comfort / sport / snow / outing / individual
-    section.addRadio(
-        createConfigRadio(
-            context = context,
-            configState = configState,
-            fieldPath = "vehicleDriveMode",
-            options =
-                DriveMode.values().map { mode ->
-                    "drive_mode_${mode.name}" to mode.name
-                },
-            defaultValue = DriveMode.original.name,
-            titleKey = "vehicle_drive_mode",
-        ),
-    )
+    // section.addRadio(
+    //     createConfigRadio(
+    //         context = context,
+    //         configState = configState,
+    //         fieldPath = "vehicleDriveMode",
+    //         options =
+    //             DriveMode.values().map { mode ->
+    //                 "drive_mode_${mode.name}" to mode.name
+    //             },
+    //         defaultValue = DriveMode.original.name,
+    //         titleKey = "vehicle_drive_mode",
+    //     ),
+    // )
 
     panel.addView(section)
     return panel

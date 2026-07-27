@@ -49,8 +49,8 @@ fun createApplicationsPanel(
     val language = configState.currentLanguage
 
     // Applications settings section (launcher / dpi / dns)
-    val settingsSection = createApplicationsSettingsSection(context, configState)
-    panel.addView(settingsSection)
+    // val settingsSection = createApplicationsSettingsSection(context, configState)
+    // panel.addView(settingsSection)
 
     val naviSection =
         createAppSection(
