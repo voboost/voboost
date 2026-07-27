@@ -11,8 +11,8 @@ settings-language: ru
 settings-theme: dark
 # Car Model: free, dreamer
 settings-car-model: free
-settings-interface-shift-x: 0
-settings-interface-shift-y: 0
+settings-interface-shift-x: 145
+settings-interface-shift-y: 50
 settings-active-tab: settings
 # Startup Mode: off, hidden, interface
 settings-startup: interface
