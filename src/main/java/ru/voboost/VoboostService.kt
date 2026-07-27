@@ -13,6 +13,8 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import ru.voboost.config.OnConfigChangeListener
+import ru.voboost.config.models.Config
 import ru.voboost.config.models.StartupMode
 import ru.voboost.feature.FeatureContext
 import ru.voboost.ota.OtaClient
@@ -158,6 +160,7 @@ class VoboostService : Service() {
             StartupMode.hidden -> {
                 Logger.info(LOG, "Startup mode is 'hidden', starting features without UI")
                 startFeatures()
+                startConfigWatch()
             }
             StartupMode.`interface` -> {
                 Logger.info(
@@ -165,6 +168,7 @@ class VoboostService : Service() {
                     "Startup mode is 'interface', starting features with UI integration",
                 )
                 startFeatures()
+                startConfigWatch()
             }
         }
 
@@ -175,6 +179,10 @@ class VoboostService : Service() {
 
     override fun onDestroy() {
         Logger.info(LOG, "Service destroyed")
+        // Stop the config watcher before tearing down features so no
+        // onConfigChanged callback can arrive mid-shutdown and re-run
+        // applyConfig against a half-destroyed FeatureManager.
+        stopConfigWatch()
         // Cancel the service coroutine scope so the periodic OTA check
         // coroutine stops running instead of leaking past the service lifetime.
         serviceScope.cancel()
@@ -394,6 +402,45 @@ class VoboostService : Service() {
                 paths = paths,
             )
         featureManager.stopAll(context, planProducer)
+    }
+
+    /**
+     * Start watching the on-device configuration for live plan reload.
+     *
+     * On every change the cached [config] is refreshed and [startFeatures]
+     * re-runs `FeatureManager.applyConfig` (idempotent: it re-evaluates every
+     * feature and rewrites `inject.json` atomically). This makes feature
+     * toggles — including pedestrian-warning — take effect without a service
+     * restart. Only called for the `hidden` / `interface` startup modes; the
+     * `off` mode stops the service before any features start and never reaches
+     * here.
+     */
+    private fun startConfigWatch() {
+        val listener =
+            object : OnConfigChangeListener {
+                override fun onConfigChanged(
+                    newConfig: Config,
+                    diff: Config,
+                ) {
+                    config = newConfig
+                    Logger.info(LOG, "Config changed, reproducing inject plan")
+                    startFeatures()
+                }
+
+                override fun onConfigError(error: Exception) {
+                    Logger.error(LOG, "Config watch error: ${error.message}")
+                }
+            }
+        configManager.startWatching(listener).onFailure { error ->
+            Logger.error(LOG, "Failed to start config watcher: ${error.message}")
+        }
+    }
+
+    /**
+     * Stop the on-device configuration watcher.
+     */
+    private fun stopConfigWatch() {
+        configManager.stopWatching()
     }
 
     /**

@@ -30,6 +30,13 @@ SHALL write the plan atomically (write a temporary file then rename). The whole
 plan SHALL NOT exceed 1 MiB and each per-agent `config` SHALL NOT exceed 64 KiB;
 a plan exceeding either bound SHALL NOT be written.
 
+The plan SHALL be reproduced whenever the on-device configuration changes while
+the service is running: the service SHALL watch the configuration file and,
+on a change, re-run plan production against the new configuration (the producer
+is idempotent — it re-evaluates every feature and rewrites the whole plan). This
+SHALL NOT require a service restart. The `off` startup mode (which stops the
+service before any features start) SHALL NOT start the watcher.
+
 #### Scenario: Feature toggle writes an enabled agent
 - **WHEN** the user enables a feature mapped to agent `wm-viewport`
 - **THEN** the producer writes `inject.json` with an `agents` entry
@@ -47,6 +54,17 @@ a plan exceeding either bound SHALL NOT be written.
 - **WHEN** the assembled plan would exceed 1 MiB, or a per-agent config would
   exceed 64 KiB
 - **THEN** the producer does not write the plan and logs the rejection
+
+#### Scenario: Plan is reproduced on a mid-run config change
+- **WHEN** the service is running (hidden or interface mode) and the on-device
+  configuration file changes
+- **THEN** the producer rewrites `inject.json` from the new configuration
+  without a service restart
+
+#### Scenario: Watcher is not started in off mode
+- **WHEN** the service starts in the `off` startup mode
+- **THEN** no configuration watcher is started (the service stops before any
+  features run)
 
 ### Requirement: inject-status.json reader
 The application SHALL read `inject-status.json` from the app zone to observe the
@@ -68,11 +86,13 @@ SHALL surface the status to the UI without performing injection.
 - **THEN** it retries or reports the last known good status without crashing
 
 ### Requirement: Daemon-only injection; direct paths removed
-The application SHALL NOT perform Frida injection itself. There SHALL be no
-`frida-inject` binary asset, no `/data/local/tmp/su` invocation, no desktop
-injection manager or entry point, no binary extractor, and no
-`downloadFridaInject` Gradle task. Enabling a feature SHALL only mutate the
-`inject.json` plan; the daemon is the sole injector.
+The application SHALL NOT perform injection itself. The daemon is the sole
+injector: it attaches to target processes via ptrace and loads the Java/DEX
+agent runtime. There SHALL be no injection binary asset bundled in the app, no
+`/data/local/tmp/su` invocation, no desktop injection manager or entry point,
+no binary extractor, and no injection-asset download Gradle task. Enabling a
+feature SHALL only mutate the `inject.json` plan; the daemon is the sole
+injector.
 
 #### Scenario: Enabling a feature does not inject
 - **WHEN** a feature is enabled
@@ -80,6 +100,7 @@ injection manager or entry point, no binary extractor, and no
 
 #### Scenario: Legacy injection symbols are absent
 - **WHEN** the source tree and Gradle build are searched
-- **THEN** none of `frida-inject`, `/data/local/tmp/su`, `FridaManager`,
-  `MainDesktop`, `PathsDesktop`, `ScriptExtractor`, `downloadFridaInject` appear
+- **THEN** none of an injection binary, `/data/local/tmp/su`, an injection
+  manager, a desktop entry point, a binary extractor, or an injection-asset
+  download Gradle task appear
 
