@@ -28,7 +28,7 @@ private const val TAB_VEHICLE_MORE = "vehicle_more"
  * - Applications: Yandex Navigator + Yandex Music launch buttons
  * - Vehicle: pedestrian warning settings
  * - Settings: theme, car model, language
- * - Vehicle >: launches native CarSettingActivity
+ * - Back >: launches native CarSettingActivity
  */
 private val TAB_ITEMS: List<TabItem> =
     listOf(
@@ -39,7 +39,7 @@ private val TAB_ITEMS: List<TabItem> =
         TabItem("settings", mapOf("en" to "Settings", "ru" to "Настройки")),
         TabItem(
             TAB_VEHICLE_MORE,
-            mapOf("en" to "Vehicle", "ru" to "Машина"),
+            mapOf("en" to "Back", "ru" to "Назад"),
             true,
             30,
             true,
@@ -131,7 +131,7 @@ fun buildScreen(
             createInterfacePanel(context, configState),
             createVehiclePanel(context, configState),
             createSettingsPanel(context, configState),
-            // empty for Vehicle >
+            // empty for Back >
             LibraryPanel(context).apply { setTheme(currentTheme) },
         )
     screen.setPanels(panels)
