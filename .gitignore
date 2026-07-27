@@ -16,3 +16,6 @@ src/main/assets/bin/
 plans/
 logs/
 REMOVEME/
+
+# macOS filesystem metadata
+.DS_Store
