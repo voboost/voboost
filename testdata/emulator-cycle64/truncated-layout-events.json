@@ -1,0 +1,119 @@
+[
+  {
+    "schemaVersion": 1,
+    "sequence": 202479,
+    "timestamp": "2026-10-08T13:08:14.633Z",
+    "source": {
+      "kind": "agent",
+      "id": "ui-qinggan"
+    },
+    "level": "info",
+    "component": "agent",
+    "message": "VOBDBG1 {\"agent\":\"ui-qinggan\",\"event\":\"ui.layout.capture\",\"outcome\":\"measured\",\"fields\":{\"captureId\":\"563890944434\",\"desiredRevision\":1791464893125469712,\"snapshotIdentity\":\"{\\\"schemaVersion\\\":1,\\\"generationId\\\":\\\"4bc7e2c8ecb5e8092fb4da79833cc59b5787cff9af091633a09e0a40b62a4a90\\\",\\\"catalogSha256\\\":\\\"741f43b691ebf625860182cf675205101760bf1cbcdd35abfa63f249d7481913\\\",\\\"documentGeneration\\\":1791464893125469712,\\\"runtimeFacts\\\":{\\\"chip\\\":{\\\"value\\\"\",\"effectiveLanguage\":\"en\",\"count\":8,\"rootWidth\":1380}}",
+    "fields": {}
+  },
+  {
+    "schemaVersion": 1,
+    "sequence": 202480,
+    "timestamp": "2026-10-08T13:08:14.635Z",
+    "source": {
+      "kind": "agent",
+      "id": "ui-qinggan"
+    },
+    "level": "info",
+    "component": "agent",
+    "message": "VOBDBG1 {\"agent\":\"ui-qinggan\",\"event\":\"ui.layout\",\"outcome\":\"measured\",\"fields\":{\"captureId\":\"563890944434\",\"role\":\"language\",\"value\":\"ru\",\"width\":158,\"min_width\":0,\"padding_left\":0,\"padding_right\":0,\"caption_px\":106,\"top\":218,\"bottom\":288,\"lines\":1,\"ellipsis\":0}}",
+    "fields": {}
+  },
+  {
+    "schemaVersion": 1,
+    "sequence": 202481,
+    "timestamp": "2026-10-08T13:08:14.636Z",
+    "source": {
+      "kind": "agent",
+      "id": "ui-qinggan"
+    },
+    "level": "info",
+    "component": "agent",
+    "message": "VOBDBG1 {\"agent\":\"ui-qinggan\",\"event\":\"ui.layout\",\"outcome\":\"measured\",\"fields\":{\"captureId\":\"563890944434\",\"role\":\"language\",\"value\":\"en\",\"width\":150,\"min_width\":0,\"padding_left\":0,\"padding_right\":0,\"caption_px\":98,\"top\":218,\"bottom\":288,\"lines\":1,\"ellipsis\":0}}",
+    "fields": {}
+  },
+  {
+    "schemaVersion": 1,
+    "sequence": 202482,
+    "timestamp": "2026-10-08T13:08:14.637Z",
+    "source": {
+      "kind": "agent",
+      "id": "ui-qinggan"
+    },
+    "level": "info",
+    "component": "agent",
+    "message": "VOBDBG1 {\"agent\":\"ui-qinggan\",\"event\":\"ui.layout\",\"outcome\":\"measured\",\"fields\":{\"captureId\":\"563890944434\",\"role\":\"language\",\"value\":\"zh\",\"width\":322,\"min_width\":0,\"padding_left\":0,\"padding_right\":0,\"caption_px\":270,\"top\":218,\"bottom\":288,\"lines\":1,\"ellipsis\":0}}",
+    "fields": {}
+  },
+  {
+    "schemaVersion": 1,
+    "sequence": 202483,
+    "timestamp": "2026-10-08T13:08:14.637Z",
+    "source": {
+      "kind": "agent",
+      "id": "ui-qinggan"
+    },
+    "level": "info",
+    "component": "agent",
+    "message": "VOBDBG1 {\"agent\":\"ui-qinggan\",\"event\":\"ui.layout\",\"outcome\":\"measured\",\"fields\":{\"captureId\":\"563890944434\",\"role\":\"startup\",\"value\":\"interface\",\"width\":150,\"min_width\":0,\"padding_left\":0,\"padding_right\":0,\"caption_px\":98,\"top\":510,\"bottom\":580,\"lines\":1,\"ellipsis\":0}}",
+    "fields": {}
+  },
+  {
+    "schemaVersion": 1,
+    "sequence": 202484,
+    "timestamp": "2026-10-08T13:08:14.638Z",
+    "source": {
+      "kind": "agent",
+      "id": "ui-qinggan"
+    },
+    "level": "info",
+    "component": "agent",
+    "message": "VOBDBG1 {\"agent\":\"ui-qinggan\",\"event\":\"ui.layout\",\"outcome\":\"measured\",\"fields\":{\"captureId\":\"563890944434\",\"role\":\"startup\",\"value\":\"hidden\",\"width\":147,\"min_width\":0,\"padding_left\":0,\"padding_right\":0,\"caption_px\":95,\"top\":510,\"bottom\":580,\"lines\":1,\"ellipsis\":0}}",
+    "fields": {}
+  },
+  {
+    "schemaVersion": 1,
+    "sequence": 202485,
+    "timestamp": "2026-10-08T13:08:14.639Z",
+    "source": {
+      "kind": "agent",
+      "id": "ui-qinggan"
+    },
+    "level": "info",
+    "component": "agent",
+    "message": "VOBDBG1 {\"agent\":\"ui-qinggan\",\"event\":\"ui.layout\",\"outcome\":\"measured\",\"fields\":{\"captureId\":\"563890944434\",\"role\":\"startup\",\"value\":\"none\",\"width\":212,\"min_width\":0,\"padding_left\":0,\"padding_right\":0,\"caption_px\":160,\"top\":510,\"bottom\":580,\"lines\":1,\"ellipsis\":0}}",
+    "fields": {}
+  },
+  {
+    "schemaVersion": 1,
+    "sequence": 202486,
+    "timestamp": "2026-10-08T13:08:14.639Z",
+    "source": {
+      "kind": "agent",
+      "id": "ui-qinggan"
+    },
+    "level": "info",
+    "component": "agent",
+    "message": "VOBDBG1 {\"agent\":\"ui-qinggan\",\"event\":\"ui.layout\",\"outcome\":\"measured\",\"fields\":{\"captureId\":\"563890944434\",\"role\":\"uninstall.action\",\"value\":\"uninstall\",\"width\":294,\"min_width\":0,\"padding_left\":38,\"padding_right\":38,\"caption_px\":218,\"top\":2005,\"bottom\":2075,\"lines\":1,\"ellipsis\":0}}",
+    "fields": {}
+  },
+  {
+    "schemaVersion": 1,
+    "sequence": 202487,
+    "timestamp": "2026-10-08T13:08:14.640Z",
+    "source": {
+      "kind": "agent",
+      "id": "ui-qinggan"
+    },
+    "level": "info",
+    "component": "agent",
+    "message": "VOBDBG1 {\"agent\":\"ui-qinggan\",\"event\":\"ui.layout\",\"outcome\":\"measured\",\"fields\":{\"captureId\":\"563890944434\",\"role\":\"uninstall.status\",\"value\":\"status\",\"width\":1036,\"min_width\":0,\"padding_left\":0,\"padding_right\":0,\"caption_px\":1396,\"top\":2009,\"bottom\":2070,\"lines\":2,\"ellipsis\":0}}",
+    "fields": {}
+  }
+]

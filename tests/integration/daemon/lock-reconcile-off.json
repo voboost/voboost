@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "bootId": "11111111-1111-1111-1111-111111111111",
+  "steps": [
+    {
+      "operation": "hold-product-lock"
+    },
+    {
+      "operation": "save-desired",
+      "field": {
+        "kind": "enabled",
+        "agent": "launcher"
+      },
+      "value": false,
+      "input": {
+        "bootId": "11111111-1111-1111-1111-111111111111",
+        "endpointEpoch": 1,
+        "requestId": 8
+      }
+    },
+    {
+      "operation": "reconcile-desired",
+      "defaults": {
+        "schemaVersion": 2,
+        "startup": "interface",
+        "agents": {
+          "launcher": {
+            "enabled": true,
+            "options": {
+            }
+          }
+        },
+        "userRevision": 0,
+        "fieldRevisions": {
+        }
+      }
+    },
+    {
+      "operation": "read-desired",
+      "field": {
+        "kind": "enabled",
+        "agent": "launcher"
+      }
+    },
+    {
+      "operation": "release-product-lock"
+    }
+  ]
+}

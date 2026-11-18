@@ -1,0 +1,21 @@
+[package]
+name = "emulator-driver"
+version = "0.0.0"
+edition = "2021"
+publish = false
+license = "MIT"
+
+[[bin]]
+name = "emulator-driver"
+path = "main.rs"
+
+[dependencies]
+voboost-installer = { path = "../../../../../voboost-installer/src-tauri", features = ["emulator-driver"] }
+
+[profile.release]
+opt-level = "z"
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = true
+

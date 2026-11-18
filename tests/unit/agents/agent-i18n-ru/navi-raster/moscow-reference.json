@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "origin": "runtime179/navi-russian-result-primary.png",
+  "observation": "runtime179/ru-en-russian-input-final-ui.json",
+  "owner": "com.pateonavi.naviapp",
+  "resourceId": "com.pateonavi.naviapp:id/dsie_normal_search",
+  "class": "android.widget.EditText",
+  "text": "Москва",
+  "bounds": {
+    "height": 100,
+    "width": 540,
+    "x": 275,
+    "y": 50
+  }
+}

@@ -1,0 +1,15 @@
+  const launcherStockDisabled = async () => {
+    const title = catalog.find((agent: any) => agent.id === "launcher-apps")?.title?.[language];
+    if (!title) unavailable("signed launcher checkbox title unavailable for stock baseline");
+    await top();
+    for (let page = 0; page < 12; page++) {
+      const nodes = await ui.snapshot();
+      const check = agentControl(nodes, SETTINGS, title);
+      if (check) {
+        if (check.checked) unavailable("launcher agent already enabled; preserve original state instead of claiming a stock baseline");
+        return;
+      }
+      if (page < 11) await scroll("down");
+    }
+    unavailable("observed disabled launcher checkbox unavailable for stock baseline");
+  };

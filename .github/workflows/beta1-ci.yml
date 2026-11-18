@@ -1,0 +1,918 @@
+# Retained for the historical evidence/publication contract. Its Android-only
+# composition cannot build the current mixed Android/QNX product. Use
+# beta1-build.yml for current artifacts; publication needs separate migration.
+name: Retired Android-only beta1 CI
+run-name: beta1-ci product-${{ inputs.product_sha }} app-${{ inputs.app_sha }} agents-${{ inputs.agents_sha }} inject-${{ inputs.inject_sha }} installer-${{ inputs.installer_sha }} codestyle-${{ inputs.codestyle_sha }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      enable_remote_sources: {description: Confirm all source repositories and exact SHAs exist remotely, required: true, type: boolean, default: false}
+      product_sha: {description: Full pushed voboost product commit containing this workflow and definition, required: true, type: string}
+      app_sha: {description: Full voboost-app commit, required: true, type: string}
+      agents_sha: {description: Full voboost-agents commit, required: true, type: string}
+      inject_sha: {description: Full voboost-inject commit, required: true, type: string}
+      installer_sha: {description: Full voboost-installer commit, required: true, type: string}
+      codestyle_sha: {description: Full voboost-codestyle commit, required: true, type: string}
+      logo_sha: {description: Full voboost-logo commit, required: true, type: string}
+      local_evidence_artifact_id: {description: Trusted ingestion artifact ID for local delivery evidence, required: true, type: string}
+      local_evidence_json_sha256: {description: SHA-256 of exact ingested evidence.json, required: true, type: string}
+      local_evidence_signature_sha256: {description: SHA-256 of raw signed payload signature, required: true, type: string}
+
+permissions: {actions: read, contents: read}
+concurrency:
+  group: beta1-ci-${{ inputs.product_sha }}-${{ inputs.app_sha }}-${{ inputs.agents_sha }}-${{ inputs.inject_sha }}-${{ inputs.installer_sha }}-${{ inputs.logo_sha }}-${{ inputs.codestyle_sha }}
+  cancel-in-progress: false
+
+jobs:
+  admission:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions: {actions: read, contents: read}
+    outputs:
+      product_workflow_blob: ${{ steps.identity.outputs.product_workflow_blob }}
+      source_definition_sha256: ${{ steps.identity.outputs.source_definition_sha256 }}
+      trust_document_sha256: ${{ steps.identity.outputs.trust_document_sha256 }}
+      codestyle_tree: ${{ steps.identity.outputs.codestyle_tree }}
+    steps:
+      - name: Reject retired Android-only build entry point
+        run: |
+          echo '::error::This legacy workflow cannot build the current Android/QNX product. Run beta1-build.yml (Beta1 build artifacts). Evidence/publication migration remains separate.' >&2
+          exit 1
+      - name: Set up pinned Rust
+        uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # pinned
+        with: {toolchain: '1.98.0'}
+      - name: Fail closed while source remotes are unavailable
+        env: {ENABLED: "${{ inputs.enable_remote_sources }}"}
+        run: test "$ENABLED" = true
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {ref: "${{ inputs.product_sha }}", fetch-depth: 0, persist-credentials: false}
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {repository: voboost/voboost-agents, ref: "${{ inputs.agents_sha }}", path: .ci-agents-metadata, persist-credentials: false}
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {repository: voboost/voboost-inject, ref: "${{ inputs.inject_sha }}", path: .ci-inject-contract, persist-credentials: false}
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with: {node-version: '24.13.0', cache: npm}
+      - uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
+      - id: identity
+        name: Verify product identity, local evidence producer, and exact commit trees
+        env:
+          GH_TOKEN: "${{ github.token }}"
+          PRODUCT_SHA: "${{ inputs.product_sha }}"
+          APP_SHA: "${{ inputs.app_sha }}"
+          AGENTS_SHA: "${{ inputs.agents_sha }}"
+          INJECT_SHA: "${{ inputs.inject_sha }}"
+          INSTALLER_SHA: "${{ inputs.installer_sha }}"
+          LOGO_SHA: "${{ inputs.logo_sha }}"
+          CODESTYLE_SHA: "${{ inputs.codestyle_sha }}"
+          EVIDENCE_ID: "${{ inputs.local_evidence_artifact_id }}"
+          EVIDENCE_JSON_SHA256: "${{ inputs.local_evidence_json_sha256 }}"
+          EVIDENCE_SIGNATURE_SHA256: "${{ inputs.local_evidence_signature_sha256 }}"
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = refs/heads/main
+          test "$GITHUB_SHA" = "$PRODUCT_SHA"
+          test "$GITHUB_WORKFLOW_SHA" = "$PRODUCT_SHA"
+          [[ "$PRODUCT_SHA" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$CODESTYLE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          codestyle_tree=$(gh api "repos/voboost/voboost-codestyle/git/commits/$CODESTYLE_SHA" --jq .tree.sha)
+          [[ "$codestyle_tree" =~ ^[0-9a-f]{40}$ ]]
+          echo "codestyle_tree=$codestyle_tree" >> "$GITHUB_OUTPUT"
+          product_tree=$(git rev-parse "$PRODUCT_SHA^{tree}")
+          workflow_blob=$(git rev-parse "$PRODUCT_SHA:.github/workflows/beta1-ci.yml")
+          definition_sha=$(sha256sum release/1.0.0-beta1.toml | cut -d ' ' -f1)
+          # The committed snapshot must be exactly the current authoring
+          # input: CI builds the release named by release/version.toml.
+          cmp release/version.toml release/1.0.0-beta1.toml
+          cargo run --manifest-path release/Cargo.toml --locked -- check-trust-roots release/1.0.0-beta1-trust.json
+          test "$(jq -r .state release/1.0.0-beta1-trust.json)" = provisioned
+          trust_sha=$(sha256sum release/1.0.0-beta1-trust.json | cut -d ' ' -f1)
+          EVIDENCE_PUBLIC_KEY_HEX=$(jq -r .roots.evidencePublicKeyHex release/1.0.0-beta1-trust.json)
+          echo "product_workflow_blob=$workflow_blob" >> "$GITHUB_OUTPUT"
+          echo "source_definition_sha256=$definition_sha" >> "$GITHUB_OUTPUT"
+          echo "trust_document_sha256=$trust_sha" >> "$GITHUB_OUTPUT"
+          for pair in app:$APP_SHA agents:$AGENTS_SHA inject:$INJECT_SHA installer:$INSTALLER_SHA logo:$LOGO_SHA; do
+            name=${pair%%:*}; commit=${pair#*:}
+            [[ "$commit" =~ ^[0-9a-f]{40}$ ]]
+            test "$(sed -nE "s/^$name = \"([0-9a-f]{40})\"$/\1/p" release/1.0.0-beta1.toml)" = "$commit"
+          done
+          # All first-party source and the embedded EULA use the owning license bytes.
+          for file in LICENSE LICENSE.ru.md; do
+            cp "$file" "$RUNNER_TEMP/license-authority"
+            for pair in app:$APP_SHA agents:$AGENTS_SHA inject:$INJECT_SHA installer:$INSTALLER_SHA codestyle:$CODESTYLE_SHA; do
+              name=${pair%%:*}; commit=${pair#*:}
+              gh api "repos/voboost/voboost-$name/contents/$file?ref=$commit" --jq .content | base64 --decode > "$RUNNER_TEMP/license-component"
+              cmp "$RUNNER_TEMP/license-authority" "$RUNNER_TEMP/license-component"
+            done
+          done
+          test "$(git -C .ci-agents-metadata rev-parse HEAD)" = "$AGENTS_SHA"
+          test -z "$(git -C .ci-agents-metadata status --porcelain=v1)"
+          [[ "$EVIDENCE_ID" =~ ^[1-9][0-9]*$ ]]
+          for digest in "$EVIDENCE_JSON_SHA256" "$EVIDENCE_SIGNATURE_SHA256"; do [[ "$digest" =~ ^[0-9a-f]{64}$ ]]; done
+          [[ "$EVIDENCE_PUBLIC_KEY_HEX" =~ ^[0-9a-f]{64}$ ]]
+          gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$EVIDENCE_ID" > "$RUNNER_TEMP/evidence-meta.json"
+          test "$(jq -r .name "$RUNNER_TEMP/evidence-meta.json")" = beta1-local-delivery-evidence
+          test "$(jq -r .expired "$RUNNER_TEMP/evidence-meta.json")" = false
+          ingest_run=$(jq -r .workflow_run.id "$RUNNER_TEMP/evidence-meta.json")
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$ingest_run" > "$RUNNER_TEMP/ingest-run.json"
+          test "$(jq -r .path "$RUNNER_TEMP/ingest-run.json")" = .github/workflows/beta1-evidence-ingest.yml
+          test "$(jq -r .head_branch "$RUNNER_TEMP/ingest-run.json")" = main
+          test "$(jq -r .head_sha "$RUNNER_TEMP/ingest-run.json")" = "$PRODUCT_SHA"
+          test "$(jq -r .conclusion "$RUNNER_TEMP/ingest-run.json")" = success
+          gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$EVIDENCE_ID/zip" > "$RUNNER_TEMP/evidence.zip"
+          mkdir "$RUNNER_TEMP/evidence"
+          unzip -q "$RUNNER_TEMP/evidence.zip" -d "$RUNNER_TEMP/evidence"
+          test "$(find "$RUNNER_TEMP/evidence" -type f | wc -l | tr -d ' ')" = 2
+          evidence="$RUNNER_TEMP/evidence/evidence.json"; signature="$RUNNER_TEMP/evidence/evidence-payload.sig"
+          test "$(sha256sum "$evidence" | cut -d ' ' -f1)" = "$EVIDENCE_JSON_SHA256"
+          test "$(sha256sum "$signature" | cut -d ' ' -f1)" = "$EVIDENCE_SIGNATURE_SHA256"
+          jq -cS 'del(.producer)' "$evidence" > "$RUNNER_TEMP/payload.json"
+          printf '%s' "$EVIDENCE_PUBLIC_KEY_HEX" | xxd -r -p > "$RUNNER_TEMP/evidence.pub"
+          cargo run --manifest-path release/Cargo.toml --locked -- verify-file "$RUNNER_TEMP/evidence.pub" "$RUNNER_TEMP/payload.json" "$signature"
+          jq -cn --arg workflowCommitSha "$PRODUCT_SHA" --arg workflowBlobSha "$(git rev-parse "$PRODUCT_SHA:.github/workflows/beta1-evidence-ingest.yml")" --arg runId "$ingest_run" --arg runAttempt "$(jq -r .run_attempt "$RUNNER_TEMP/ingest-run.json")" --arg commit "$PRODUCT_SHA" --arg tree "$product_tree" --arg ciWorkflowBlobSha "$workflow_blob" --arg definition "$definition_sha" --arg trust "$trust_sha" --arg app "$APP_SHA" --arg agents "$AGENTS_SHA" --arg inject "$INJECT_SHA" --arg installer "$INSTALLER_SHA" --arg logo "$LOGO_SHA" '{producer:{workflowCommitSha:$workflowCommitSha,workflowBlobSha:$workflowBlobSha,runId:$runId,runAttempt:$runAttempt},product:{commit:$commit,tree:$tree,workflowBlobSha:$ciWorkflowBlobSha,sourceDefinitionSha256:$definition,trustDocumentSha256:$trust},sources:{app:{commit:$app,tree:""},agents:{commit:$agents,tree:""},inject:{commit:$inject,tree:""},installer:{commit:$installer,tree:""},logo:{commit:$logo,tree:""}}}' > "$RUNNER_TEMP/expected.json"
+          for name in app agents inject installer logo; do
+            commit=$(jq -r ".sources.$name.commit" "$RUNNER_TEMP/expected.json")
+            tree=$(gh api "repos/voboost/voboost-$name/git/commits/$commit" --jq .tree.sha)
+            jq --arg name "$name" --arg tree "$tree" '.sources[$name].tree=$tree' "$RUNNER_TEMP/expected.json" > "$RUNNER_TEMP/next.json"
+            mv "$RUNNER_TEMP/next.json" "$RUNNER_TEMP/expected.json"
+          done
+          npm ci --ignore-scripts
+          node tools/beta1-evidence.ts local "$evidence" "$RUNNER_TEMP/expected.json"
+          VOBOOST_INJECT_CONTRACT_ROOT="$GITHUB_WORKSPACE/.ci-inject-contract" cargo test --manifest-path release/Cargo.toml --locked
+          cargo test --manifest-path release/Cargo.toml --locked --features android-integration verify::tests::pinned_android_tools_extract_identity_from_exact_signed_apk -- --exact
+          VOBOOST_AGENTS_CHECKOUT_CLEAN=1 node tools/generate-agent-status.ts --check --release --agents-root "$GITHUB_WORKSPACE/.ci-agents-metadata" --agents-commit "$AGENTS_SHA"
+          VOBOOST_DOCS_RELEASE_MODE=1 VOBOOST_AGENTS_CHECKOUT_CLEAN=1 VOBOOST_AGENTS_ROOT="$GITHUB_WORKSPACE/.ci-agents-metadata" VOBOOST_AGENTS_COMMIT="$AGENTS_SHA" npm --script-shell=/bin/bash run target:docs:check
+          npm --script-shell=/bin/bash run openspec:validate
+      - name: Prove admission is secretless
+        run: test -z "${VOBOOST_ANDROID_KEYSTORE_BASE64:-}${VOBOOST_AGENTS_SIGNING_KEY:-}${VOBOOST_NATIVE_SIGNING_KEY:-}${VOBOOST_RESTORE_SIGNING_KEY:-}${VOBOOST_PRODUCT_SIGNING_KEY:-}"
+
+  prepare-app:
+    needs: admission
+    runs-on: ubuntu-24.04
+    permissions: {contents: read}
+    steps:
+      - name: Set up pinned Rust
+        uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # pinned
+        with: {toolchain: '1.98.0'}
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {ref: "${{ inputs.product_sha }}", path: product, persist-credentials: false}
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {repository: voboost/voboost-app, ref: "${{ inputs.app_sha }}", path: app, persist-credentials: false}
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {repository: voboost/voboost-codestyle, ref: "${{ inputs.codestyle_sha }}", path: voboost-codestyle, persist-credentials: false}
+      - name: Verify immutable shared Gradle input
+        env:
+          CODESTYLE_SHA: "${{ inputs.codestyle_sha }}"
+          CODESTYLE_TREE: "${{ needs.admission.outputs.codestyle_tree }}"
+        run: |
+          set -euo pipefail
+          test "$(git -C "$GITHUB_WORKSPACE/voboost-codestyle" rev-parse HEAD)" = "$CODESTYLE_SHA"
+          test "$(git -C "$GITHUB_WORKSPACE/voboost-codestyle" rev-parse 'HEAD^{tree}')" = "$CODESTYLE_TREE"
+          test -z "$(git -C "$GITHUB_WORKSPACE/voboost-codestyle" status --porcelain=v1)"
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+        with: {distribution: temurin, java-version: '17'}
+      - uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
+      - name: Build immutable unsigned APK input without production keys
+        working-directory: app
+        run: |
+          set -euo pipefail
+          export ANDROID_HOME="$ANDROID_SDK_ROOT"
+          product="$GITHUB_WORKSPACE/product"
+          cargo run --manifest-path "$product/release/Cargo.toml" --locked -- check-trust-roots "$product/release/1.0.0-beta1-trust.json"
+          printf '%s' "$(jq -r .roots.productPublicKeyHex "$product/release/1.0.0-beta1-trust.json")" | xxd -r -p > "$RUNNER_TEMP/product.pub"
+          cargo run --manifest-path "$product/release/Cargo.toml" --locked -- write-public-key-pem "$RUNNER_TEMP/product.pub" "$RUNNER_TEMP/product.pem"
+          VOBOOST_EMBEDDED_PRODUCT_PUBLIC_KEY_PEM="$RUNNER_TEMP/product.pem" ./gradlew check --no-daemon -PvoboostUnsignedRelease=true
+          mkdir prepared
+          if ! test -x scripts/prepare-beta1-unsigned.sh; then
+            echo "beta1 CI blocked: voboost-app lacks the reviewed unsigned APK preparation adapter" >&2
+            exit 1
+          fi
+          VOBOOST_EMBEDDED_PRODUCT_PUBLIC_KEY_PEM="$RUNNER_TEMP/product.pem" scripts/prepare-beta1-unsigned.sh prepared/voboost-app-unsigned.apk
+          test -f prepared/voboost-app-unsigned.apk
+          sha256sum prepared/* > prepared/SHA256SUMS
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with: {name: beta1-prepared-app, path: app/prepared/, if-no-files-found: error, retention-days: 3}
+
+  prepare-agents:
+    needs: admission
+    runs-on: ubuntu-24.04
+    permissions: {contents: read}
+    steps:
+      - name: Set up pinned Rust
+        uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # pinned
+        with: {toolchain: '1.98.0'}
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {repository: voboost/voboost-agents, ref: "${{ inputs.agents_sha }}", path: agents, persist-credentials: false}
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {repository: voboost/voboost-codestyle, ref: "${{ inputs.codestyle_sha }}", path: voboost-codestyle, persist-credentials: false}
+      - name: Verify immutable shared Gradle input
+        env:
+          CODESTYLE_SHA: "${{ inputs.codestyle_sha }}"
+          CODESTYLE_TREE: "${{ needs.admission.outputs.codestyle_tree }}"
+        run: |
+          set -euo pipefail
+          test "$(git -C "$GITHUB_WORKSPACE/voboost-codestyle" rev-parse HEAD)" = "$CODESTYLE_SHA"
+          test "$(git -C "$GITHUB_WORKSPACE/voboost-codestyle" rev-parse 'HEAD^{tree}')" = "$CODESTYLE_TREE"
+          test -z "$(git -C "$GITHUB_WORKSPACE/voboost-codestyle" status --porcelain=v1)"
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {repository: voboost/voboost-inject, ref: "${{ inputs.inject_sha }}", path: inject, submodules: recursive, persist-credentials: false}
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+        with: {distribution: temurin, java-version: '17'}
+      - uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with: {node-version: '24.13.0'}
+      - name: Install lockfile-pinned OpenSpec verification CLI
+        working-directory: inject
+        run: |
+          npm ci --ignore-scripts
+          echo "$GITHUB_WORKSPACE/inject/node_modules/.bin" >> "$GITHUB_PATH"
+      - name: Build immutable catalog and DEX inputs without production key
+        working-directory: agents
+        run: |
+          set -euo pipefail
+          test "$(git -C "$GITHUB_WORKSPACE/inject" rev-parse HEAD)" = "${{ inputs.inject_sha }}"
+          ./gradlew runOemTestDriverBuild -PoemTestDriverInjectProjectDir="$GITHUB_WORKSPACE/inject" -PoemTestDriverOut="$RUNNER_TEMP/oem-driver.json" --no-daemon -q
+          driver_sha=$(jq -r .sha256 "$RUNNER_TEMP/oem-driver.json")
+          [[ "$driver_sha" =~ ^[0-9a-f]{64}$ ]]
+          ./gradlew check buildRelease --no-daemon -PoemInjectProjectDir="$GITHUB_WORKSPACE/inject" -PoemDriverSha="$driver_sha"
+          test -f "$PWD/build/agents-bundle/agents.json"
+          VOBOOST_ENDPOINT197_CATALOG_PATH="$PWD/build/agents-bundle/agents.json" cargo test --manifest-path ../inject/daemon/Cargo.toml --locked --bin voboost-daemon status::tests::current_signed_beta1_53_target_inventory_fits_unchanged_resident_budget -- --exact
+          mkdir prepared
+          cp build/agents-bundle/agents.json build/agents-bundle/agent-common.dex build/agents-bundle/agent-*.dex prepared/
+          rm -f prepared/agents.json.sig
+          sha256sum prepared/* > prepared/SHA256SUMS
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with: {name: beta1-prepared-agents, path: agents/prepared/, if-no-files-found: error, retention-days: 3}
+
+  prepare-native:
+    needs: admission
+    runs-on: ubuntu-24.04
+    permissions: {contents: read}
+    steps:
+      - name: Set up pinned Rust
+        uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # pinned
+        with: {toolchain: '1.98.0', components: 'rustfmt, clippy'}
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {ref: "${{ inputs.product_sha }}", path: product, persist-credentials: false}
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {repository: voboost/voboost-inject, ref: "${{ inputs.inject_sha }}", path: inject, submodules: recursive, persist-credentials: false}
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {repository: voboost/voboost-codestyle, ref: "${{ inputs.codestyle_sha }}", path: voboost-codestyle, persist-credentials: false}
+      - name: Verify immutable shared native lint input
+        env:
+          CODESTYLE_SHA: "${{ inputs.codestyle_sha }}"
+          CODESTYLE_TREE: "${{ needs.admission.outputs.codestyle_tree }}"
+        run: |
+          set -euo pipefail
+          test "$(git -C "$GITHUB_WORKSPACE/voboost-codestyle" rev-parse HEAD)" = "$CODESTYLE_SHA"
+          test "$(git -C "$GITHUB_WORKSPACE/voboost-codestyle" rev-parse 'HEAD^{tree}')" = "$CODESTYLE_TREE"
+          test -z "$(git -C "$GITHUB_WORKSPACE/voboost-codestyle" status --porcelain=v1)"
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with: {node-version: '24.13.0', cache: npm, cache-dependency-path: inject/package-lock.json}
+      - uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
+      - name: Prepare pinned Android native tools
+        run: |
+          set -euo pipefail
+          sdkmanager "ndk;29.0.14206865"
+          echo "ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/29.0.14206865" >> "$GITHUB_ENV"
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends cmake ninja-build uncrustify
+          cargo install cargo-ndk --version 4.1.2 --locked
+      - name: Build immutable unsigned native inputs without production keys
+        working-directory: inject
+        run: |
+          set -euo pipefail
+          product="$GITHUB_WORKSPACE/product"
+          cargo run --manifest-path "$product/release/Cargo.toml" --locked -- check-trust-roots "$product/release/1.0.0-beta1-trust.json"
+          for row in agentCatalogPublicKeyHex:agent-catalog productPublicKeyHex:release-catalog nativeExecutablePublicKeyHex:native-executable restorePublicKeyHex:restore; do
+            field=${row%%:*}; name=${row#*:}
+            printf '%s' "$(jq -r ".roots.$field" "$product/release/1.0.0-beta1-trust.json")" | xxd -r -p > "$RUNNER_TEMP/$name.pub"
+            cargo run --manifest-path "$product/release/Cargo.toml" --locked -- write-public-key-pem "$RUNNER_TEMP/$name.pub" "$RUNNER_TEMP/$name.pem"
+          done
+          export VOBOOST_AGENT_CATALOG_PUBLIC_KEY_PEM="$RUNNER_TEMP/agent-catalog.pem"
+          export VOBOOST_RELEASE_CATALOG_PUBLIC_KEY_PEM="$RUNNER_TEMP/release-catalog.pem"
+          export VOBOOST_NATIVE_EXECUTABLE_PUBLIC_KEY_PEM="$RUNNER_TEMP/native-executable.pem"
+          export VOBOOST_RESTORE_PUBLIC_KEY_PEM="$RUNNER_TEMP/restore.pem"
+          export VOBOOST_ANDROID_CERT_SHA256="$(jq -r .roots.androidCertificateSha256 "$product/release/1.0.0-beta1-trust.json")"
+          test "$(git rev-parse HEAD)" = "${{ inputs.inject_sha }}"
+          npm ci --ignore-scripts
+          make init
+          make build-android build-selinux \
+            AGENT_CATALOG_PUBLIC_KEY_PEM="$VOBOOST_AGENT_CATALOG_PUBLIC_KEY_PEM" \
+            RELEASE_CATALOG_PUBLIC_KEY_PEM="$VOBOOST_RELEASE_CATALOG_PUBLIC_KEY_PEM" \
+            NATIVE_EXECUTABLE_PUBLIC_KEY_PEM="$VOBOOST_NATIVE_EXECUTABLE_PUBLIC_KEY_PEM" \
+            RESTORE_PUBLIC_KEY_PEM="$VOBOOST_RESTORE_PUBLIC_KEY_PEM" \
+            ANDROID_CERT_SHA256="$VOBOOST_ANDROID_CERT_SHA256"
+          # Reuse the owning component CI gates on the exact admitted checkout.
+          # Any failure stops preparation before an unsigned artifact can escape.
+          make test-tooling
+          make lint
+          make test
+          make coverage
+          if ! test -x tools/prepare-beta1-unsigned.sh; then
+            echo "beta1 CI blocked: voboost-inject lacks the reviewed unsigned native preparation adapter" >&2
+            exit 1
+          fi
+          tools/prepare-beta1-unsigned.sh "$RUNNER_TEMP/prepared-native"
+          (cd "$RUNNER_TEMP/prepared-native" && sha256sum * > SHA256SUMS)
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with: {name: beta1-prepared-native, path: "${{ runner.temp }}/prepared-native/", if-no-files-found: error, retention-days: 3}
+
+  prepare-installer:
+    needs: admission
+    runs-on: ubuntu-24.04
+    permissions: {contents: read}
+    steps:
+      - name: Set up pinned Rust
+        uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # pinned
+        with: {toolchain: '1.98.0'}
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {repository: voboost/voboost-installer, ref: "${{ inputs.installer_sha }}", path: installer, persist-credentials: false}
+      - name: Checkout exact shared qconn source
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          repository: voboost/voboost-inject
+          ref: "${{ inputs.inject_sha }}"
+          path: voboost-inject
+          sparse-checkout: common/qconn
+          persist-credentials: false
+      - name: Admit exact shared qconn source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C voboost-inject rev-parse HEAD)" = "${{ inputs.inject_sha }}"
+          test -z "$(git -C voboost-inject status --porcelain=v1)"
+          test -f voboost-inject/common/qconn/Cargo.toml
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with: {node-version: '24.13.0', cache: npm, cache-dependency-path: installer/package-lock.json}
+      - name: Install Linux desktop build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends \
+            libayatana-appindicator3-dev libgtk-3-dev librsvg2-dev \
+            libssl-dev libwebkit2gtk-4.1-dev patchelf
+      - name: Verify installer source before secretless platform packaging
+        working-directory: installer
+        run: |
+          set -euo pipefail
+          cmp LICENSE content/2-eula-license-en.md
+          cmp LICENSE.ru.md content/2-eula-license-ru.md
+          npm ci --ignore-scripts
+          npm run format:check
+          npm run lint:check
+          npm run typecheck
+          npm test -- --run
+          npm run test:rust
+          npm run lint:rust
+
+  sign-app:
+    needs: [admission, prepare-app]
+    runs-on: ubuntu-24.04
+    environment: beta1-sign-android
+    permissions: {actions: read, contents: read}
+    steps:
+      - name: Set up pinned Rust
+        uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # pinned
+        with: {toolchain: '1.98.0'}
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {ref: "${{ inputs.product_sha }}", persist-credentials: false}
+      - uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with: {name: beta1-prepared-app, path: prepared}
+      - name: Sign exact prepared APK without rebuilding
+        env:
+          KEYSTORE_BASE64: "${{ secrets.VOBOOST_BETA1_ANDROID_KEYSTORE_BASE64 }}"
+          KEYSTORE_PASSWORD: "${{ secrets.VOBOOST_BETA1_ANDROID_KEYSTORE_PASSWORD }}"
+        run: |
+          set -euo pipefail
+          trap 'rm -f "$RUNNER_TEMP/app.jks"' EXIT
+          test "$(git rev-parse HEAD)" = "${{ inputs.product_sha }}"
+          test "$(git rev-parse HEAD:.github/workflows/beta1-ci.yml)" = "${{ needs.admission.outputs.product_workflow_blob }}"
+          test "$(sha256sum release/1.0.0-beta1-trust.json | cut -d ' ' -f1)" = "${{ needs.admission.outputs.trust_document_sha256 }}"
+          cargo run --manifest-path release/Cargo.toml --locked -- check-trust-roots release/1.0.0-beta1-trust.json
+          expected_certificate=$(jq -r .roots.androidCertificateSha256 release/1.0.0-beta1-trust.json)
+          cd prepared
+          sha256sum --check --strict SHA256SUMS
+          printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/app.jks"
+          apksigner sign --ks "$RUNNER_TEMP/app.jks" --ks-pass "pass:$KEYSTORE_PASSWORD" --out voboost-app.apk voboost-app-unsigned.apk
+          apksigner verify --verbose --print-certs voboost-app.apk
+          test "$(apksigner verify --print-certs voboost-app.apk | sed -n 's/^Signer #1 certificate SHA-256 digest: //p')" = "$expected_certificate"
+          rm -f voboost-app-unsigned.apk SHA256SUMS
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with: {name: beta1-signed-app, path: prepared/voboost-app.apk, if-no-files-found: error, retention-days: 3}
+
+  sign-agents:
+    needs: [admission, prepare-agents]
+    runs-on: ubuntu-24.04
+    environment: beta1-sign-agents
+    permissions: {actions: read, contents: read}
+    steps:
+      - name: Set up pinned Rust
+        uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # pinned
+        with: {toolchain: '1.98.0'}
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {ref: "${{ inputs.product_sha }}", persist-credentials: false}
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with: {name: beta1-prepared-agents, path: prepared}
+      - name: Sign exact agents.json without rebuilding DEX
+        env: {AGENTS_KEY_BASE64: "${{ secrets.VOBOOST_BETA1_AGENTS_SIGNING_KEY }}"}
+        run: |
+          set -euo pipefail
+          trap 'rm -f "$RUNNER_TEMP/agents.key" "$RUNNER_TEMP/agents.pub" "$RUNNER_TEMP/expected-agents.pub"' EXIT
+          test "$(git rev-parse HEAD)" = "${{ inputs.product_sha }}"
+          test "$(git rev-parse HEAD:.github/workflows/beta1-ci.yml)" = "${{ needs.admission.outputs.product_workflow_blob }}"
+          test "$(sha256sum release/1.0.0-beta1-trust.json | cut -d ' ' -f1)" = "${{ needs.admission.outputs.trust_document_sha256 }}"
+          cargo run --manifest-path release/Cargo.toml --locked -- check-trust-roots release/1.0.0-beta1-trust.json
+          printf '%s' "$(jq -r .roots.agentCatalogPublicKeyHex release/1.0.0-beta1-trust.json)" | xxd -r -p > "$RUNNER_TEMP/expected-agents.pub"
+          cd prepared
+          sha256sum --check --strict SHA256SUMS
+          printf '%s' "$AGENTS_KEY_BASE64" | base64 --decode > "$RUNNER_TEMP/agents.key"
+          cargo run --manifest-path ../release/Cargo.toml --locked -- derive-public-key "$RUNNER_TEMP/agents.key" "$RUNNER_TEMP/agents.pub"
+          cmp "$RUNNER_TEMP/agents.pub" "$RUNNER_TEMP/expected-agents.pub"
+          cargo run --manifest-path ../release/Cargo.toml --locked -- sign-file "$RUNNER_TEMP/agents.key" agents.json agents.json.sig
+          rm -f SHA256SUMS
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with: {name: beta1-signed-agents, path: prepared/, if-no-files-found: error, retention-days: 3}
+
+  sign-native:
+    needs: [admission, prepare-native]
+    runs-on: ubuntu-24.04
+    environment: beta1-sign-native
+    permissions: {actions: read, contents: read}
+    steps:
+      - name: Set up pinned Rust
+        uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # pinned
+        with: {toolchain: '1.98.0'}
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {ref: "${{ inputs.product_sha }}", persist-credentials: false}
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with: {name: beta1-prepared-native, path: prepared}
+      - name: Apply protected native roles to exact prepared bytes
+        env: {NATIVE_EXECUTABLE_KEY_BASE64: "${{ secrets.VOBOOST_BETA1_NATIVE_EXECUTABLE_SIGNING_KEY }}"}
+        run: |
+          set -euo pipefail
+          trap 'rm -f "$RUNNER_TEMP/native.key" "$RUNNER_TEMP/native.pub" "$RUNNER_TEMP/expected-native.pub"' EXIT
+          test "$(git rev-parse HEAD)" = "${{ inputs.product_sha }}"
+          test "$(git rev-parse HEAD:.github/workflows/beta1-ci.yml)" = "${{ needs.admission.outputs.product_workflow_blob }}"
+          test "$(sha256sum release/1.0.0-beta1-trust.json | cut -d ' ' -f1)" = "${{ needs.admission.outputs.trust_document_sha256 }}"
+          cargo run --manifest-path release/Cargo.toml --locked -- check-trust-roots release/1.0.0-beta1-trust.json
+          printf '%s' "$NATIVE_EXECUTABLE_KEY_BASE64" | base64 --decode > "$RUNNER_TEMP/native.key"
+          printf '%s' "$(jq -r .roots.nativeExecutablePublicKeyHex release/1.0.0-beta1-trust.json)" | xxd -r -p > "$RUNNER_TEMP/expected-native.pub"
+          cargo run --manifest-path release/Cargo.toml --locked -- derive-public-key "$RUNNER_TEMP/native.key" "$RUNNER_TEMP/native.pub"
+          cmp "$RUNNER_TEMP/native.pub" "$RUNNER_TEMP/expected-native.pub"
+          (cd prepared && sha256sum --check --strict SHA256SUMS)
+          mkdir signed
+          cp prepared/* signed/
+          rm -f signed/SHA256SUMS
+          for pair in daemon:voboost-daemon install:voboost-install restore:voboost-restore uninstall:voboost-uninstall selinux:voboost-selinux; do
+            role=${pair%%:*}; file=${pair#*:}
+            cargo run --manifest-path release/Cargo.toml --locked -- sign-native-executable "$role" "$RUNNER_TEMP/native.key" "prepared/$file" "signed/$file"
+          done
+          mkdir "$RUNNER_TEMP/native-role-fixture"
+          printf '%s\n' 'voboost-role-trust-fixture-v1:native-executable' > "$RUNNER_TEMP/native-role-fixture/native-executable.fixture"
+          cargo run --manifest-path release/Cargo.toml --locked -- sign-file "$RUNNER_TEMP/native.key" "$RUNNER_TEMP/native-role-fixture/native-executable.fixture" "$RUNNER_TEMP/native-role-fixture/native-executable.fixture.sig"
+          cargo run --manifest-path release/Cargo.toml --locked -- verify-file "$RUNNER_TEMP/expected-native.pub" "$RUNNER_TEMP/native-role-fixture/native-executable.fixture" "$RUNNER_TEMP/native-role-fixture/native-executable.fixture.sig"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with: {name: beta1-signed-native, path: signed/, if-no-files-found: error, retention-days: 3}
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with: {name: beta1-native-role-fixture, path: "${{ runner.temp }}/native-role-fixture/", if-no-files-found: error, retention-days: 3}
+
+  sign-product:
+    needs: [admission, sign-app, sign-agents, sign-native, prepare-installer]
+    runs-on: ubuntu-24.04
+    environment: beta1-sign-product
+    permissions: {actions: read, contents: read}
+    steps:
+      - name: Set up pinned Rust
+        uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # pinned
+        with: {toolchain: '1.98.0'}
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {ref: "${{ inputs.product_sha }}", persist-credentials: false}
+      - uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with: {name: beta1-signed-app, path: closure}
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with: {name: beta1-signed-agents, path: closure}
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with: {name: beta1-signed-native, path: closure}
+      - name: Author and sign exact product authorities without component rebuild
+        env:
+          RESTORE_KEY_BASE64: "${{ secrets.VOBOOST_BETA1_RESTORE_SIGNING_KEY }}"
+          PRODUCT_KEY_BASE64: "${{ secrets.VOBOOST_BETA1_PRODUCT_SIGNING_KEY }}"
+        run: |
+          set -euo pipefail
+          trap 'rm -f "$RUNNER_TEMP/restore.key" "$RUNNER_TEMP/product.key" "$RUNNER_TEMP/restore.pub" "$RUNNER_TEMP/product.pub" "$RUNNER_TEMP/expected-restore.pub" "$RUNNER_TEMP/expected-product.pub"' EXIT
+          test "$(git rev-parse HEAD)" = "${{ inputs.product_sha }}"
+          test "$(git rev-parse HEAD:.github/workflows/beta1-ci.yml)" = "${{ needs.admission.outputs.product_workflow_blob }}"
+          test "$(sha256sum release/1.0.0-beta1-trust.json | cut -d ' ' -f1)" = "${{ needs.admission.outputs.trust_document_sha256 }}"
+          cargo run --manifest-path release/Cargo.toml --locked -- check-trust-roots release/1.0.0-beta1-trust.json
+          printf '%s' "$RESTORE_KEY_BASE64" | base64 --decode > "$RUNNER_TEMP/restore.key"
+          printf '%s' "$PRODUCT_KEY_BASE64" | base64 --decode > "$RUNNER_TEMP/product.key"
+          cargo run --manifest-path release/Cargo.toml --locked -- derive-public-key "$RUNNER_TEMP/restore.key" "$RUNNER_TEMP/restore.pub"
+          cargo run --manifest-path release/Cargo.toml --locked -- derive-public-key "$RUNNER_TEMP/product.key" "$RUNNER_TEMP/product.pub"
+          printf '%s' "$(jq -r .roots.restorePublicKeyHex release/1.0.0-beta1-trust.json)" | xxd -r -p > "$RUNNER_TEMP/expected-restore.pub"
+          printf '%s' "$(jq -r .roots.productPublicKeyHex release/1.0.0-beta1-trust.json)" | xxd -r -p > "$RUNNER_TEMP/expected-product.pub"
+          cmp "$RUNNER_TEMP/restore.pub" "$RUNNER_TEMP/expected-restore.pub"
+          cmp "$RUNNER_TEMP/product.pub" "$RUNNER_TEMP/expected-product.pub"
+          cargo run --manifest-path release/Cargo.toml --locked -- inspect-apk release/1.0.0-beta1.toml closure "$ANDROID_SDK_ROOT" apk-evidence.json
+          cargo run --manifest-path release/Cargo.toml --locked -- produce-restore release/1.0.0-beta1.toml closure "$ANDROID_SDK_ROOT" "$RUNNER_TEMP/restore.key"
+          cargo run --manifest-path release/Cargo.toml --locked -- compose release/1.0.0-beta1.toml closure "$ANDROID_SDK_ROOT" apk-evidence.json "$RUNNER_TEMP/expected-restore.pub" voboost.json
+          jq -cn --arg releaseIdentity 1.0.0-beta1 --arg productCommit "${{ inputs.product_sha }}" --arg productWorkflowBlob "${{ needs.admission.outputs.product_workflow_blob }}" --arg sourceDefinitionSha256 "${{ needs.admission.outputs.source_definition_sha256 }}" --arg trustDocumentSha256 "${{ needs.admission.outputs.trust_document_sha256 }}" '{schemaVersion:1,releaseIdentity:$releaseIdentity,productCommit:$productCommit,productWorkflowBlob:$productWorkflowBlob,sourceDefinitionSha256:$sourceDefinitionSha256,trustDocumentSha256:$trustDocumentSha256}' > release-identity.json
+          cargo run --manifest-path release/Cargo.toml --locked -- sign-file "$RUNNER_TEMP/product.key" voboost.json voboost.json.sig
+          cargo run --manifest-path release/Cargo.toml --locked -- sign-file "$RUNNER_TEMP/product.key" release-identity.json release-identity.json.sig
+          cargo run --manifest-path release/Cargo.toml --locked -- verify-file "$RUNNER_TEMP/expected-product.pub" voboost.json voboost.json.sig
+          cargo run --manifest-path release/Cargo.toml --locked -- verify-file "$RUNNER_TEMP/expected-product.pub" release-identity.json release-identity.json.sig
+          mkdir "$RUNNER_TEMP/product-role-fixtures"
+          printf '%s\n' 'voboost-role-trust-fixture-v1:release-catalog' > "$RUNNER_TEMP/product-role-fixtures/product.fixture"
+          printf '%s\n' 'voboost-role-trust-fixture-v1:restore' > "$RUNNER_TEMP/product-role-fixtures/restore.fixture"
+          cargo run --manifest-path release/Cargo.toml --locked -- sign-file "$RUNNER_TEMP/product.key" "$RUNNER_TEMP/product-role-fixtures/product.fixture" "$RUNNER_TEMP/product-role-fixtures/product.fixture.sig"
+          cargo run --manifest-path release/Cargo.toml --locked -- sign-file "$RUNNER_TEMP/restore.key" "$RUNNER_TEMP/product-role-fixtures/restore.fixture" "$RUNNER_TEMP/product-role-fixtures/restore.fixture.sig"
+          cargo run --manifest-path release/Cargo.toml --locked -- verify-file "$RUNNER_TEMP/expected-product.pub" "$RUNNER_TEMP/product-role-fixtures/product.fixture" "$RUNNER_TEMP/product-role-fixtures/product.fixture.sig"
+          cargo run --manifest-path release/Cargo.toml --locked -- verify-file "$RUNNER_TEMP/expected-restore.pub" "$RUNNER_TEMP/product-role-fixtures/restore.fixture" "$RUNNER_TEMP/product-role-fixtures/restore.fixture.sig"
+          cargo run --manifest-path release/Cargo.toml --locked -- write-sha256sums voboost.json closure SHA256SUMS
+          cp voboost.json voboost.json.sig SHA256SUMS release-identity.json release-identity.json.sig closure/
+          rm -f apk-evidence.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with: {name: beta1-final-signed-closure, path: closure/, if-no-files-found: error, retention-days: 14}
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with: {name: beta1-product-role-fixtures, path: "${{ runner.temp }}/product-role-fixtures/", if-no-files-found: error, retention-days: 3}
+
+  verify-final-signed:
+    needs: [admission, sign-product]
+    runs-on: ubuntu-24.04
+    permissions: {actions: read, contents: read}
+    outputs:
+      artifact_id: ${{ steps.verify.outputs.artifact_id }}
+      artifact_digest: ${{ steps.verify.outputs.artifact_digest }}
+      payload_sha256: ${{ steps.verify.outputs.payload_sha256 }}
+    steps:
+      - name: Set up pinned Rust
+        uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # pinned
+        with: {toolchain: '1.98.0'}
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {ref: "${{ inputs.product_sha }}", persist-credentials: false}
+      - uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
+      - id: verify
+        name: Re-download and verify final protected-signed closure without secrets
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          set -euo pipefail
+          test -z "${VOBOOST_BETA1_PRODUCT_SIGNING_KEY:-}${VOBOOST_BETA1_RESTORE_SIGNING_KEY:-}${VOBOOST_BETA1_NATIVE_EXECUTABLE_SIGNING_KEY:-}${VOBOOST_BETA1_AGENTS_SIGNING_KEY:-}${VOBOOST_BETA1_ANDROID_KEYSTORE_BASE64:-}"
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts" > "$RUNNER_TEMP/artifacts.json"
+          test "$(jq '[.artifacts[] | select(.name=="beta1-final-signed-closure")] | length' "$RUNNER_TEMP/artifacts.json")" = 1
+          artifact_id=$(jq -r '.artifacts[] | select(.name=="beta1-final-signed-closure") | .id' "$RUNNER_TEMP/artifacts.json")
+          artifact_digest=$(jq -r '.artifacts[] | select(.name=="beta1-final-signed-closure") | .digest' "$RUNNER_TEMP/artifacts.json")
+          gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id/zip" > "$RUNNER_TEMP/final.zip"
+          test "sha256:$(sha256sum "$RUNNER_TEMP/final.zip" | cut -d ' ' -f1)" = "$artifact_digest"
+          mkdir "$RUNNER_TEMP/final" "$RUNNER_TEMP/device" "$RUNNER_TEMP/product-closure"
+          unzip -q "$RUNNER_TEMP/final.zip" -d "$RUNNER_TEMP/final"
+          cargo run --manifest-path release/Cargo.toml --locked -- check-trust-roots release/1.0.0-beta1-trust.json
+          test "$(jq -r .state release/1.0.0-beta1-trust.json)" = provisioned
+          test "$(sha256sum release/1.0.0-beta1-trust.json | cut -d ' ' -f1)" = "${{ needs.admission.outputs.trust_document_sha256 }}"
+          printf '%s' "$(jq -r .roots.productPublicKeyHex release/1.0.0-beta1-trust.json)" | xxd -r -p > "$RUNNER_TEMP/product.pub"
+          printf '%s' "$(jq -r .roots.restorePublicKeyHex release/1.0.0-beta1-trust.json)" | xxd -r -p > "$RUNNER_TEMP/restore.pub"
+          printf '%s' "$(jq -r .roots.agentCatalogPublicKeyHex release/1.0.0-beta1-trust.json)" | xxd -r -p > "$RUNNER_TEMP/agents.pub"
+          printf '%s' "$(jq -r .roots.nativeExecutablePublicKeyHex release/1.0.0-beta1-trust.json)" | xxd -r -p > "$RUNNER_TEMP/native.pub"
+          cargo run --manifest-path release/Cargo.toml --locked -- verify-file "$RUNNER_TEMP/product.pub" "$RUNNER_TEMP/final/voboost.json" "$RUNNER_TEMP/final/voboost.json.sig"
+          cargo run --manifest-path release/Cargo.toml --locked -- verify-file "$RUNNER_TEMP/product.pub" "$RUNNER_TEMP/final/release-identity.json" "$RUNNER_TEMP/final/release-identity.json.sig"
+          cargo run --manifest-path release/Cargo.toml --locked -- verify-file "$RUNNER_TEMP/agents.pub" "$RUNNER_TEMP/final/agents.json" "$RUNNER_TEMP/final/agents.json.sig"
+          cargo run --manifest-path release/Cargo.toml --locked -- verify-restore release/1.0.0-beta1.toml "$RUNNER_TEMP/final/voboost.json" "$RUNNER_TEMP/final" "$RUNNER_TEMP/restore.pub"
+          cargo run --manifest-path release/Cargo.toml --locked -- inspect-apk release/1.0.0-beta1.toml "$RUNNER_TEMP/final" "$ANDROID_SDK_ROOT" "$RUNNER_TEMP/final-apk-evidence.json"
+          test "$(jq -r .certificateSha256 "$RUNNER_TEMP/final-apk-evidence.json")" = "$(jq -r .roots.androidCertificateSha256 release/1.0.0-beta1-trust.json)"
+          cargo run --manifest-path release/Cargo.toml --locked -- verify-apk-product-root "$RUNNER_TEMP/final/voboost-app.apk" "$RUNNER_TEMP/product.pub"
+          for pair in daemon:voboost-daemon install:voboost-install restore:voboost-restore uninstall:voboost-uninstall selinux:voboost-selinux; do
+            role=${pair%%:*}; file=${pair#*:}
+            cargo run --manifest-path release/Cargo.toml --locked -- verify-native-executable "$role" "$RUNNER_TEMP/native.pub" "$RUNNER_TEMP/final/$file"
+            cargo run --manifest-path release/Cargo.toml --locked -- verify-embedded-root "$RUNNER_TEMP/native.pub" "$RUNNER_TEMP/final/$file"
+          done
+          for file in voboost-daemon voboost-install; do
+            cargo run --manifest-path release/Cargo.toml --locked -- verify-embedded-root "$RUNNER_TEMP/agents.pub" "$RUNNER_TEMP/final/$file"
+            cargo run --manifest-path release/Cargo.toml --locked -- verify-embedded-root "$RUNNER_TEMP/product.pub" "$RUNNER_TEMP/final/$file"
+          done
+          for file in voboost-daemon voboost-install voboost-restore voboost-uninstall; do
+            cargo run --manifest-path release/Cargo.toml --locked -- verify-embedded-root "$RUNNER_TEMP/restore.pub" "$RUNNER_TEMP/final/$file"
+          done
+          cp "$RUNNER_TEMP/final/voboost.json" "$RUNNER_TEMP/final/voboost.json.sig" "$RUNNER_TEMP/product-closure/"
+          jq -r '.artifacts[].file' "$RUNNER_TEMP/final/voboost.json" | while IFS= read -r file; do cp "$RUNNER_TEMP/final/$file" "$RUNNER_TEMP/device/"; cp "$RUNNER_TEMP/final/$file" "$RUNNER_TEMP/product-closure/"; done
+          cargo run --manifest-path release/Cargo.toml --locked -- verify-manifest "$RUNNER_TEMP/final/voboost.json" "$RUNNER_TEMP/device"
+          cargo run --manifest-path release/Cargo.toml --locked -- verify-product-closure "$RUNNER_TEMP/product-closure" "$RUNNER_TEMP/product.pub"
+          jq -e --arg product "${{ inputs.product_sha }}" --arg blob "${{ needs.admission.outputs.product_workflow_blob }}" --arg definition "${{ needs.admission.outputs.source_definition_sha256 }}" --arg trust "${{ needs.admission.outputs.trust_document_sha256 }}" '.schemaVersion==1 and .releaseIdentity=="1.0.0-beta1" and .productCommit==$product and .productWorkflowBlob==$blob and .sourceDefinitionSha256==$definition and .trustDocumentSha256==$trust' "$RUNNER_TEMP/final/release-identity.json" >/dev/null
+          payload_sha=$(tar --sort=name --mtime='UTC 1970-01-01' --owner=0 --group=0 --numeric-owner -C "$RUNNER_TEMP/final" -cf - . | sha256sum | cut -d ' ' -f1)
+          echo "artifact_id=$artifact_id" >> "$GITHUB_OUTPUT"
+          echo "artifact_digest=$artifact_digest" >> "$GITHUB_OUTPUT"
+          echo "payload_sha256=$payload_sha" >> "$GITHUB_OUTPUT"
+          printf '%s\n' "artifactId=$artifact_id" "artifactDigest=$artifact_digest" "payloadSha256=$payload_sha" > final-verification.txt
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with: {name: beta1-final-signed-verification, path: final-verification.txt, if-no-files-found: error, retention-days: 14}
+
+  export-vehicle-input:
+    needs: [verify-final-signed, package-aggregate]
+    runs-on: ubuntu-24.04
+    permissions: {contents: read}
+    steps:
+      - name: Export exact final artifact identity without claiming a gate
+        run: |
+          printf '%s\n' 'schema=1' 'release=1.0.0-beta1' 'artifactId=${{ needs.verify-final-signed.outputs.artifact_id }}' 'artifactDigest=${{ needs.verify-final-signed.outputs.artifact_digest }}' 'payloadSha256=${{ needs.verify-final-signed.outputs.payload_sha256 }}' 'installerArtifactId=${{ needs.package-aggregate.outputs.artifact_id }}' 'installerArtifactDigest=${{ needs.package-aggregate.outputs.artifact_digest }}' 'installerPayloadSha256=${{ needs.package-aggregate.outputs.payload_sha256 }}' 'vehicle=not-run' 'uninstall=not-run' 'cleanState=not-run' 'runtimeReadiness=ready-for-ci-vehicle-gate' 'publication=forbidden' > vehicle-input.txt
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with: {name: beta1-final-vehicle-input, path: vehicle-input.txt, if-no-files-found: error, retention-days: 14}
+
+  package-windows:
+    needs: [admission, prepare-installer, verify-final-signed]
+    runs-on: windows-2025
+    permissions: {actions: read, contents: read}
+    defaults: {run: {shell: bash}}
+    steps:
+      - name: Set up pinned Rust
+        uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # pinned
+        with: {toolchain: '1.98.0'}
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {ref: "${{ inputs.product_sha }}", path: product, persist-credentials: false}
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {repository: voboost/voboost-installer, ref: "${{ inputs.installer_sha }}", path: installer, persist-credentials: false}
+      - name: Checkout exact shared qconn source
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          repository: voboost/voboost-inject
+          ref: "${{ inputs.inject_sha }}"
+          path: voboost-inject
+          sparse-checkout: common/qconn
+          persist-credentials: false
+      - name: Admit exact shared qconn source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C voboost-inject rev-parse HEAD)" = "${{ inputs.inject_sha }}"
+          test -z "$(git -C voboost-inject status --porcelain=v1)"
+          test -f voboost-inject/common/qconn/Cargo.toml
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with: {node-version: '24.13.0', cache: npm, cache-dependency-path: installer/package-lock.json}
+      - name: Set up observation JDK17
+        uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+        with: {distribution: temurin, java-version: '17'}
+      - name: Prepare exact observation source input for executable embedding
+        shell: bash
+        run: |
+          node installer/src/build/observation-sdk.ts "$GITHUB_WORKSPACE/installer/build/observation-sdk"
+          echo "ANDROID_SDK_ROOT=$GITHUB_WORKSPACE/installer/build/observation-sdk" >> "$GITHUB_ENV"
+          ANDROID_SDK_ROOT="$GITHUB_WORKSPACE/installer/build/observation-sdk" node installer/src/build/observation-helper.ts
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with: {name: beta1-final-signed-closure, path: closure}
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with: {name: beta1-product-role-fixtures, path: fixtures/product}
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with: {name: beta1-native-role-fixture, path: fixtures/native}
+      - name: Build and reopen exact Windows x86-64 portable EXE without secrets
+        run: |
+          set -euo pipefail
+          rustup toolchain install 1.98.0 --profile minimal
+          product/release/prepare-package-inputs.sh product closure fixtures roots package-closure
+          export VOBOOST_PRODUCT_VERSION="$(node -p 'JSON.parse(require("node:fs").readFileSync("package-closure/voboost.json", "utf8")).releaseIdentity')"
+          cd installer
+          npm ci --ignore-scripts
+          npm run build:frontend
+          VOBOOST_TARGET_ARCHITECTURE=x64 node src/build/run-build-resources.ts
+          test -f src-tauri/resources-staged/adb-resources-v1.txt
+          CI=true VOBOOST_TARGET_ARCHITECTURE=x86_64 RELEASE_CATALOG_PUBLIC_KEY="$GITHUB_WORKSPACE/roots/product.pem" RESTORE_PUBLIC_KEY="$GITHUB_WORKSPACE/roots/restore.pem" NATIVE_EXECUTABLE_PUBLIC_KEY="$GITHUB_WORKSPACE/roots/native.pem" RUSTUP_TOOLCHAIN=1.98.0 npm run tauri -- build --ci
+          cd ..
+          test -f installer/src-tauri/target/release/voboost-installer.exe
+          for root in product native restore; do cargo run --manifest-path product/release/Cargo.toml --locked --offline -- verify-binary-embedded-root "roots/$root.pub" installer/src-tauri/target/release/voboost-installer.exe 1; done
+          node installer/src/build/offline-package.ts build-executable windows installer/src-tauri/target/release/voboost-installer.exe package-closure roots/product.pem voboost-installer-1.0.0-beta1.exe installer/src-tauri/resources/adb/win
+          node installer/src/build/offline-package.ts inspect-executable voboost-installer-1.0.0-beta1.exe
+          node --test installer/src/build/packaged-cli-contract.test.ts
+          node installer/src/build/packaged-cli-contract.ts desktop "$GITHUB_WORKSPACE/voboost-installer-1.0.0-beta1.exe" "$VOBOOST_PRODUCT_VERSION"
+          ./voboost-installer-1.0.0-beta1.exe --verify-package
+          ./voboost-installer-1.0.0-beta1.exe --licenses "$RUNNER_TEMP/windows-readable-licenses"
+          node --input-type=module - "$RUNNER_TEMP/windows-readable-licenses" <<'NODE'
+          import fs from 'node:fs';
+          import { WINDOWS_LICENSE_NAMES, verifyReadableLicenses } from './installer/src/build/readable-licenses.ts';
+          const root = process.argv[2];
+          if (JSON.stringify(fs.readdirSync(root).sort()) !== JSON.stringify([...WINDOWS_LICENSE_NAMES].sort())) throw new Error('Windows readable license inventory differs');
+          verifyReadableLicenses(root, WINDOWS_LICENSE_NAMES);
+          NODE
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with: {name: beta1-package-windows, path: voboost-installer-1.0.0-beta1.exe, if-no-files-found: error, retention-days: 14}
+
+  package-linux:
+    needs: [admission, prepare-installer, verify-final-signed]
+    runs-on: ubuntu-24.04
+    permissions: {actions: read, contents: read}
+    steps:
+      - name: Set up pinned Rust
+        uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # pinned
+        with: {toolchain: '1.98.0'}
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {ref: "${{ inputs.product_sha }}", path: product, persist-credentials: false}
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {repository: voboost/voboost-installer, ref: "${{ inputs.installer_sha }}", path: installer, persist-credentials: false}
+      - name: Checkout exact shared qconn source
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          repository: voboost/voboost-inject
+          ref: "${{ inputs.inject_sha }}"
+          path: voboost-inject
+          sparse-checkout: common/qconn
+          persist-credentials: false
+      - name: Admit exact shared qconn source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C voboost-inject rev-parse HEAD)" = "${{ inputs.inject_sha }}"
+          test -z "$(git -C voboost-inject status --porcelain=v1)"
+          test -f voboost-inject/common/qconn/Cargo.toml
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with: {node-version: '24.13.0', cache: npm, cache-dependency-path: installer/package-lock.json}
+      - name: Set up observation JDK17
+        uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+        with: {distribution: temurin, java-version: '17'}
+      - name: Prepare exact observation source input for executable embedding
+        shell: bash
+        run: |
+          node installer/src/build/observation-sdk.ts "$GITHUB_WORKSPACE/installer/build/observation-sdk"
+          echo "ANDROID_SDK_ROOT=$GITHUB_WORKSPACE/installer/build/observation-sdk" >> "$GITHUB_ENV"
+          ANDROID_SDK_ROOT="$GITHUB_WORKSPACE/installer/build/observation-sdk" node installer/src/build/observation-helper.ts
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with: {name: beta1-final-signed-closure, path: closure}
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with: {name: beta1-product-role-fixtures, path: fixtures/product}
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with: {name: beta1-native-role-fixture, path: fixtures/native}
+      - name: Build reopen and archive the exact Linux x86-64 standalone CLI without secrets
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y binutils bzip2 file strace
+          rustup toolchain install 1.98.0 --profile minimal
+          product/release/prepare-package-inputs.sh product closure fixtures roots package-closure
+          export VOBOOST_PRODUCT_VERSION="$(node -p 'JSON.parse(require("node:fs").readFileSync("package-closure/voboost.json", "utf8")).releaseIdentity')"
+          (cd installer && npm ci --ignore-scripts)
+          VOBOOST_STAGED_RESOURCES_DIRECTORY="$RUNNER_TEMP/linux-resources" VOBOOST_TARGET_ARCHITECTURE=x64 node installer/src/build/run-build-resources.ts
+          RELEASE_CATALOG_PUBLIC_KEY="$GITHUB_WORKSPACE/roots/product.pem" \
+          RESTORE_PUBLIC_KEY="$GITHUB_WORKSPACE/roots/restore.pem" \
+          NATIVE_EXECUTABLE_PUBLIC_KEY="$GITHUB_WORKSPACE/roots/native.pem" \
+          VOBOOST_STAGED_RESOURCES_DIRECTORY="$RUNNER_TEMP/linux-resources" \
+          RUSTUP_TOOLCHAIN=1.98.0 \
+            cargo build --release --locked --manifest-path installer/src-tauri/Cargo.toml --target x86_64-unknown-linux-gnu --no-default-features --features cli --bin voboost-installer-cli
+          base="$GITHUB_WORKSPACE/installer/src-tauri/target/x86_64-unknown-linux-gnu/release/voboost-installer-cli"
+          test -x "$base"
+          installer/scripts/verify-linux-cli.sh "$base"
+          for root in product native restore; do cargo run --manifest-path product/release/Cargo.toml --locked --offline -- verify-binary-embedded-root "roots/$root.pub" "$base" 1; done
+          cargo run --manifest-path product/release/Cargo.toml --locked --offline -- verify-product-closure package-closure roots/product.pub
+          node installer/src/build/offline-package.ts build-executable linux "$base" package-closure roots/product.pem "$RUNNER_TEMP/voboost-installer"
+          node installer/src/build/offline-package.ts inspect-executable "$RUNNER_TEMP/voboost-installer"
+          installer/scripts/verify-linux-cli.sh "$RUNNER_TEMP/voboost-installer"
+          node --test installer/src/build/packaged-cli-contract.test.ts
+          node installer/src/build/packaged-cli-contract.ts linux "$RUNNER_TEMP/voboost-installer" "$VOBOOST_PRODUCT_VERSION"
+          "$RUNNER_TEMP/voboost-installer" --verify-package
+          node installer/src/build/offline-package.ts linux-tar-bzip2 "$RUNNER_TEMP/voboost-installer" "$GITHUB_WORKSPACE/voboost-installer-1.0.0-beta1.tar.bz2"
+          mkdir "$RUNNER_TEMP/linux-tar-bzip2-reopen"
+          node --input-type=module -e 'import { inspectSingleEntryTarBzip2 } from "./installer/src/build/offline-package.ts"; inspectSingleEntryTarBzip2("voboost-installer-1.0.0-beta1.tar.bz2");'
+          tar -xjf voboost-installer-1.0.0-beta1.tar.bz2 -C "$RUNNER_TEMP/linux-tar-bzip2-reopen"
+          node --input-type=module - "$RUNNER_TEMP/linux-tar-bzip2-reopen" <<'NODE'
+          import fs from 'node:fs';
+          import { LINUX_LICENSE_NAMES, verifyReadableLicenses } from './installer/src/build/readable-licenses.ts';
+          const root = process.argv[2];
+          const expected = ['voboost-installer', ...LINUX_LICENSE_NAMES].sort();
+          if (JSON.stringify(fs.readdirSync(root).sort()) !== JSON.stringify(expected)) throw new Error('Linux release inventory differs');
+          verifyReadableLicenses(root, LINUX_LICENSE_NAMES);
+          NODE
+          test -x "$RUNNER_TEMP/linux-tar-bzip2-reopen/voboost-installer"
+          test "$(stat -c '%a' "$RUNNER_TEMP/linux-tar-bzip2-reopen/voboost-installer")" = 755
+          cmp "$RUNNER_TEMP/voboost-installer" "$RUNNER_TEMP/linux-tar-bzip2-reopen/voboost-installer"
+          test "$(sha256sum "$RUNNER_TEMP/voboost-installer" | cut -d ' ' -f1)" = "$(sha256sum "$RUNNER_TEMP/linux-tar-bzip2-reopen/voboost-installer" | cut -d ' ' -f1)"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with: {name: beta1-package-linux, path: voboost-installer-1.0.0-beta1.tar.bz2, if-no-files-found: error, retention-days: 14}
+
+  package-macos:
+    needs: [admission, prepare-installer, verify-final-signed]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {runner: macos-15, architecture: arm64}
+          - {runner: macos-15-intel, architecture: x86_64}
+    runs-on: ${{ matrix.runner }}
+    env: {MACOS_PACKAGE_ARCH: "${{ matrix.architecture }}"}
+    permissions: {actions: read, contents: read}
+    steps:
+      - name: Set up pinned Rust
+        uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # pinned
+        with: {toolchain: '1.98.0'}
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {ref: "${{ inputs.product_sha }}", path: product, submodules: recursive, persist-credentials: false}
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {repository: voboost/voboost-installer, ref: "${{ inputs.installer_sha }}", path: installer, submodules: recursive, persist-credentials: false}
+      - name: Checkout exact shared qconn source
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          repository: voboost/voboost-inject
+          ref: "${{ inputs.inject_sha }}"
+          path: voboost-inject
+          sparse-checkout: common/qconn
+          persist-credentials: false
+      - name: Admit exact shared qconn source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C voboost-inject rev-parse HEAD)" = "${{ inputs.inject_sha }}"
+          test -z "$(git -C voboost-inject status --porcelain=v1)"
+          test -f voboost-inject/common/qconn/Cargo.toml
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {repository: voboost/voboost-app, ref: "${{ inputs.app_sha }}", path: app, submodules: recursive, persist-credentials: false}
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {repository: voboost/voboost-agents, ref: "${{ inputs.agents_sha }}", path: agents, submodules: recursive, persist-credentials: false}
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {repository: voboost/voboost-inject, ref: "${{ inputs.inject_sha }}", path: inject, submodules: recursive, persist-credentials: false}
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {repository: voboost/voboost-logo, ref: "${{ inputs.logo_sha }}", path: logo, submodules: recursive, persist-credentials: false}
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {repository: voboost/voboost-codestyle, ref: "${{ inputs.codestyle_sha }}", path: codestyle, submodules: recursive, persist-credentials: false}
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with: {node-version: '24.13.0', cache: npm, cache-dependency-path: installer/package-lock.json}
+      - name: Set up observation JDK17
+        uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+        with: {distribution: temurin, java-version: '17'}
+      - name: Prepare exact observation source input for executable embedding
+        shell: bash
+        run: |
+          node installer/src/build/observation-sdk.ts "$GITHUB_WORKSPACE/installer/build/observation-sdk"
+          echo "ANDROID_SDK_ROOT=$GITHUB_WORKSPACE/installer/build/observation-sdk" >> "$GITHUB_ENV"
+          ANDROID_SDK_ROOT="$GITHUB_WORKSPACE/installer/build/observation-sdk" node installer/src/build/observation-helper.ts
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with: {name: beta1-final-signed-closure, path: closure}
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with: {name: beta1-product-role-fixtures, path: fixtures/product}
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with: {name: beta1-native-role-fixture, path: fixtures/native}
+      - name: Build and reopen the native architecture macOS DMG without secrets
+        run: |
+          set -euo pipefail
+          rustup toolchain install 1.98.0 --profile minimal
+          rustup target add --toolchain 1.98.0 aarch64-apple-darwin x86_64-apple-darwin
+          product/release/prepare-package-inputs.sh product closure fixtures roots package-closure
+          export VOBOOST_PRODUCT_VERSION="$(node -p 'JSON.parse(require("node:fs").readFileSync("package-closure/voboost.json", "utf8")).releaseIdentity')"
+          (cd installer && npm ci --ignore-scripts)
+          (cd installer && VOBOOST_PRODUCT_MANIFEST_PUBLIC_KEY_PEM="$GITHUB_WORKSPACE/roots/product.pem" VOBOOST_RESTORE_PUBLIC_KEY_PEM="$GITHUB_WORKSPACE/roots/restore.pem" VOBOOST_NATIVE_EXECUTABLE_PUBLIC_KEY_PEM="$GITHUB_WORKSPACE/roots/native.pem" VOBOOST_PRODUCT_MANIFEST_ROLE_FIXTURE_SIGNATURE="$GITHUB_WORKSPACE/fixtures/product/product.fixture.sig" VOBOOST_RESTORE_ROLE_FIXTURE_SIGNATURE="$GITHUB_WORKSPACE/fixtures/product/restore.fixture.sig" VOBOOST_NATIVE_EXECUTABLE_ROLE_FIXTURE_SIGNATURE="$GITHUB_WORKSPACE/fixtures/native/native-executable.fixture.sig" scripts/build-macos-universal-app.sh "$RUNNER_TEMP/universal/Voboost Installer.app")
+          for root in product native restore; do cargo run --manifest-path product/release/Cargo.toml --locked --offline -- verify-binary-embedded-root "roots/$root.pub" "$RUNNER_TEMP/universal/Voboost Installer.app/Contents/MacOS/voboost-installer" 2; done
+          node --test installer/src/build/packaged-cli-contract.test.ts
+          architecture="$MACOS_PACKAGE_ARCH"
+          test "$(uname -m)" = "$architecture"
+          dmg="voboost-installer-1.0.0-beta1-$architecture.dmg"
+          node installer/src/build/offline-package.ts build-mac-dmg "$RUNNER_TEMP/universal/Voboost Installer.app" package-closure roots/product.pem fixtures/product/product.fixture.sig fixtures/product/restore.fixture.sig fixtures/native/native-executable.fixture.sig "$dmg" "$architecture"
+          cli_mount="$GITHUB_WORKSPACE/build/packaged-cli-contract-mount-$architecture"
+          mkdir -p "$cli_mount"
+          hdiutil attach -readonly -nobrowse -mountpoint "$cli_mount" "$dmg"
+          trap 'hdiutil detach "$cli_mount"' EXIT
+          node installer/src/build/packaged-cli-contract.ts desktop "$cli_mount/voboost-installer" "$VOBOOST_PRODUCT_VERSION"
+          hdiutil detach "$cli_mount"
+          trap - EXIT
+          hdiutil verify "$dmg"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with: {name: "beta1-package-macos-${{ matrix.architecture }}", path: "voboost-installer-1.0.0-beta1-${{ matrix.architecture }}.dmg", if-no-files-found: error, retention-days: 14}
+  package-aggregate:
+    needs: [package-windows, package-linux, package-macos]
+    runs-on: ubuntu-24.04
+    permissions: {actions: read, contents: read}
+    outputs:
+      artifact_id: ${{ steps.upload.outputs.artifact-id }}
+      artifact_digest: ${{ steps.upload.outputs.artifact-digest }}
+      payload_sha256: ${{ steps.inventory.outputs.payload_sha256 }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {ref: "${{ inputs.product_sha }}", persist-credentials: false}
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {repository: voboost/voboost-installer, ref: "${{ inputs.installer_sha }}", path: installer, persist-credentials: false}
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with: {node-version: '24.13.0'}
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with: {name: beta1-package-windows, path: packages}
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with: {name: beta1-package-linux, path: packages}
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with: {name: beta1-package-macos-arm64, path: packages}
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with: {name: beta1-package-macos-x86_64, path: packages}
+      - id: inventory
+        name: Verify and aggregate exact package inventory
+        run: |
+          set -euo pipefail
+          test "$(find packages -mindepth 1 -maxdepth 1 -type f | wc -l | tr -d ' ')" = 4
+          test "$(find packages -mindepth 1 -maxdepth 1 -type f -exec basename {} \; | sort | tr '\n' ' ')" = "voboost-installer-1.0.0-beta1-arm64.dmg voboost-installer-1.0.0-beta1-x86_64.dmg voboost-installer-1.0.0-beta1.exe voboost-installer-1.0.0-beta1.tar.bz2 "
+          mkdir empty
+          node tools/beta1-evidence.ts inventory empty packages package-inventory.json
+          payload_sha=$(tar --sort=name --mtime='UTC 1970-01-01' --owner=0 --group=0 --numeric-owner -C packages -cf - . | sha256sum | cut -d ' ' -f1)
+          echo "payload_sha256=$payload_sha" >> "$GITHUB_OUTPUT"
+          file packages/voboost-installer-1.0.0-beta1.exe | grep -Eq 'PE32\+.*x86-64'
+          node --input-type=module -e 'import { inspectSingleEntryTarBzip2 } from "./installer/src/build/offline-package.ts"; inspectSingleEntryTarBzip2("packages/voboost-installer-1.0.0-beta1.tar.bz2");'
+          sha256sum packages/* > package-SHA256SUMS
+      - id: upload
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with: {name: beta1-installer-packages, path: packages/, if-no-files-found: error, retention-days: 14}
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: beta1-installer-package-verification
+          path: |
+            package-inventory.json
+            package-SHA256SUMS
+          if-no-files-found: error
+          retention-days: 14

@@ -1,0 +1,9 @@
+gradle.projectsEvaluated {
+    allprojects {
+        tasks.withType(org.gradle.api.tasks.testing.Test).configureEach {
+            systemProperty 'roborazzi.test.record', 'false'
+            systemProperty 'roborazzi.test.compare', 'true'
+            systemProperty 'roborazzi.test.verify', 'true'
+        }
+    }
+}

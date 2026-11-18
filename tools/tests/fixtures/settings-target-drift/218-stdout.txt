@@ -1,0 +1,2 @@
+[17:06:16.839 INFO] Connecting to the head unit over USB
+[17:06:17.042 INFO] Connected to the head unit: emulator-5562

@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://voboost.ru/schemas/local-delivery-evidence.schema.json",
+  "title": "Voboost local delivery evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "releaseIdentity", "producer", "product", "sources", "artifactSet", "artifactSetSha256", "localBuild", "vehicle", "uninstall", "cleanState"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "releaseIdentity": { "const": "1.0.0-beta1" },
+    "producer": { "$ref": "#/$defs/producer" },
+    "product": { "$ref": "#/$defs/product" },
+    "sources": { "$ref": "#/$defs/sources" },
+    "artifactSet": { "$ref": "#/$defs/artifactSet" },
+    "artifactSetSha256": { "$ref": "#/$defs/sha256" },
+    "localBuild": { "$ref": "#/$defs/receipt" },
+    "vehicle": { "$ref": "#/$defs/vehicleReceipt" },
+    "uninstall": { "$ref": "#/$defs/receipt" },
+    "cleanState": { "$ref": "#/$defs/receipt" }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "sha1": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "positiveStringInteger": { "type": "string", "pattern": "^[1-9][0-9]*$" },
+    "producer": {
+      "type": "object", "additionalProperties": false,
+      "required": ["repository", "workflowPath", "workflowCommitSha", "workflowBlobSha", "ref", "runId", "runAttempt", "job", "artifactName"],
+      "properties": {
+        "repository": { "const": "voboost/voboost" },
+        "workflowPath": { "const": ".github/workflows/beta1-evidence-ingest.yml" },
+        "workflowCommitSha": { "$ref": "#/$defs/sha1" },
+        "workflowBlobSha": { "$ref": "#/$defs/sha1" },
+        "ref": { "const": "refs/heads/main" },
+        "runId": { "$ref": "#/$defs/positiveStringInteger" },
+        "runAttempt": { "$ref": "#/$defs/positiveStringInteger" },
+        "job": { "const": "ingest" },
+        "artifactName": { "const": "beta1-local-delivery-evidence" }
+      }
+    },
+    "source": {
+      "type": "object", "additionalProperties": false, "required": ["commit", "tree"],
+      "properties": { "commit": { "$ref": "#/$defs/sha1" }, "tree": { "$ref": "#/$defs/sha1" } }
+    },
+    "product": {
+      "type": "object", "additionalProperties": false,
+      "required": ["commit", "tree", "workflowBlobSha", "sourceDefinitionSha256", "trustDocumentSha256"],
+      "properties": {
+        "commit": { "$ref": "#/$defs/sha1" }, "tree": { "$ref": "#/$defs/sha1" },
+        "workflowBlobSha": { "$ref": "#/$defs/sha1" }, "sourceDefinitionSha256": { "$ref": "#/$defs/sha256" },
+        "trustDocumentSha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "sources": {
+      "type": "object", "additionalProperties": false,
+      "required": ["app", "agents", "inject", "installer", "logo"],
+      "properties": {
+        "app": { "$ref": "#/$defs/source" }, "agents": { "$ref": "#/$defs/source" },
+        "inject": { "$ref": "#/$defs/source" }, "installer": { "$ref": "#/$defs/source" },
+        "license": { "$ref": "#/$defs/source" }, "logo": { "$ref": "#/$defs/source" }
+      }
+    },
+    "artifactSet": {
+      "type": "object", "additionalProperties": false, "required": ["schemaVersion", "artifacts"],
+      "properties": {
+        "schemaVersion": { "const": 1 },
+        "artifacts": { "type": "array", "minItems": 1, "maxItems": 1024, "items": { "$ref": "#/$defs/artifact" } }
+      }
+    },
+    "artifact": {
+      "type": "object", "additionalProperties": false, "required": ["component", "file", "size", "sha256"],
+      "properties": {
+        "component": { "enum": ["product", "app", "agents", "inject", "installer", "license", "logo"] },
+        "file": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$" },
+        "size": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "receipt": {
+      "type": "object", "additionalProperties": false, "required": ["status", "receiptSha256", "completedAt", "nonce", "sequence", "artifactSetSha256", "previousReceiptSha256"],
+      "properties": {
+        "status": { "const": "passed" }, "receiptSha256": { "$ref": "#/$defs/sha256" },
+        "completedAt": { "type": "string", "format": "date-time" }, "nonce": { "$ref": "#/$defs/sha256" },
+        "sequence": { "type": "integer", "minimum": 1, "maximum": 4 }, "artifactSetSha256": { "$ref": "#/$defs/sha256" },
+        "previousReceiptSha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "vehicleReceipt": {
+      "type": "object", "additionalProperties": false,
+      "required": ["status", "receiptSha256", "completedAt", "nonce", "sequence", "artifactSetSha256", "previousReceiptSha256", "vehicleIdentitySha256", "firmware"],
+      "properties": {
+        "status": { "const": "passed" }, "receiptSha256": { "$ref": "#/$defs/sha256" },
+        "completedAt": { "type": "string", "format": "date-time" }, "nonce": { "$ref": "#/$defs/sha256" },
+        "sequence": { "type": "integer", "minimum": 1, "maximum": 4 }, "artifactSetSha256": { "$ref": "#/$defs/sha256" },
+        "previousReceiptSha256": { "$ref": "#/$defs/sha256" },
+        "vehicleIdentitySha256": { "$ref": "#/$defs/sha256" }, "firmware": { "type": "string", "minLength": 1, "maxLength": 256 }
+      }
+    }
+  }
+}

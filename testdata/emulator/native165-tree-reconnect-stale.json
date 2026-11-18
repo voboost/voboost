@@ -1,0 +1,1 @@
+{"elapsed_ms":273.349,"error":{"code":"TREE_STALE","message":"TREE_STALE: session or boot changed while reconnecting observer","outcome":"not_started","retryable":false},"ok":false,"operation_id":"11539eb14586db7ff8080ae967a0dada","request_id":"706bef99-c389-47ad-b78b-3173dc2098e6","schema":1}

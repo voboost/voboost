@@ -1,0 +1,25 @@
+{
+  "revision": 3,
+  "state": {
+    "sequence": 3,
+    "raw_oem": {
+      "sound_enable": 1
+    }
+  },
+  "deliveries": {
+    "qnx": {
+      "generation": 2,
+      "vehicle": {
+        "sequence": 3,
+        "status": "queued"
+      },
+      "presentation": {
+        "after_timestamp_ns": 18245363659250,
+        "generation": 2,
+        "source": "host_observed_original_MCU_ACK",
+        "status": "vehicle_acknowledged",
+        "vehicle_revision": 2
+      }
+    }
+  }
+}

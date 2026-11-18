@@ -1,0 +1,1367 @@
+{
+  "schemaVersion": 1,
+  "softwareContract": "1.0.0-beta1",
+  "copy": {
+    "languages": {
+      "ru": {
+        "vehicleGroup": "Автомобиль",
+        "checkboxes": [
+          {
+            "description": "Убирает лишние промежутки между русскими буквами в меню и навигации.",
+            "id": "font-cyrillic",
+            "title": "Кириллица в штатных шрифтах"
+          },
+          {
+            "description": "Заменяет китайскую раскладку русской, сохраняя английскую.",
+            "id": "keyboard-ru",
+            "title": "Русская клавиатура"
+          },
+          {
+            "description": "Оставляет в клавиатуре только английскую раскладку.",
+            "id": "keyboard-en",
+            "title": "Английская клавиатура"
+          },
+          {
+            "description": "Показывает ваши приложения на главном экране, сохраняет порядок значков и управляет окнами приложений.",
+            "id": "launcher",
+            "title": "Лаунчер"
+          },
+          {
+            "description": "Сохраняет полные номера телефонов и пробелы между именем и фамилией.",
+            "id": "phone",
+            "title": "Контакты Bluetooth"
+          },
+          {
+            "description": "Интегрирует поддерживаемые сторонние медиаприложения со штатным медиаинтерфейсом.",
+            "id": "media-apps",
+            "title": "Медиаприложения"
+          },
+          {
+            "description": "Показывает штатный медиапопап для сторонних приложений.",
+            "id": "media-popup-external-apps",
+            "title": "Попап стороннего медиа"
+          },
+          {
+            "description": "Переключает медиаприложения органами управления на руле.",
+            "id": "steering-media-app-switcher",
+            "title": "Переключение медиаприложений на руле"
+          },
+          {
+            "description": "Направляет команды медиа с руля в активную медиасессию.",
+            "id": "steering-media-session",
+            "title": "Медиасессия на руле"
+          },
+          {
+            "description": "Добавляет вход в штатное системное инженерное меню без пароля.",
+            "id": "settings-engineering-menu",
+            "title": "Инженерное меню без пароля"
+          },
+          {
+            "description": "Пропускает штатный экран активации при запуске.",
+            "id": "login-activation-skip",
+            "title": "Пропуск экрана активации"
+          },
+          {
+            "description": "Машина не включает ДВС, пока заряд батареи не снизится до 10% или скорость резко не увеличится. Запоминает ваш выбор и восстанавливает режим при запуске машины и возврате в электрорежим. Если выключить режим вручную, он останется выключенным.",
+            "id": "vehicle-drive-forced-ev",
+            "title": "Принудительное электро"
+          },
+          {
+            "description": "Выключите звук «летающей тарелки» в настройках машины. Voboost сохранит ваш выбор при следующем запуске. Этот звук слышен при движении на низкой скорости. Когда он выключен, на приборке водителя появляется жёлтый значок в левом верхнем углу.",
+            "id": "vehicle-drive-pedestrian-warning",
+            "title": "Отключить звук предупреждения пешеходов"
+          },
+          {
+            "description": "Показывает штатную настройку автоматического движения дисплеев.",
+            "id": "vehicle-display-auto-lift",
+            "title": "Автоматический подъём дисплеев"
+          },
+          {
+            "description": "Настраивает штатный выход из Outing при достижении ограничения скорости.",
+            "id": "vehicle-drive-outing",
+            "title": "Поведение режима движения Outing"
+          },
+          {
+            "description": "Добавляет русский язык в штатный выбор языка. Непереведённые тексты остаются на английском.",
+            "id": "i18n-ru",
+            "title": "Русский язык"
+          }
+        ],
+        "uninstall": {
+          "buttonText": "Удалить",
+          "cancelLabel": "Отмена",
+          "confirmLabel": "Удалить",
+          "description": "Полностью удалить Voboost. После подтверждения ничего не нажимайте и дождитесь одного завершающего перезапуска мультимедиа.",
+          "retryableError": "Не удалось открыть подтверждение Voboost или проверить его результат. Нажмите «Удалить Voboost», чтобы повторить попытку.",
+          "started": "Удаление запущено. Очистка продолжится автоматически. Ничего не нажимайте и дождитесь одного завершающего перезапуска мультимедиа.",
+          "awaitingConfirmation": "Открыто подтверждение Voboost. Подтвердите или отмените удаление в нём.",
+          "group": "Удаление"
+        },
+        "startup": [
+          {
+            "description": "При следующем запуске машины Voboost будет работать с видимой вкладкой настроек.",
+            "label": "Нормально",
+            "value": "interface"
+          },
+          {
+            "description": "При следующем запуске машины Voboost будет работать, но вкладка будет скрыта. Чтобы открыть её, несколько раз быстро нажмите на версию TBOX в разделе «Система».",
+            "label": "Скрытно",
+            "value": "hidden"
+          },
+          {
+            "description": "При выборе «Не запускать» Voboost не будет запускаться при старте машины, пока вы не измените эту настройку на «Нормально» или «Скрытно». Для этого подключите компьютер и используйте voboost-installer.",
+            "label": "Не запускать",
+            "value": "none"
+          }
+        ],
+        "startupTitle": "Запуск",
+        "layoutTopology": {
+          "checkboxSwitches": [
+            {
+              "section": "vehicle",
+              "key": "vehicle-drive-forced-ev"
+            },
+            {
+              "section": "vehicle",
+              "key": "vehicle-drive-pedestrian-warning"
+            },
+            {
+              "section": "vehicle",
+              "key": "vehicle-display-auto-lift"
+            },
+            {
+              "section": "vehicle",
+              "key": "vehicle-drive-outing"
+            },
+            {
+              "section": "interface",
+              "key": "font-cyrillic"
+            },
+            {
+              "section": "interface",
+              "key": "keyboard-ru"
+            },
+            {
+              "section": "interface",
+              "key": "keyboard-en"
+            },
+            {
+              "section": "interface",
+              "key": "launcher"
+            },
+            {
+              "section": "interface",
+              "key": "phone"
+            },
+            {
+              "section": "interface",
+              "key": "media-apps"
+            },
+            {
+              "section": "interface",
+              "key": "media-popup-external-apps"
+            },
+            {
+              "section": "interface",
+              "key": "steering-media-app-switcher"
+            },
+            {
+              "section": "interface",
+              "key": "steering-media-session"
+            },
+            {
+              "section": "interface",
+              "key": "settings-engineering-menu"
+            },
+            {
+              "section": "interface",
+              "key": "login-activation-skip"
+            },
+            {
+              "section": "interface",
+              "key": "i18n-ru"
+            }
+          ],
+          "sectionBodies": [
+            {
+              "index": 0,
+              "key": "startup"
+            },
+            {
+              "index": 1,
+              "key": "vehicle"
+            },
+            {
+              "index": 2,
+              "key": "interface"
+            },
+            {
+              "index": 3,
+              "key": "uninstall"
+            }
+          ],
+          "dialogTargets": [
+            {
+              "role": "dialog.confirm",
+              "value": "confirm",
+              "class": "com.pateo.material.widgets.BoldTextView"
+            },
+            {
+              "role": "dialog.cancel",
+              "value": "cancel",
+              "class": "com.pateo.material.widgets.BoldTextView"
+            }
+          ],
+          "panelTargets": [
+            {
+              "role": "section.startup.title",
+              "value": "startup",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "startup.title",
+              "value": "startup",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "startup",
+              "value": "interface",
+              "class": "com.pateo.material.widgets.BoldRadioButton"
+            },
+            {
+              "role": "startup",
+              "value": "hidden",
+              "class": "com.pateo.material.widgets.BoldRadioButton"
+            },
+            {
+              "role": "startup",
+              "value": "none",
+              "class": "com.pateo.material.widgets.BoldRadioButton"
+            },
+            {
+              "role": "startup.description",
+              "value": "startup",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "section.vehicle.title",
+              "value": "vehicle",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.vehicle-drive-forced-ev.title",
+              "value": "vehicle-drive-forced-ev",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.vehicle-drive-forced-ev.description",
+              "value": "vehicle-drive-forced-ev",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.vehicle-drive-pedestrian-warning.title",
+              "value": "vehicle-drive-pedestrian-warning",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.vehicle-drive-pedestrian-warning.description",
+              "value": "vehicle-drive-pedestrian-warning",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.vehicle-display-auto-lift.title",
+              "value": "vehicle-display-auto-lift",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.vehicle-display-auto-lift.description",
+              "value": "vehicle-display-auto-lift",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.vehicle-drive-outing.title",
+              "value": "vehicle-drive-outing",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.vehicle-drive-outing.description",
+              "value": "vehicle-drive-outing",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "section.interface.title",
+              "value": "interface",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.font-cyrillic.title",
+              "value": "font-cyrillic",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.font-cyrillic.description",
+              "value": "font-cyrillic",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.keyboard-ru.title",
+              "value": "keyboard-ru",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.keyboard-ru.description",
+              "value": "keyboard-ru",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.keyboard-en.title",
+              "value": "keyboard-en",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.keyboard-en.description",
+              "value": "keyboard-en",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.launcher.title",
+              "value": "launcher",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.launcher.description",
+              "value": "launcher",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.phone.title",
+              "value": "phone",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.phone.description",
+              "value": "phone",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.media-apps.title",
+              "value": "media-apps",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.media-apps.description",
+              "value": "media-apps",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.media-popup-external-apps.title",
+              "value": "media-popup-external-apps",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.media-popup-external-apps.description",
+              "value": "media-popup-external-apps",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.steering-media-app-switcher.title",
+              "value": "steering-media-app-switcher",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.steering-media-app-switcher.description",
+              "value": "steering-media-app-switcher",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.steering-media-session.title",
+              "value": "steering-media-session",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.steering-media-session.description",
+              "value": "steering-media-session",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.settings-engineering-menu.title",
+              "value": "settings-engineering-menu",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.settings-engineering-menu.description",
+              "value": "settings-engineering-menu",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.login-activation-skip.title",
+              "value": "login-activation-skip",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.login-activation-skip.description",
+              "value": "login-activation-skip",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.i18n-ru.title",
+              "value": "i18n-ru",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.i18n-ru.description",
+              "value": "i18n-ru",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "section.uninstall.title",
+              "value": "uninstall",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "uninstall.action",
+              "value": "uninstall",
+              "class": "android.widget.Button"
+            },
+            {
+              "role": "uninstall.status",
+              "value": "status",
+              "class": "android.widget.TextView"
+            }
+          ],
+          "sections": [
+            "startup",
+            "vehicle",
+            "interface",
+            "uninstall"
+          ]
+        },
+        "commonTitle": "Voboost 1.0.0-beta1",
+        "interfaceGroup": "Интерфейс",
+        "errors": {
+          "unknownApplicabilityWarning": "Совместимость не подтверждена. Ознакомьтесь с предупреждением и повторите включение, чтобы продолжить.",
+          "mutationFailure": "Режим запуска: сохранение настройки — не удалось передать запрос службе. Повторите попытку."
+        },
+        "unstableGroup": "Нестабильные"
+      },
+      "en": {
+        "vehicleGroup": "Vehicle",
+        "checkboxes": [
+          {
+            "description": "Removes wide gaps between Cyrillic letters in menus and navigation.",
+            "id": "font-cyrillic",
+            "title": "Cyrillic in OEM fonts"
+          },
+          {
+            "description": "Replaces Chinese with Russian and keeps English available.",
+            "id": "keyboard-ru",
+            "title": "Russian keyboard"
+          },
+          {
+            "description": "Keeps only the English keyboard layout.",
+            "id": "keyboard-en",
+            "title": "English keyboard"
+          },
+          {
+            "description": "Shows your apps on the home screen, keeps their icon order and manages application windows.",
+            "id": "launcher",
+            "title": "Launcher"
+          },
+          {
+            "description": "Keeps complete phone numbers and spaces between first and last names.",
+            "id": "phone",
+            "title": "Bluetooth contacts"
+          },
+          {
+            "description": "Integrates supported third-party media applications with the stock media interface.",
+            "id": "media-apps",
+            "title": "Media applications"
+          },
+          {
+            "description": "Shows the stock media popup for third-party applications.",
+            "id": "media-popup-external-apps",
+            "title": "External media popup"
+          },
+          {
+            "description": "Uses steering-wheel controls to switch between media applications.",
+            "id": "steering-media-app-switcher",
+            "title": "Steering-wheel media app switcher"
+          },
+          {
+            "description": "Routes steering-wheel media controls to the active media session.",
+            "id": "steering-media-session",
+            "title": "Steering-wheel media session"
+          },
+          {
+            "description": "Adds access to the stock system engineering menu without a password.",
+            "id": "settings-engineering-menu",
+            "title": "Engineering menu without password"
+          },
+          {
+            "description": "Skips the stock activation screen during startup.",
+            "id": "login-activation-skip",
+            "title": "Skip activation screen"
+          },
+          {
+            "description": "In Forced EV mode, the vehicle will not start the combustion engine until the battery charge drops to 10% or the vehicle accelerates sharply. Voboost remembers your choice and restores it when the vehicle starts and when you return to electric mode. If you turn this mode off, Voboost will not turn it back on.",
+            "id": "vehicle-drive-forced-ev",
+            "title": "Forced EV mode"
+          },
+          {
+            "description": "Turn off the low-speed “flying saucer” sound in the vehicle settings. Voboost will keep it off after you restart the vehicle. A yellow icon at the top left of the driver display shows that the sound is disabled.",
+            "id": "vehicle-drive-pedestrian-warning",
+            "title": "Disable pedestrian warning sound"
+          },
+          {
+            "description": "Shows the stock automatic display movement setting.",
+            "id": "vehicle-display-auto-lift",
+            "title": "Automatic display lift"
+          },
+          {
+            "description": "Configures the stock speed-based exit from Outing.",
+            "id": "vehicle-drive-outing",
+            "title": "Outing drive-mode behavior"
+          },
+          {
+            "description": "Adds Russian to the system language selection. Untranslated text uses English.",
+            "id": "i18n-ru",
+            "title": "Russian language"
+          }
+        ],
+        "uninstall": {
+          "buttonText": "Uninstall",
+          "cancelLabel": "Cancel",
+          "confirmLabel": "Remove",
+          "description": "Completely remove Voboost. After confirming, do not interact with the multimedia system and wait for one final multimedia reboot.",
+          "retryableError": "The Voboost confirmation could not be opened or its result could not be verified. Select Uninstall Voboost to retry.",
+          "started": "Removal started. Cleanup will continue automatically. Do not interact with the multimedia system; wait for one final reboot.",
+          "awaitingConfirmation": "Voboost confirmation is open. Confirm or cancel removal there.",
+          "group": "Uninstall"
+        },
+        "startup": [
+          {
+            "description": "From the next vehicle start, Voboost will work with its Settings tab visible.",
+            "label": "Normal",
+            "value": "interface"
+          },
+          {
+            "description": "From the next vehicle start, Voboost will work with its Settings tab hidden. To open it, tap the TBOX version several times quickly under System.",
+            "label": "Hidden",
+            "value": "hidden"
+          },
+          {
+            "description": "Voboost will not start with the vehicle until you change this setting to Normal or Hidden. Connect a computer and use voboost-installer to change it.",
+            "label": "Do not start",
+            "value": "none"
+          }
+        ],
+        "startupTitle": "Startup",
+        "layoutTopology": {
+          "checkboxSwitches": [
+            {
+              "section": "vehicle",
+              "key": "vehicle-drive-forced-ev"
+            },
+            {
+              "section": "vehicle",
+              "key": "vehicle-drive-pedestrian-warning"
+            },
+            {
+              "section": "vehicle",
+              "key": "vehicle-display-auto-lift"
+            },
+            {
+              "section": "vehicle",
+              "key": "vehicle-drive-outing"
+            },
+            {
+              "section": "interface",
+              "key": "font-cyrillic"
+            },
+            {
+              "section": "interface",
+              "key": "keyboard-ru"
+            },
+            {
+              "section": "interface",
+              "key": "keyboard-en"
+            },
+            {
+              "section": "interface",
+              "key": "launcher"
+            },
+            {
+              "section": "interface",
+              "key": "phone"
+            },
+            {
+              "section": "interface",
+              "key": "media-apps"
+            },
+            {
+              "section": "interface",
+              "key": "media-popup-external-apps"
+            },
+            {
+              "section": "interface",
+              "key": "steering-media-app-switcher"
+            },
+            {
+              "section": "interface",
+              "key": "steering-media-session"
+            },
+            {
+              "section": "interface",
+              "key": "settings-engineering-menu"
+            },
+            {
+              "section": "interface",
+              "key": "login-activation-skip"
+            },
+            {
+              "section": "interface",
+              "key": "i18n-ru"
+            }
+          ],
+          "sectionBodies": [
+            {
+              "index": 0,
+              "key": "startup"
+            },
+            {
+              "index": 1,
+              "key": "vehicle"
+            },
+            {
+              "index": 2,
+              "key": "interface"
+            },
+            {
+              "index": 3,
+              "key": "uninstall"
+            }
+          ],
+          "dialogTargets": [
+            {
+              "role": "dialog.confirm",
+              "value": "confirm",
+              "class": "com.pateo.material.widgets.BoldTextView"
+            },
+            {
+              "role": "dialog.cancel",
+              "value": "cancel",
+              "class": "com.pateo.material.widgets.BoldTextView"
+            }
+          ],
+          "panelTargets": [
+            {
+              "role": "section.startup.title",
+              "value": "startup",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "startup.title",
+              "value": "startup",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "startup",
+              "value": "interface",
+              "class": "com.pateo.material.widgets.BoldRadioButton"
+            },
+            {
+              "role": "startup",
+              "value": "hidden",
+              "class": "com.pateo.material.widgets.BoldRadioButton"
+            },
+            {
+              "role": "startup",
+              "value": "none",
+              "class": "com.pateo.material.widgets.BoldRadioButton"
+            },
+            {
+              "role": "startup.description",
+              "value": "startup",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "section.vehicle.title",
+              "value": "vehicle",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.vehicle-drive-forced-ev.title",
+              "value": "vehicle-drive-forced-ev",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.vehicle-drive-forced-ev.description",
+              "value": "vehicle-drive-forced-ev",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.vehicle-drive-pedestrian-warning.title",
+              "value": "vehicle-drive-pedestrian-warning",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.vehicle-drive-pedestrian-warning.description",
+              "value": "vehicle-drive-pedestrian-warning",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.vehicle-display-auto-lift.title",
+              "value": "vehicle-display-auto-lift",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.vehicle-display-auto-lift.description",
+              "value": "vehicle-display-auto-lift",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.vehicle-drive-outing.title",
+              "value": "vehicle-drive-outing",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.vehicle-drive-outing.description",
+              "value": "vehicle-drive-outing",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "section.interface.title",
+              "value": "interface",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.font-cyrillic.title",
+              "value": "font-cyrillic",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.font-cyrillic.description",
+              "value": "font-cyrillic",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.keyboard-ru.title",
+              "value": "keyboard-ru",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.keyboard-ru.description",
+              "value": "keyboard-ru",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.keyboard-en.title",
+              "value": "keyboard-en",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.keyboard-en.description",
+              "value": "keyboard-en",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.launcher.title",
+              "value": "launcher",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.launcher.description",
+              "value": "launcher",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.phone.title",
+              "value": "phone",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.phone.description",
+              "value": "phone",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.media-apps.title",
+              "value": "media-apps",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.media-apps.description",
+              "value": "media-apps",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.media-popup-external-apps.title",
+              "value": "media-popup-external-apps",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.media-popup-external-apps.description",
+              "value": "media-popup-external-apps",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.steering-media-app-switcher.title",
+              "value": "steering-media-app-switcher",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.steering-media-app-switcher.description",
+              "value": "steering-media-app-switcher",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.steering-media-session.title",
+              "value": "steering-media-session",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.steering-media-session.description",
+              "value": "steering-media-session",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.settings-engineering-menu.title",
+              "value": "settings-engineering-menu",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.settings-engineering-menu.description",
+              "value": "settings-engineering-menu",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.login-activation-skip.title",
+              "value": "login-activation-skip",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.login-activation-skip.description",
+              "value": "login-activation-skip",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.i18n-ru.title",
+              "value": "i18n-ru",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.i18n-ru.description",
+              "value": "i18n-ru",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "section.uninstall.title",
+              "value": "uninstall",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "uninstall.action",
+              "value": "uninstall",
+              "class": "android.widget.Button"
+            },
+            {
+              "role": "uninstall.status",
+              "value": "status",
+              "class": "android.widget.TextView"
+            }
+          ],
+          "sections": [
+            "startup",
+            "vehicle",
+            "interface",
+            "uninstall"
+          ]
+        },
+        "commonTitle": "Voboost 1.0.0-beta1",
+        "interfaceGroup": "Interface",
+        "errors": {
+          "unknownApplicabilityWarning": "Compatibility is unverified. Review this warning and enable again to proceed.",
+          "mutationFailure": "Startup mode: save setting — the request could not be sent to the service. Try again."
+        },
+        "unstableGroup": "Unstable"
+      },
+      "zh": {
+        "vehicleGroup": "车辆",
+        "checkboxes": [
+          {
+            "description": "消除菜单和导航中俄文字母间过大的空隙。",
+            "id": "font-cyrillic",
+            "title": "原厂字体中的西里尔字母"
+          },
+          {
+            "description": "用俄语替换中文键盘布局，并保留英语。",
+            "id": "keyboard-ru",
+            "title": "俄语键盘"
+          },
+          {
+            "description": "键盘仅保留英语布局。",
+            "id": "keyboard-en",
+            "title": "英语键盘"
+          },
+          {
+            "description": "在主屏幕显示您的应用、保留图标顺序并管理应用窗口。",
+            "id": "launcher",
+            "title": "启动器"
+          },
+          {
+            "description": "保留完整电话号码以及名字与姓氏之间的空格。",
+            "id": "phone",
+            "title": "蓝牙联系人"
+          },
+          {
+            "description": "将支持的第三方媒体应用程序集成到原车媒体界面。",
+            "id": "media-apps",
+            "title": "媒体应用"
+          },
+          {
+            "description": "为第三方应用显示原车媒体弹窗。",
+            "id": "media-popup-external-apps",
+            "title": "第三方媒体弹窗"
+          },
+          {
+            "description": "使用方向盘控制键切换媒体应用。",
+            "id": "steering-media-app-switcher",
+            "title": "方向盘切换媒体应用"
+          },
+          {
+            "description": "将方向盘媒体控制命令发送到当前媒体会话。",
+            "id": "steering-media-session",
+            "title": "方向盘媒体会话"
+          },
+          {
+            "description": "连续点击版本信息五次后，无需输入密码即可进入原厂工程菜单。其他受保护的操作保持不变。",
+            "id": "settings-engineering-menu",
+            "title": "免密码工程菜单"
+          },
+          {
+            "description": "启动时跳过原厂激活界面，不改变车辆激活状态。",
+            "id": "login-activation-skip",
+            "title": "跳过激活界面"
+          },
+          {
+            "description": "在强制纯电模式下，车辆不会启动发动机，直到电池电量降至 10% 或车辆急加速。Voboost 会记住您的选择，并在车辆启动及重新切换到纯电模式时恢复该选择。如果您关闭此模式，Voboost 不会再次开启它。",
+            "id": "vehicle-drive-forced-ev",
+            "title": "强制纯电模式"
+          },
+          {
+            "description": "在车辆设置中关闭低速行驶时的“飞碟”提示音。Voboost 会在下次启动车辆时保持关闭。驾驶员仪表左上角的黄色图标表示提示音已关闭。",
+            "id": "vehicle-drive-pedestrian-warning",
+            "title": "关闭行人提示音"
+          },
+          {
+            "description": "显示原车显示屏自动升降设置。",
+            "id": "vehicle-display-auto-lift",
+            "title": "显示屏自动升降"
+          },
+          {
+            "description": "配置达到限速时退出郊游模式的原厂行为。",
+            "id": "vehicle-drive-outing",
+            "title": "郊游驾驶模式行为"
+          },
+          {
+            "description": "在系统语言选项中添加俄语，未翻译的内容使用英语。",
+            "id": "i18n-ru",
+            "title": "俄语"
+          }
+        ],
+        "uninstall": {
+          "buttonText": "卸载",
+          "cancelLabel": "取消",
+          "confirmLabel": "卸载",
+          "description": "完全卸载 Voboost。确认后请勿操作车机，等待最后一次车机重启。",
+          "retryableError": "无法打开 Voboost 确认对话框，或无法验证结果。点击“卸载 Voboost”重试。",
+          "started": "卸载已开始，清理将自动继续。请勿操作车机，等待最后一次重启。",
+          "awaitingConfirmation": "Voboost 确认对话框已打开。请在其中确认或取消卸载。",
+          "group": "卸载"
+        },
+        "startup": [
+          {
+            "description": "下次启动车辆后，Voboost 正常运行，设置标签页始终可见。",
+            "label": "正常启动",
+            "value": "interface"
+          },
+          {
+            "description": "下次启动车辆后，Voboost 正常运行，但设置标签页隐藏。在“系统”中连续快速点击 TBOX 版本即可打开。",
+            "label": "隐藏启动",
+            "value": "hidden"
+          },
+          {
+            "description": "选择“不启动”后，Voboost 不会随车辆启动。连接电脑，通过 voboost-installer 将此设置改为“正常启动”或“隐藏启动”，即可重新开启。",
+            "label": "不启动",
+            "value": "none"
+          }
+        ],
+        "startupTitle": "启动方式",
+        "layoutTopology": {
+          "checkboxSwitches": [
+            {
+              "section": "vehicle",
+              "key": "vehicle-drive-forced-ev"
+            },
+            {
+              "section": "vehicle",
+              "key": "vehicle-drive-pedestrian-warning"
+            },
+            {
+              "section": "vehicle",
+              "key": "vehicle-display-auto-lift"
+            },
+            {
+              "section": "vehicle",
+              "key": "vehicle-drive-outing"
+            },
+            {
+              "section": "interface",
+              "key": "font-cyrillic"
+            },
+            {
+              "section": "interface",
+              "key": "keyboard-ru"
+            },
+            {
+              "section": "interface",
+              "key": "keyboard-en"
+            },
+            {
+              "section": "interface",
+              "key": "launcher"
+            },
+            {
+              "section": "interface",
+              "key": "phone"
+            },
+            {
+              "section": "interface",
+              "key": "media-apps"
+            },
+            {
+              "section": "interface",
+              "key": "media-popup-external-apps"
+            },
+            {
+              "section": "interface",
+              "key": "steering-media-app-switcher"
+            },
+            {
+              "section": "interface",
+              "key": "steering-media-session"
+            },
+            {
+              "section": "interface",
+              "key": "settings-engineering-menu"
+            },
+            {
+              "section": "interface",
+              "key": "login-activation-skip"
+            },
+            {
+              "section": "interface",
+              "key": "i18n-ru"
+            }
+          ],
+          "sectionBodies": [
+            {
+              "index": 0,
+              "key": "startup"
+            },
+            {
+              "index": 1,
+              "key": "vehicle"
+            },
+            {
+              "index": 2,
+              "key": "interface"
+            },
+            {
+              "index": 3,
+              "key": "uninstall"
+            }
+          ],
+          "dialogTargets": [
+            {
+              "role": "dialog.confirm",
+              "value": "confirm",
+              "class": "com.pateo.material.widgets.BoldTextView"
+            },
+            {
+              "role": "dialog.cancel",
+              "value": "cancel",
+              "class": "com.pateo.material.widgets.BoldTextView"
+            }
+          ],
+          "panelTargets": [
+            {
+              "role": "section.startup.title",
+              "value": "startup",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "startup.title",
+              "value": "startup",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "startup",
+              "value": "interface",
+              "class": "com.pateo.material.widgets.BoldRadioButton"
+            },
+            {
+              "role": "startup",
+              "value": "hidden",
+              "class": "com.pateo.material.widgets.BoldRadioButton"
+            },
+            {
+              "role": "startup",
+              "value": "none",
+              "class": "com.pateo.material.widgets.BoldRadioButton"
+            },
+            {
+              "role": "startup.description",
+              "value": "startup",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "section.vehicle.title",
+              "value": "vehicle",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.vehicle-drive-forced-ev.title",
+              "value": "vehicle-drive-forced-ev",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.vehicle-drive-forced-ev.description",
+              "value": "vehicle-drive-forced-ev",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.vehicle-drive-pedestrian-warning.title",
+              "value": "vehicle-drive-pedestrian-warning",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.vehicle-drive-pedestrian-warning.description",
+              "value": "vehicle-drive-pedestrian-warning",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.vehicle-display-auto-lift.title",
+              "value": "vehicle-display-auto-lift",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.vehicle-display-auto-lift.description",
+              "value": "vehicle-display-auto-lift",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.vehicle-drive-outing.title",
+              "value": "vehicle-drive-outing",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.vehicle-drive-outing.description",
+              "value": "vehicle-drive-outing",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "section.interface.title",
+              "value": "interface",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.font-cyrillic.title",
+              "value": "font-cyrillic",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.font-cyrillic.description",
+              "value": "font-cyrillic",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.keyboard-ru.title",
+              "value": "keyboard-ru",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.keyboard-ru.description",
+              "value": "keyboard-ru",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.keyboard-en.title",
+              "value": "keyboard-en",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.keyboard-en.description",
+              "value": "keyboard-en",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.launcher.title",
+              "value": "launcher",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.launcher.description",
+              "value": "launcher",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.phone.title",
+              "value": "phone",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.phone.description",
+              "value": "phone",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.media-apps.title",
+              "value": "media-apps",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.media-apps.description",
+              "value": "media-apps",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.media-popup-external-apps.title",
+              "value": "media-popup-external-apps",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.media-popup-external-apps.description",
+              "value": "media-popup-external-apps",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.steering-media-app-switcher.title",
+              "value": "steering-media-app-switcher",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.steering-media-app-switcher.description",
+              "value": "steering-media-app-switcher",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.steering-media-session.title",
+              "value": "steering-media-session",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.steering-media-session.description",
+              "value": "steering-media-session",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.settings-engineering-menu.title",
+              "value": "settings-engineering-menu",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.settings-engineering-menu.description",
+              "value": "settings-engineering-menu",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.login-activation-skip.title",
+              "value": "login-activation-skip",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.login-activation-skip.description",
+              "value": "login-activation-skip",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.i18n-ru.title",
+              "value": "i18n-ru",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "checkbox.i18n-ru.description",
+              "value": "i18n-ru",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "section.uninstall.title",
+              "value": "uninstall",
+              "class": "android.widget.TextView"
+            },
+            {
+              "role": "uninstall.action",
+              "value": "uninstall",
+              "class": "android.widget.Button"
+            },
+            {
+              "role": "uninstall.status",
+              "value": "status",
+              "class": "android.widget.TextView"
+            }
+          ],
+          "sections": [
+            "startup",
+            "vehicle",
+            "interface",
+            "uninstall"
+          ]
+        },
+        "commonTitle": "Voboost 1.0.0-beta1",
+        "interfaceGroup": "界面",
+        "errors": {
+          "unknownApplicabilityWarning": "兼容性尚未确认。请阅读此提示，然后再次启用以继续。",
+          "mutationFailure": "启动方式: 保存设置 — 无法将请求发送到服务。请重试。"
+        },
+        "unstableGroup": "测试功能"
+      }
+    },
+    "geometry": {
+      "RADIO_DESCRIPTION_TOP": 20,
+      "RADIO_BOTTOM": 42,
+      "CHECKBOX_BOTTOM": 42,
+      "RADIO_TOP": 0,
+      "BUTTON_HEIGHT": 70,
+      "RADIO_DESCRIPTION_BOTTOM": 47,
+      "RADIO_TITLE_GAP": 37,
+      "RADIO_DESCRIPTION_ABOVE_BOTTOM": 47,
+      "RADIO_TITLELESS_DESCRIPTION_TOP": 0,
+      "RADIO_ITEM_MIN_WIDTH": 120,
+      "SECTION_TOP": 40,
+      "CHECKBOX_TOP": 3,
+      "BUTTON_DESCRIPTION_BOTTOM": 47,
+      "SECTION_GAP": 25,
+      "RADIO_TITLE_START": 30,
+      "SECTION_BOTTOM": 2,
+      "BUTTON_DESCRIPTION_TOP": 37,
+      "BUTTON_DESCRIPTION_GAP": 20,
+      "RADIO_TEXT": 28,
+      "SECTION_HEADER": 98,
+      "RADIO_TITLE_TEXT": 32,
+      "BUTTON_BOTTOM": 38,
+      "CHECKBOX_DESCRIPTION_GAP": 9,
+      "CHECKBOX_CONTENT_TOP": 0,
+      "BUTTON_HORIZONTAL_PADDING": 38,
+      "CHECKBOX_DESCRIPTION_BOTTOM": 35,
+      "CHECKBOX_HEIGHT": 42,
+      "RADIO_ITEM_PADDING": 26,
+      "RADIO_DESCRIPTION_TEXT": 24,
+      "BUTTON_TOP": 0,
+      "PANEL_BOTTOM": 25,
+      "RADIO_DESCRIBED_BOTTOM": 0,
+      "BUTTON_DESCRIPTION_TEXT": 24,
+      "RADIO_HEIGHT": 70
+    }
+  }
+}

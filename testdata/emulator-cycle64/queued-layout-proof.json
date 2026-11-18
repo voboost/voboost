@@ -1,0 +1,30 @@
+{
+  "fixtureKind": "host-producer-consumer-conformance",
+  "producerSource": "voboost-inject/daemon/src/tests.rs::assert_queued_snapshot_identity",
+  "runtimeProof": false,
+  "record": {
+    "schemaVersion": 1,
+    "sequence": 100,
+    "timestamp": "2026-10-08T10:00:00Z",
+    "source": {
+      "kind": "daemon"
+    },
+    "level": "info",
+    "component": "runtime",
+    "message": "desired-snapshot-queued",
+    "fields": {
+      "process": "com.qinggan.app.setting",
+      "generationId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "catalogSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "documentGeneration": "1777777777777777779",
+      "snapshotSha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "frames": "D",
+      "sourceLanguage": "en",
+      "targetPid": "4242",
+      "targetStarttime": "987654321",
+      "endpointEpoch": "1",
+      "profileLanguage": "en",
+      "effectiveLanguage": "en"
+    }
+  }
+}

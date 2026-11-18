@@ -1,0 +1,45 @@
+[package]
+name = "voboost-release"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+publish = false
+
+[features]
+android-integration = []
+
+[[bin]]
+name = "voboost-release"
+path = "main.rs"
+
+[dependencies]
+voboost-contract-core = { path = "../../voboost-inject/common/contracts" }
+anyhow = "=1.0.104"
+base64 = "=0.22.1"
+ed25519-dalek = "=2.2.0"
+fluent-uri = "=0.4.1"
+hex = "=0.4.3"
+jsonschema = { version = "=0.53.0", default-features = false }
+semver = "=1.0.28"
+serde = { version = "=1.0.229", features = ["derive"] }
+serde_json = "=1.0.151"
+sha2 = "=0.10.9"
+toml = "=0.9.12"
+zip = { version = "=2.4.2", default-features = false, features = ["deflate"] }
+
+[dev-dependencies]
+libc = "=0.2.189"
+tempfile = "=3.27.0"
+
+[profile.dev]
+opt-level = 3
+lto = false
+codegen-units = 16
+strip = true
+debug = false
+debug-assertions = false
+overflow-checks = false
+incremental = false
+
+[profile.release]
+strip = true

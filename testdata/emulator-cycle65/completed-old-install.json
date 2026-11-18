@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "operation": "install",
+  "transactionId": "cafc44e5ec79107e8580beb6bfb23e0d7d5110c1a9390c47c35d7a0ee1012892",
+  "journal": "recovery/cafc44e5ec79107e8580beb6bfb23e0d7d5110c1a9390c47c35d7a0ee1012892/install-journal.json",
+  "phase": "install-complete",
+  "outcome": "complete",
+  "rebootCount": 2,
+  "bootId": "2f9a16ae-85a7-411c-8c42-e38d4b8688e8",
+  "statusSequence": 36,
+  "journalSha256": "e2a28cc5ea8c6b89ffb1e2c5ed394944e816a3df847e26562b319a29e70e5ab0",
+  "error": null,
+  "installedApk": {
+    "certificateSha256": "58656561bf0ef123899a66e821f7a01367a0e02829969389d2a355bad4851c7d",
+    "packageName": "ru.voboost",
+    "path": "/data/app/ru.voboost-rP8awheKiswojwlX94AehQ==/base.apk",
+    "sha256": "8ef3b7ce88d43cf2e3db40c91874bbe2936c8575db1e23730917a36d43fbf9a5",
+    "size": 886560,
+    "versionCode": 1000008
+  }
+}

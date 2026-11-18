@@ -1,0 +1,27 @@
+schema = 1
+release = "1.0.0-beta1"
+channel = "beta"
+
+[repositories]
+app = "f16d622c527e0fa90ffcfe36c73e9f267fb3eeb4"
+agents = "4e3ba7f5ed70ab6ed8476511a3a775653283f509"
+inject = "a0f0ae3d5c26d18214ddb2e1a22f31ce5486766b"
+installer = "348f9155b35fee99956219a53fe20d179d2ad4f7"
+logo = "48840c44eed7997328944d96fed27100e8f8156f"
+
+[android]
+versionCode = 1000019
+
+[compatibility]
+installerProtocol = 1
+operationProtocol = 1
+appDaemonProtocol = 1
+agentCatalogSchema = 2
+agentEntryAbi = 1
+implantAbi = 1
+
+[gates]
+host = ["component-checks", "product-compose", "package-verification"]
+emulator = ["rooted-android-9-arm64-artifact-export"]
+device = ["user-machine-device-evidence"]
+vehicle = ["target-vehicle-release-acceptance"]

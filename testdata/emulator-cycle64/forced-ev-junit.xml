@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="ru.voboost.agents.vehicle.drive.forcedev.VehicleDriveForcedEvDisarmSnapshotRegressionTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-10-08T10:52:03" hostname="vitaly-osx2" time="3.729">
+  <properties/>
+  <testcase name="anExplicitOemForcedSampleStillArmsAfterAConfirmedDisarm()" classname="ru.voboost.agents.vehicle.drive.forcedev.VehicleDriveForcedEvDisarmSnapshotRegressionTest" time="0.291"/>
+  <testcase name="accOffWithConnectedTransportPreservesIntentAndOnRestoresThenManualOffDisarms()" classname="ru.voboost.agents.vehicle.drive.forcedev.VehicleDriveForcedEvDisarmSnapshotRegressionTest" time="2.687"/>
+  <testcase name="coldPriorActiveIntentRestoresOnFreshAccOnWithoutAnyTransportDisconnect()" classname="ru.voboost.agents.vehicle.drive.forcedev.VehicleDriveForcedEvDisarmSnapshotRegressionTest" time="0.25"/>
+  <testcase name="stopDuringTheHeldAuthorityReadLeavesThePendingDisarmDurable()" classname="ru.voboost.agents.vehicle.drive.forcedev.VehicleDriveForcedEvDisarmSnapshotRegressionTest" time="0.01"/>
+  <testcase name="stopBetweenUnavailableCyclesFencesLateReadsWritesAndReady()" classname="ru.voboost.agents.vehicle.drive.forcedev.VehicleDriveForcedEvDisarmSnapshotRegressionTest" time="0.023"/>
+  <testcase name="unavailableBeyondOneBudgetRecoversWithoutOverwritingPersistedTrue()" classname="ru.voboost.agents.vehicle.drive.forcedev.VehicleDriveForcedEvDisarmSnapshotRegressionTest" time="0.225"/>
+  <testcase name="aConfirmedPendingDisarmIsNotResurrectedByTheStalePreDisarmSnapshot()" classname="ru.voboost.agents.vehicle.drive.forcedev.VehicleDriveForcedEvDisarmSnapshotRegressionTest" time="0.241"/>
+  <system-out><![CDATA[[CanBusManager] marked connected
+[CanBusManager] vehicle state store attached
+[CanBusManager] getInstance called
+[CanBusManager] Creating new CanBusManager instance
+[CanBusManager] CanBusManager constructor called
+[CanBusManager] CanBusManager instance created successfully
+[CanBusManager] getInstance called
+[CanBusManager] Returning existing CanBusManager instance
+[CanBusManager] getAccStatus called
+[CanBusManager] getInstance called
+[CanBusManager] Returning existing CanBusManager instance
+[CanBusManager] getVehicleState called with stateId: 957
+[CanBusManager] getVehicleState returning: 5
+[CanBusManager] getAccStatus called
+[CanBusManager] getAccStatus called
+[CanBusManager] getInstance called
+[CanBusManager] Returning existing CanBusManager instance
+[CanBusManager] getInstance called
+[CanBusManager] Returning existing CanBusManager instance
+[CanBusManager] getInstance called
+[CanBusManager] Returning existing CanBusManager instance
+[CanBusManager] getAccStatus called
+[CanBusManager] getInstance called
+[CanBusManager] Returning existing CanBusManager instance
+[CanBusManager] getVehicleState called with stateId: 957
+[CanBusManager] getVehicleState returning: 5
+[CanBusManager] getAccStatus called
+[CanBusManager] getAccStatus called
+[CanBusManager] getInstance called
+[CanBusManager] Returning existing CanBusManager instance
+[CanBusManager] getAccStatus called
+[CanBusManager] getVehicleState called with stateId: 957
+[CanBusManager] getVehicleState returning: 2
+[CanBusManager] getAccStatus called
+[CanBusManager] getAccStatus called
+[CanBusManager] getVehicleState called with stateId: 957
+[CanBusManager] getVehicleState returning: 2
+[CanBusManager] getAccStatus called
+[CanBusManager] getInstance called
+[CanBusManager] Returning existing CanBusManager instance
+[CanBusManager] getAccStatus called
+[CanBusManager] getVehicleState called with stateId: 957
+[CanBusManager] getVehicleState returning: 2
+[CanBusManager] getAccStatus called
+[CanBusManager] getAccStatus called
+[CanBusManager] getVehicleState called with stateId: 957
+[CanBusManager] getVehicleState returning: 2
+[CanBusManager] getVehicleState called with stateId: 957
+[CanBusManager] getVehicleState returning: 2
+[CanBusManager] getAccStatus called
+[CanBusManager] setVehicleState called with stateId: 957, value: 5
+[CanBusManager] setVehicleState returning: 0
+[CanBusManager] getVehicleState called with stateId: 957
+[CanBusManager] getVehicleState returning: 5
+[CanBusManager] getAccStatus called
+[CanBusManager] getVehicleState called with stateId: 957
+[CanBusManager] getVehicleState returning: 5
+[CanBusManager] getAccStatus called
+[CanBusManager] getAccStatus called
+[CanBusManager] getVehicleState called with stateId: 957
+[CanBusManager] getVehicleState returning: 2
+[CanBusManager] getAccStatus called
+[CanBusManager] getAccStatus called
+[CanBusManager] getVehicleState called with stateId: 957
+[CanBusManager] getVehicleState returning: 2
+[CanBusManager] getAccStatus called
+[CanBusManager] getInstance called
+[CanBusManager] Returning existing CanBusManager instance
+[CanBusManager] getInstance called
+[CanBusManager] Returning existing CanBusManager instance
+[CanBusManager] getInstance called
+[CanBusManager] Returning existing CanBusManager instance
+[CanBusManager] getInstance called
+[CanBusManager] Returning existing CanBusManager instance
+[CanBusManager] getAccStatus called
+[CanBusManager] getInstance called
+[CanBusManager] Returning existing CanBusManager instance
+[CanBusManager] getVehicleState called with stateId: 957
+[CanBusManager] getVehicleState returning: 2
+[CanBusManager] getAccStatus called
+[CanBusManager] getAccStatus called
+[CanBusManager] getAccStatus called
+[CanBusManager] getVehicleState called with stateId: 957
+[CanBusManager] getVehicleState returning: 2
+[CanBusManager] getAccStatus called
+[CanBusManager] getAccStatus called
+[CanBusManager] getVehicleState called with stateId: 957
+[CanBusManager] getVehicleState returning: 2
+[CanBusManager] getVehicleState called with stateId: 957
+[CanBusManager] getVehicleState returning: 2
+[CanBusManager] getAccStatus called
+[CanBusManager] setVehicleState called with stateId: 957, value: 5
+[CanBusManager] setVehicleState returning: 0
+[CanBusManager] getVehicleState called with stateId: 957
+[CanBusManager] getVehicleState returning: 5
+[CanBusManager] getAccStatus called
+[CanBusManager] getVehicleState called with stateId: 957
+[CanBusManager] getVehicleState returning: 5
+[CanBusManager] getAccStatus called
+[CanBusManager] getInstance called
+[CanBusManager] Returning existing CanBusManager instance
+[CanBusManager] getInstance called
+[CanBusManager] Returning existing CanBusManager instance
+[CanBusManager] getAccStatus called
+[CanBusManager] getInstance called
+[CanBusManager] Returning existing CanBusManager instance
+[CanBusManager] getVehicleState called with stateId: 957
+[CanBusManager] getVehicleState returning: 5
+[CanBusManager] getAccStatus called
+[CanBusManager] getAccStatus called
+[CanBusManager] getInstance called
+[CanBusManager] Returning existing CanBusManager instance
+[CanBusManager] getInstance called
+[CanBusManager] Returning existing CanBusManager instance
+[CanBusManager] getAccStatus called
+[CanBusManager] getInstance called
+[CanBusManager] Returning existing CanBusManager instance
+[CanBusManager] getVehicleState called with stateId: 957
+[CanBusManager] getVehicleState returning: 2
+[CanBusManager] getAccStatus called
+[CanBusManager] getAccStatus called
+[CanBusManager] reset for test
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

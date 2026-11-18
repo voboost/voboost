@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "roots": {
+    "agent-catalog": "24c977fc1c803386b87fa5a7a1ae77dc2086e3b4ad6c842906a82f1a2113c8a0",
+    "product": "d40f901eee963822271a2bb98c471209eb50edc3763587b29e7ef6d1d86dabcb",
+    "native-executable": "4896c36f9069b9ef6f57888a89424fba46badf000dfb1aa6e169e6f14530b2d7",
+    "restore": "1b9c4db6a3ee6f9e58c2b5c022198797a42b3abd4b5b3869385d9b82816de73e"
+  },
+  "androidCertificateSha256": "ba437a2294d0749716692be02a57dbfa7858f01c088d3c1f37e7e8f15a7628f8"
+}

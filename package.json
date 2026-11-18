@@ -1,0 +1,32 @@
+{
+    "name": "voboost-development-tools",
+    "private": true,
+    "type": "module",
+    "packageManager": "npm@11.6.2",
+    "engines": {
+        "node": "24.13.0"
+    },
+    "scripts": {
+        "check": "node tools/validate-openspec-evidence.ts && node tools/check-target-docs.ts && node --test \"tools/**/*.test.ts\" && openspec validate --all --strict",
+        "release:build-closure": "node tools/release/build-closure.ts",
+        "release:build-closure:check": "node --test \"tools/release/*.test.ts\"",
+        "emulator:forensic-watch": "node tools/emulator/forensic-watcher.ts",
+        "emulator:forensic-watch:check": "node --test \"tools/emulator/*.test.ts\"",
+        "docs:check": "node tools/check-target-docs.ts && node --test tools/tests/docs-target-structure.test.ts tools/tests/documentation-ownership.test.ts",
+        "docs:format": "node tools/format-russian-docs.ts docs-user docs-dev README.ru.md",
+        "target:docs:user:check": "node tools/check-target-docs.ts user",
+        "target:docs:dev:check": "node tools/check-target-docs.ts developer",
+        "target:docs:check": "node tools/check-target-docs.ts && node --test tools/tests/docs-target-structure.test.ts tools/tests/documentation-ownership.test.ts",
+        "openspec:validate": "openspec validate --all --strict",
+        "audit": "npm audit --audit-level=high --omit=optional",
+        "emulator:report": "node tools/emulator/gate-report.ts"
+    },
+    "devDependencies": {
+        "@fission-ai/openspec": "1.6.0",
+        "ajv": "8.17.1"
+    },
+    "dependencies": {
+        "smol-toml": "1.4.2"
+    },
+    "license": "MIT"
+}

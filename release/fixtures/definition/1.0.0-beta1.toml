@@ -1,0 +1,27 @@
+schema = 1
+release = "1.0.0-beta1"
+channel = "beta"
+
+[repositories]
+app = "1111111111111111111111111111111111111111"
+agents = "2222222222222222222222222222222222222222"
+inject = "3333333333333333333333333333333333333333"
+installer = "4444444444444444444444444444444444444444"
+logo = "6666666666666666666666666666666666666666"
+
+[android]
+versionCode = 1000001
+
+[compatibility]
+installerProtocol = 1
+operationProtocol = 1
+appDaemonProtocol = 1
+agentCatalogSchema = 2
+agentEntryAbi = 1
+implantAbi = 1
+
+[gates]
+host = ["component-checks"]
+emulator = ["android-9-arm64"]
+device = ["android-9-root"]
+vehicle = ["free-09-6.0.3"]

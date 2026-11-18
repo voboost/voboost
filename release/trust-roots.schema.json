@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://voboost.ru/schemas/trust-roots.schema.json",
+  "title": "Voboost release trust roots",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "releaseIdentity", "state", "rotation", "roots"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "releaseIdentity": { "const": "1.0.0-beta1" },
+    "state": { "enum": ["unprovisioned", "provisioned"] },
+    "rotation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "previousDocumentSha256"],
+      "properties": {
+        "mode": { "const": "source-reviewed-no-runtime-rotation" },
+        "previousDocumentSha256": { "anyOf": [{ "$ref": "#/$defs/sha256" }, { "type": "null" }] }
+      }
+    },
+    "roots": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["androidCertificateSha256", "agentCatalogPublicKeyHex", "productPublicKeyHex", "nativeExecutablePublicKeyHex", "restorePublicKeyHex", "evidencePublicKeyHex"],
+      "properties": {
+        "androidCertificateSha256": { "$ref": "#/$defs/nullableSha256" },
+        "agentCatalogPublicKeyHex": { "$ref": "#/$defs/nullableSha256" },
+        "productPublicKeyHex": { "$ref": "#/$defs/nullableSha256" },
+        "nativeExecutablePublicKeyHex": { "$ref": "#/$defs/nullableSha256" },
+        "restorePublicKeyHex": { "$ref": "#/$defs/nullableSha256" },
+        "evidencePublicKeyHex": { "$ref": "#/$defs/nullableSha256" }
+      }
+    }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "nullableSha256": { "anyOf": [{ "$ref": "#/$defs/sha256" }, { "type": "null" }] }
+  }
+}

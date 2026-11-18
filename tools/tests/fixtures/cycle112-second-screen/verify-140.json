@@ -1,0 +1,1354 @@
+{
+  "schema": 1,
+  "command": "verify",
+  "profile": "free-09-chinese-20260106-6.0.3",
+  "ok": false,
+  "changed": false,
+  "stage": "verify",
+  "code": "VERIFY_FAILED",
+  "message": "Some checks failed.",
+  "report": {
+    "checks": [
+      {
+        "id": "boot",
+        "passed": true,
+        "expected": "1",
+        "actual": "1"
+      },
+      {
+        "id": "api",
+        "passed": true,
+        "expected": "28",
+        "actual": "28"
+      },
+      {
+        "id": "abi",
+        "passed": true,
+        "expected": "arm64-v8a",
+        "actual": "arm64-v8a"
+      },
+      {
+        "id": "selinux",
+        "passed": true,
+        "expected": "Enforcing",
+        "actual": "Enforcing"
+      },
+      {
+        "id": "artifact:component:bluetooth:/system/framework/Ivt8BluetoothAdapter.jar",
+        "passed": true,
+        "expected": "d5cb7836daf617d6c8efe3a96454d4255dd12a3584ef8258f1544c00bc3b1637",
+        "actual": "d5cb7836daf617d6c8efe3a96454d4255dd12a3584ef8258f1544c00bc3b1637"
+      },
+      {
+        "id": "mode:/system/framework/Ivt8BluetoothAdapter.jar",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:original:theme:/system/resc/defaulttheme/simple/BluetoothPhone-release-signed.apk",
+        "passed": true,
+        "expected": "a3e5abac97135487e7cce9961b63f04d7b67b0e1ed61ca23cb25cfdfe2649a3a",
+        "actual": "a3e5abac97135487e7cce9961b63f04d7b67b0e1ed61ca23cb25cfdfe2649a3a"
+      },
+      {
+        "id": "mode:/system/resc/defaulttheme/simple/BluetoothPhone-release-signed.apk",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:original:theme:/system/resc/defaulttheme/simple/Calendar-release-signed.apk",
+        "passed": true,
+        "expected": "7d16c79610f7eeda0dd721ed34bc872d05c89e48dff788af1ef29c4e9e719af9",
+        "actual": "7d16c79610f7eeda0dd721ed34bc872d05c89e48dff788af1ef29c4e9e719af9"
+      },
+      {
+        "id": "mode:/system/resc/defaulttheme/simple/Calendar-release-signed.apk",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:original:theme:/system/resc/defaulttheme/simple/Camera-release-signed.apk",
+        "passed": true,
+        "expected": "85b12b6be6920c7230728ce4354bcedde36f3d007085c5390b7bc8166d898e41",
+        "actual": "85b12b6be6920c7230728ce4354bcedde36f3d007085c5390b7bc8166d898e41"
+      },
+      {
+        "id": "mode:/system/resc/defaulttheme/simple/Camera-release-signed.apk",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:original:theme:/system/resc/defaulttheme/simple/Driving-release-signed.apk",
+        "passed": true,
+        "expected": "4edf6c7a291d1ca5697fc6f85b52c1236836b0ba49dc03c1c930e05d897fa60d",
+        "actual": "4edf6c7a291d1ca5697fc6f85b52c1236836b0ba49dc03c1c930e05d897fa60d"
+      },
+      {
+        "id": "mode:/system/resc/defaulttheme/simple/Driving-release-signed.apk",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:original:theme:/system/resc/defaulttheme/simple/Gallery-release-signed.apk",
+        "passed": true,
+        "expected": "d887cbac7913c8b5fa46129006f07c130650b9bcdf980dc3b16bc1a96a460cab",
+        "actual": "d887cbac7913c8b5fa46129006f07c130650b9bcdf980dc3b16bc1a96a460cab"
+      },
+      {
+        "id": "mode:/system/resc/defaulttheme/simple/Gallery-release-signed.apk",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:original:theme:/system/resc/defaulttheme/simple/Launcher-release-signed.apk",
+        "passed": true,
+        "expected": "72a9b017fd8bd0de77e831da7c9505a568be349bc58e375827199b0111893da2",
+        "actual": "72a9b017fd8bd0de77e831da7c9505a568be349bc58e375827199b0111893da2"
+      },
+      {
+        "id": "mode:/system/resc/defaulttheme/simple/Launcher-release-signed.apk",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:original:theme:/system/resc/defaulttheme/simple/Login-release-signed.apk",
+        "passed": true,
+        "expected": "987b621e592fab435934432a285dcdf725df32a77559d8111ed3c4d2b80bbddd",
+        "actual": "987b621e592fab435934432a285dcdf725df32a77559d8111ed3c4d2b80bbddd"
+      },
+      {
+        "id": "mode:/system/resc/defaulttheme/simple/Login-release-signed.apk",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:original:theme:/system/resc/defaulttheme/simple/MessageCenter-release-signed.apk",
+        "passed": true,
+        "expected": "14b468650e9af76a169c61bbeff97a685865912213b129abe4ffa60c0879a6be",
+        "actual": "14b468650e9af76a169c61bbeff97a685865912213b129abe4ffa60c0879a6be"
+      },
+      {
+        "id": "mode:/system/resc/defaulttheme/simple/MessageCenter-release-signed.apk",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:original:theme:/system/resc/defaulttheme/simple/Music-release-signed.apk",
+        "passed": true,
+        "expected": "1cd7599386d2fde9c6134e55552292a926179a6c0d5a68436f087e9303e23616",
+        "actual": "1cd7599386d2fde9c6134e55552292a926179a6c0d5a68436f087e9303e23616"
+      },
+      {
+        "id": "mode:/system/resc/defaulttheme/simple/Music-release-signed.apk",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:original:theme:/system/resc/defaulttheme/simple/NowUI-release-signed.apk",
+        "passed": true,
+        "expected": "1c2a50326b3b7550c119ce620ced626c7dac1ddee350ab3b62ae076d7a2d6de6",
+        "actual": "1c2a50326b3b7550c119ce620ced626c7dac1ddee350ab3b62ae076d7a2d6de6"
+      },
+      {
+        "id": "mode:/system/resc/defaulttheme/simple/NowUI-release-signed.apk",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:original:theme:/system/resc/defaulttheme/simple/PateoNaviAuto_C53_Release.apk",
+        "passed": true,
+        "expected": "fc35480c994b89d6da3d316e361ffe18b92cc9ba9816ca8c482d27aa04f8874f",
+        "actual": "fc35480c994b89d6da3d316e361ffe18b92cc9ba9816ca8c482d27aa04f8874f"
+      },
+      {
+        "id": "mode:/system/resc/defaulttheme/simple/PateoNaviAuto_C53_Release.apk",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:original:theme:/system/resc/defaulttheme/simple/QgMedia-release-signed.apk",
+        "passed": true,
+        "expected": "b5d2b4a54f0b0fd1823e457bd59b49845bf01b1f1d281ac665ab78272843a431",
+        "actual": "b5d2b4a54f0b0fd1823e457bd59b49845bf01b1f1d281ac665ab78272843a431"
+      },
+      {
+        "id": "mode:/system/resc/defaulttheme/simple/QgMedia-release-signed.apk",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:original:theme:/system/resc/defaulttheme/simple/QingCastDisplay-release.apk",
+        "passed": true,
+        "expected": "ca55fa9722c11378a161fa78446d297e35fdc616c7dcc260b71c888df3d3a5bd",
+        "actual": "ca55fa9722c11378a161fa78446d297e35fdc616c7dcc260b71c888df3d3a5bd"
+      },
+      {
+        "id": "mode:/system/resc/defaulttheme/simple/QingCastDisplay-release.apk",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:original:theme:/system/resc/defaulttheme/simple/Radio-release-signed.apk",
+        "passed": true,
+        "expected": "3bdf09fabaebfa72b9664bef6a78018c7a674bf6371db2bd3588a23838543527",
+        "actual": "3bdf09fabaebfa72b9664bef6a78018c7a674bf6371db2bd3588a23838543527"
+      },
+      {
+        "id": "mode:/system/resc/defaulttheme/simple/Radio-release-signed.apk",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:original:theme:/system/resc/defaulttheme/simple/Roa-release-signed.apk",
+        "passed": true,
+        "expected": "65f83d7d299810fe4b93e88455fe607a2e910040d5e778f85abd4a1b968411df",
+        "actual": "65f83d7d299810fe4b93e88455fe607a2e910040d5e778f85abd4a1b968411df"
+      },
+      {
+        "id": "mode:/system/resc/defaulttheme/simple/Roa-release-signed.apk",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:original:theme:/system/resc/defaulttheme/simple/SecondLauncher-release-signed.apk",
+        "passed": true,
+        "expected": "63c245665895ec43940e30afd50de78ef58d7e0d4ab2f90a4f69469de274f42d",
+        "actual": "63c245665895ec43940e30afd50de78ef58d7e0d4ab2f90a4f69469de274f42d"
+      },
+      {
+        "id": "mode:/system/resc/defaulttheme/simple/SecondLauncher-release-signed.apk",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:original:theme:/system/resc/defaulttheme/simple/Setting-release-signed.apk",
+        "passed": true,
+        "expected": "0100be25ea09fa2781447c95179c196e910a352b190af95bda31418594cbcb07",
+        "actual": "0100be25ea09fa2781447c95179c196e910a352b190af95bda31418594cbcb07"
+      },
+      {
+        "id": "mode:/system/resc/defaulttheme/simple/Setting-release-signed.apk",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:original:theme:/system/resc/defaulttheme/simple/SettingNetwork-release-signed.apk",
+        "passed": true,
+        "expected": "26d5f3b38da9b90b335753c55e4e707ce15f56fea9a95f3ee7ff69d68b44462c",
+        "actual": "26d5f3b38da9b90b335753c55e4e707ce15f56fea9a95f3ee7ff69d68b44462c"
+      },
+      {
+        "id": "mode:/system/resc/defaulttheme/simple/SettingNetwork-release-signed.apk",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:original:theme:/system/resc/defaulttheme/simple/UserGuide-release-signed.apk",
+        "passed": true,
+        "expected": "bc041625a325bb96998daa672181c939ab23df95cb6f1fa43c127dbfbde6a2f5",
+        "actual": "bc041625a325bb96998daa672181c939ab23df95cb6f1fa43c127dbfbde6a2f5"
+      },
+      {
+        "id": "mode:/system/resc/defaulttheme/simple/UserGuide-release-signed.apk",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:original:theme:/system/resc/defaulttheme/simple/VehicleAir-release-signed.apk",
+        "passed": true,
+        "expected": "001364c51f9bbae484b332703a808cbd49d9addcd946f4199a32d05942ba7491",
+        "actual": "001364c51f9bbae484b332703a808cbd49d9addcd946f4199a32d05942ba7491"
+      },
+      {
+        "id": "mode:/system/resc/defaulttheme/simple/VehicleAir-release-signed.apk",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:original:theme:/system/resc/defaulttheme/simple/VehicleSetting-release-signed.apk",
+        "passed": true,
+        "expected": "94e319834c8f65a19a251d0ba8326204f67bc358b8f38b0feab75b4aacafe833",
+        "actual": "94e319834c8f65a19a251d0ba8326204f67bc358b8f38b0feab75b4aacafe833"
+      },
+      {
+        "id": "mode:/system/resc/defaulttheme/simple/VehicleSetting-release-signed.apk",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:original:theme:/system/resc/defaulttheme/simple/Video-release-signed.apk",
+        "passed": true,
+        "expected": "9905d456e235d69ce964e15ee1122318ab8493e6046e4b33250e659a84a45309",
+        "actual": "9905d456e235d69ce964e15ee1122318ab8493e6046e4b33250e659a84a45309"
+      },
+      {
+        "id": "mode:/system/resc/defaulttheme/simple/Video-release-signed.apk",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:original:theme:/system/resc/defaulttheme/simple/VoiceClone-release-signed.apk",
+        "passed": true,
+        "expected": "3cbe43f67fd58063932402a5c94e42a93199a685cec92b7d2aa86f375f7922eb",
+        "actual": "3cbe43f67fd58063932402a5c94e42a93199a685cec92b7d2aa86f375f7922eb"
+      },
+      {
+        "id": "mode:/system/resc/defaulttheme/simple/VoiceClone-release-signed.apk",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:original:theme:/system/resc/defaulttheme/simple/description.xml",
+        "passed": true,
+        "expected": "5610d4b5285b983a9e82319c6f5bf7200aa25736ccaf344022548d0767414cbf",
+        "actual": "5610d4b5285b983a9e82319c6f5bf7200aa25736ccaf344022548d0767414cbf"
+      },
+      {
+        "id": "mode:/system/resc/defaulttheme/simple/description.xml",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:original:theme:/system/resc/defaulttheme/simple/preview/pre1.png",
+        "passed": true,
+        "expected": "b396794abfea227ef61028d35880f05872213d960743efd600b90070521c1890",
+        "actual": "b396794abfea227ef61028d35880f05872213d960743efd600b90070521c1890"
+      },
+      {
+        "id": "mode:/system/resc/defaulttheme/simple/preview/pre1.png",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:original:theme:/system/resc/defaulttheme/simple/preview/pre2.png",
+        "passed": true,
+        "expected": "7e3228a27cbd9ceac88d481788cbb7a01b72e52b70ab738e7a2177fb6e47db13",
+        "actual": "7e3228a27cbd9ceac88d481788cbb7a01b72e52b70ab738e7a2177fb6e47db13"
+      },
+      {
+        "id": "mode:/system/resc/defaulttheme/simple/preview/pre2.png",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:original:theme:/system/resc/defaulttheme/simple/preview/pre3.png",
+        "passed": true,
+        "expected": "3dc199d459ced1f6ff23c6d4b3caaecab6838e949b3398bb76af1993cf4b3774",
+        "actual": "3dc199d459ced1f6ff23c6d4b3caaecab6838e949b3398bb76af1993cf4b3774"
+      },
+      {
+        "id": "mode:/system/resc/defaulttheme/simple/preview/pre3.png",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:files:secondary-display-feature:/system/etc/permissions/voyemu-secondary-display.xml",
+        "passed": true,
+        "expected": "56c1085cd9736a75c3f3958fbb52f45d75983f0fb1d4056b2dca9ea5f85bbaa3",
+        "actual": "56c1085cd9736a75c3f3958fbb52f45d75983f0fb1d4056b2dca9ea5f85bbaa3"
+      },
+      {
+        "id": "mode:/system/etc/permissions/voyemu-secondary-display.xml",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:files:idc-touch-1:/system/usr/idc/virtio_input_multi_touch_1.idc",
+        "passed": true,
+        "expected": "541c799e3903a1ecd8ada1b9a08218cc741cacc2a64901fd5aed1d0ef61aeace",
+        "actual": "541c799e3903a1ecd8ada1b9a08218cc741cacc2a64901fd5aed1d0ef61aeace"
+      },
+      {
+        "id": "mode:/system/usr/idc/virtio_input_multi_touch_1.idc",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:files:idc-touch-2:/system/usr/idc/virtio_input_multi_touch_2.idc",
+        "passed": true,
+        "expected": "f9de06e631a07b3d13ae954b6b32eb98e5d0e0e0df8b12f0ae3c6ae22b995490",
+        "actual": "f9de06e631a07b3d13ae954b6b32eb98e5d0e0e0df8b12f0ae3c6ae22b995490"
+      },
+      {
+        "id": "mode:/system/usr/idc/virtio_input_multi_touch_2.idc",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:patched:selinux-canbus-a9:/system/etc/selinux/plat_sepolicy.cil",
+        "passed": true,
+        "expected": "cc9be337377ec22c661972409cee27e9a4da493c8cf1c82909ae9ea6d5c902d1",
+        "actual": "cc9be337377ec22c661972409cee27e9a4da493c8cf1c82909ae9ea6d5c902d1"
+      },
+      {
+        "id": "mode:/system/etc/selinux/plat_sepolicy.cil",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:patched:selinux-service-contexts-a9:/system/etc/selinux/plat_service_contexts",
+        "passed": true,
+        "expected": "c219505cf407cf2fcd7a192c3538235d0db6f0eb2213377afbfb24871eb2d949",
+        "actual": "c219505cf407cf2fcd7a192c3538235d0db6f0eb2213377afbfb24871eb2d949"
+      },
+      {
+        "id": "mode:/system/etc/selinux/plat_service_contexts",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:splash:bootanimation:/system/media/bootanimation.zip",
+        "passed": true,
+        "expected": "3c11faf5058f8bf974de440681d471b594001d7eced0872894f958111cb8d4dc",
+        "actual": "3c11faf5058f8bf974de440681d471b594001d7eced0872894f958111cb8d4dc"
+      },
+      {
+        "id": "mode:/system/media/bootanimation.zip",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:patched:selinux-hash-a9:/system/etc/selinux/plat_and_mapping_sepolicy.cil.sha256",
+        "passed": true,
+        "expected": "d81bc45614c17ab4c60825fddc0debdf32b9e12df2b944e9608fb67189150911",
+        "actual": "d81bc45614c17ab4c60825fddc0debdf32b9e12df2b944e9608fb67189150911"
+      },
+      {
+        "id": "mode:/system/etc/selinux/plat_and_mapping_sepolicy.cil.sha256",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:component:multidisplay:/system/priv-app/MultiDisplayProvider/MultiDisplayProvider.apk",
+        "passed": true,
+        "expected": "60aa13728ffbe658ad066973bcb3424f5308cb59c184285bfaf32e67e940e327",
+        "actual": "60aa13728ffbe658ad066973bcb3424f5308cb59c184285bfaf32e67e940e327"
+      },
+      {
+        "id": "mode:/system/priv-app/MultiDisplayProvider/MultiDisplayProvider.apk",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:component:multidisplay-jni:/system/priv-app/MultiDisplayProvider/lib/arm64/libemulator_multidisplay_jni.so",
+        "passed": true,
+        "expected": "41ce8acee1d0af940de5af4c59a01c0ef777672ab48941f5a05209d7f46d318d",
+        "actual": "41ce8acee1d0af940de5af4c59a01c0ef777672ab48941f5a05209d7f46d318d"
+      },
+      {
+        "id": "mode:/system/priv-app/MultiDisplayProvider/lib/arm64/libemulator_multidisplay_jni.so",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:component:multidisplay-shim:/system/priv-app/MultiDisplayProvider/lib/arm64/libemulator_md_shim.so",
+        "passed": true,
+        "expected": "64d284be21b352ed5bd96e396f87ae37f075628cbcb6dc11ef58cf4ebe539cbc",
+        "actual": "64d284be21b352ed5bd96e396f87ae37f075628cbcb6dc11ef58cf4ebe539cbc"
+      },
+      {
+        "id": "mode:/system/priv-app/MultiDisplayProvider/lib/arm64/libemulator_md_shim.so",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:patched:selinux-nvram-contexts-a9:/system/etc/selinux/plat_file_contexts",
+        "passed": true,
+        "expected": "40c582e15f0a253c75b840d1f109c01797092769d2dfbd6d935d03c8a866b1d4",
+        "actual": "40c582e15f0a253c75b840d1f109c01797092769d2dfbd6d935d03c8a866b1d4"
+      },
+      {
+        "id": "mode:/system/etc/selinux/plat_file_contexts",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:patched:selinux-property-contexts-a9:/system/etc/selinux/plat_property_contexts",
+        "passed": true,
+        "expected": "734cfb54ff72018f7c198a4f558a59428836dc0abe20da6cc68cc77c4526101e",
+        "actual": "734cfb54ff72018f7c198a4f558a59428836dc0abe20da6cc68cc77c4526101e"
+      },
+      {
+        "id": "mode:/system/etc/selinux/plat_property_contexts",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:patched:disable-perfprofd-a9:/system/etc/init/perfprofd.rc",
+        "passed": true,
+        "expected": "a6e47596fe7ca9859d3f2930ce0f0f3cdf6c58ee30a2690426da359e8bb4cb60",
+        "actual": "a6e47596fe7ca9859d3f2930ce0f0f3cdf6c58ee30a2690426da359e8bb4cb60"
+      },
+      {
+        "id": "mode:/system/etc/init/perfprofd.rc",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:patched:disable-rild-a9:/vendor/etc/init/rild.rc",
+        "passed": true,
+        "expected": "3f151da80ecf90c5a7d536ed02143c44b733cdf87d46f05ffe05c358eb42f9f1",
+        "actual": "3f151da80ecf90c5a7d536ed02143c44b733cdf87d46f05ffe05c358eb42f9f1"
+      },
+      {
+        "id": "mode:/vendor/etc/init/rild.rc",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:patched:disable-statsd-a9:/system/etc/init/statsd.rc",
+        "passed": true,
+        "expected": "2e4e1ebdce5a993cf18932ae03df2ab051003adc7dad6acd364ced7bc3c734f3",
+        "actual": "2e4e1ebdce5a993cf18932ae03df2ab051003adc7dad6acd364ced7bc3c734f3"
+      },
+      {
+        "id": "mode:/system/etc/init/statsd.rc",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:patched:disable-incidentd-a9:/system/etc/init/incidentd.rc",
+        "passed": true,
+        "expected": "e83f393c37088be00a2f97b82b3ccf8930769dc03b850774cd7fef08f74ecd98",
+        "actual": "e83f393c37088be00a2f97b82b3ccf8930769dc03b850774cd7fef08f74ecd98"
+      },
+      {
+        "id": "mode:/system/etc/init/incidentd.rc",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:patched:disable-broadcastradio-a9:/vendor/etc/init/android.hardware.broadcastradio@1.1-service.rc",
+        "passed": true,
+        "expected": "d41d6004a1d99a93ee5a76292cea9b79ec4e7b9b1a90084466f9d9a9c29ba442",
+        "actual": "d41d6004a1d99a93ee5a76292cea9b79ec4e7b9b1a90084466f9d9a9c29ba442"
+      },
+      {
+        "id": "mode:/vendor/etc/init/android.hardware.broadcastradio@1.1-service.rc",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:patched:disable-mediametrics-a9:/system/etc/init/mediametrics.rc",
+        "passed": true,
+        "expected": "d5a64d2e732c99c467d3f2267d4e6d4fd95967661596fbbe08de360e0b8dcf3a",
+        "actual": "d5a64d2e732c99c467d3f2267d4e6d4fd95967661596fbbe08de360e0b8dcf3a"
+      },
+      {
+        "id": "mode:/system/etc/init/mediametrics.rc",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:component:framework-qgapi:/system/framework/QGAPI.jar",
+        "passed": true,
+        "expected": "4afafc107c0f04b8bd54e573d2a22d51dae4dc6485f47fd60d9cd2e3cebb17c2",
+        "actual": "4afafc107c0f04b8bd54e573d2a22d51dae4dc6485f47fd60d9cd2e3cebb17c2"
+      },
+      {
+        "id": "mode:/system/framework/QGAPI.jar",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:component:framework-qgmod:/system/framework/QGMOD.jar",
+        "passed": true,
+        "expected": "14db9e27eff215cd857d2f0b1bdce6dd5e1cb3d1a278b14f0b83c6269294223a",
+        "actual": "14db9e27eff215cd857d2f0b1bdce6dd5e1cb3d1a278b14f0b83c6269294223a"
+      },
+      {
+        "id": "mode:/system/framework/QGMOD.jar",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:component:framework-qgvehicle:/system/framework/QGVehicle.jar",
+        "passed": true,
+        "expected": "13aaaac50a805c8377ed63b24e7aa270f8a288bb8eb718aa614b5557e5cb4e0f",
+        "actual": "13aaaac50a805c8377ed63b24e7aa270f8a288bb8eb718aa614b5557e5cb4e0f"
+      },
+      {
+        "id": "mode:/system/framework/QGVehicle.jar",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:component:qg-runtime:/system/lib64/libqg_runtime.so",
+        "passed": true,
+        "expected": "b4bfd18ecdcac8d42b805639649fc45fdc5fed8a9d8c5c3127be836da79123a2",
+        "actual": "b4bfd18ecdcac8d42b805639649fc45fdc5fed8a9d8c5c3127be836da79123a2"
+      },
+      {
+        "id": "mode:/system/lib64/libqg_runtime.so",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:files:qinggan-framework:/system/etc/permissions/voyemu-qinggan-framework.xml",
+        "passed": true,
+        "expected": "ec69df12d548c10b6a30e81d1b21099690bd1d88ade7be423697552398d73cb5",
+        "actual": "ec69df12d548c10b6a30e81d1b21099690bd1d88ade7be423697552398d73cb5"
+      },
+      {
+        "id": "mode:/system/etc/permissions/voyemu-qinggan-framework.xml",
+        "passed": true,
+        "expected": "644",
+        "actual": "644"
+      },
+      {
+        "id": "artifact:patched:QGIME:/data/app/com.qinggan.app.qgime-JXHCfGPQVRQaMqH_2W4KhA==/base.apk",
+        "passed": true,
+        "expected": "cc2c6e68468da54895d005a7d4c4fda9bd61a779e84d4dcc4039ecd924ab7aa3",
+        "actual": "cc2c6e68468da54895d005a7d4c4fda9bd61a779e84d4dcc4039ecd924ab7aa3"
+      },
+      {
+        "id": "artifact:patched:QGIMESecond:/data/app/com.qinggan.app.qgime.second-YMJUqGfEs5PYTIoldvADgw==/base.apk",
+        "passed": true,
+        "expected": "a655d343d0b34b1116d3ed877c666a29e4d62cc1c32156e05e3c56f37c991ea5",
+        "actual": "a655d343d0b34b1116d3ed877c666a29e4d62cc1c32156e05e3c56f37c991ea5"
+      },
+      {
+        "id": "artifact:component:canbus:/data/app/com.qinggan.canbus.service-weXQLq7fSQpAwm9fW2LHNg==/base.apk",
+        "passed": true,
+        "expected": "de1b2740ff63a7b5286fb23b3ba36f791f0ab7747c01ed5a38120e1802a68691",
+        "actual": "de1b2740ff63a7b5286fb23b3ba36f791f0ab7747c01ed5a38120e1802a68691"
+      },
+      {
+        "id": "artifact:component:oem-services:/data/app/ru.voyemu.oem-eAGBQKPMUbQRH6EvH4oOTw==/base.apk",
+        "passed": true,
+        "expected": "49a1d3a56ff723c4bdf46af52616050561942d370b8e192e48c2a1c5fdd042a4",
+        "actual": "49a1d3a56ff723c4bdf46af52616050561942d370b8e192e48c2a1c5fdd042a4"
+      },
+      {
+        "id": "artifact:component:audiopolicy:/data/app/com.qinggan.audiopolicy.service-eoosWN2Zr-n8aHAwz8_IdA==/base.apk",
+        "passed": true,
+        "expected": "865b66f49e0a63fdfb5b917d3a3c6d9396bcd67965a81682af23397b0e4191d2",
+        "actual": "865b66f49e0a63fdfb5b917d3a3c6d9396bcd67965a81682af23397b0e4191d2"
+      },
+      {
+        "id": "artifact:component:media:/data/app/com.qinggan.media-ImQ1T9D54wi82b2XKfdzaQ==/base.apk",
+        "passed": true,
+        "expected": "7c070f731ba8b78337619b3e01d80b25272dc6cea09f4d884784dd3502ce0182",
+        "actual": "7c070f731ba8b78337619b3e01d80b25272dc6cea09f4d884784dd3502ce0182"
+      },
+      {
+        "id": "artifact:component:bootstrap:/data/app/ru.voyemu.bootstrap-YnKm9-UfT8zCb-4vB12FXA==/base.apk",
+        "passed": true,
+        "expected": "40f434584f438a0689604155692b838e8bdb548aa87cc62374b1414d0b537581",
+        "actual": "40f434584f438a0689604155692b838e8bdb548aa87cc62374b1414d0b537581"
+      },
+      {
+        "id": "artifact:patched:UserCenter:/data/app/com.qinggan.app.login-F6U3A_qRrChuTaBtzAOV6A==/base.apk",
+        "passed": true,
+        "expected": "b8f9b71c8fc6e7b2d9274b4728ec36b1f88a842a69422308c7f4c40d6049d870",
+        "actual": "b8f9b71c8fc6e7b2d9274b4728ec36b1f88a842a69422308c7f4c40d6049d870"
+      },
+      {
+        "id": "artifact:component:messagecenter-provider:/data/app/com.qinggan.app.messagecenter-_GeFpz2VbLbi8lXs6iGilg==/base.apk",
+        "passed": true,
+        "expected": "0f828ab64d1be36ce090009538451e877a6158c7a94c41efe46e8e9516eb5179",
+        "actual": "0f828ab64d1be36ce090009538451e877a6158c7a94c41efe46e8e9516eb5179"
+      },
+      {
+        "id": "artifact:component:video-provider:/data/app/com.qinggan.app.video-OQ7kJD8_gFCK1n4eH4yk4Q==/base.apk",
+        "passed": true,
+        "expected": "4ab1499a73bbfa6641bc666496fa5f7abea4b5f6611cd49dce4c8ba82ca9c6a0",
+        "actual": "4ab1499a73bbfa6641bc666496fa5f7abea4b5f6611cd49dce4c8ba82ca9c6a0"
+      },
+      {
+        "id": "artifact:component:voiceclone-provider:/data/app/com.qinggan.qingai.voiceclone-lYcni3iORf__S18lSv4Axw==/base.apk",
+        "passed": true,
+        "expected": "a0dde528adbbb8fc9e038d4d83703f67d18339029fc5fe9c3cfa4ebecfe0416b",
+        "actual": "a0dde528adbbb8fc9e038d4d83703f67d18339029fc5fe9c3cfa4ebecfe0416b"
+      },
+      {
+        "id": "artifact:component:usersettingtracking-provider:/data/app/com.qinggan.usersettingtracking-XBY8YnHk3BtVi95vouALmg==/base.apk",
+        "passed": true,
+        "expected": "dfb4f1fb834218c86ba8ceaac16c663603d3a38d2c51aedd4e48218cc95e3925",
+        "actual": "dfb4f1fb834218c86ba8ceaac16c663603d3a38d2c51aedd4e48218cc95e3925"
+      },
+      {
+        "id": "artifact:component:analytics-service:/data/app/com.qinggan.analytics.service-RhBoiSDCm9WaAjkkQgZmJQ==/base.apk",
+        "passed": true,
+        "expected": "9339200ebdf334cebe28e333bd1d0d47664c3b9538abad7d05acf719b3a66a3e",
+        "actual": "9339200ebdf334cebe28e333bd1d0d47664c3b9538abad7d05acf719b3a66a3e"
+      },
+      {
+        "id": "artifact:component:qgsettings:/data/app/com.qinggan.providers.settings-NNiL5kdZ_l4Yf_fkg9qyfw==/base.apk",
+        "passed": true,
+        "expected": "79d661e197ad3efcb19cda6479b45cb63b2d73ac59a14b2a4943c525a53c1d15",
+        "actual": "79d661e197ad3efcb19cda6479b45cb63b2d73ac59a14b2a4943c525a53c1d15"
+      },
+      {
+        "id": "artifact:component:navigation-bus:/data/app/com.qinggan.QGBus-K2oGe4GIwkMe9n3nkkTqSg==/base.apk",
+        "passed": true,
+        "expected": "3aa861c51847ea45e621f140b123b527631fbc826d4d09d5d0dcbbaf4c57e6cc",
+        "actual": "3aa861c51847ea45e621f140b123b527631fbc826d4d09d5d0dcbbaf4c57e6cc"
+      },
+      {
+        "id": "artifact:patched:Launcher:/data/app/com.qinggan.app.launcher-U4D6uCLBiLo1Cx5O34d4wQ==/base.apk",
+        "passed": true,
+        "expected": "1bd8ccc781897ca792dddc10ffb6076b53d5fef42425480193a34005d0d66b39",
+        "actual": "1bd8ccc781897ca792dddc10ffb6076b53d5fef42425480193a34005d0d66b39"
+      },
+      {
+        "id": "artifact:patched:Setting:/data/app/com.qinggan.app.setting-RIRqGYjFmo9JuZ33eYibQQ==/base.apk",
+        "passed": true,
+        "expected": "f57f268f726cd6d30fb999dd415b1d687d9b3eb579a0249f84596968db4b5956",
+        "actual": "f57f268f726cd6d30fb999dd415b1d687d9b3eb579a0249f84596968db4b5956"
+      },
+      {
+        "id": "artifact:patched:SettingNetwork:/data/app/com.qinggan.app.settingnewwork-25o4qjnvsgpxZe9GhTluFg==/base.apk",
+        "passed": true,
+        "expected": "0e54b4fe513e14482ea2ac1bc5fe4c40183114eea3bca341595f5158efb52c1f",
+        "actual": "0e54b4fe513e14482ea2ac1bc5fe4c40183114eea3bca341595f5158efb52c1f"
+      },
+      {
+        "id": "artifact:patched:VehicleSetting:/data/app/com.qinggan.app.vehiclesetting-iLZLTRUrsZNLrts80LgH-Q==/base.apk",
+        "passed": true,
+        "expected": "92ff9af4aa5e943ee287516b333d7114c51ff65e9b7df058ae43a751f34a4c17",
+        "actual": "92ff9af4aa5e943ee287516b333d7114c51ff65e9b7df058ae43a751f34a4c17"
+      },
+      {
+        "id": "artifact:patched:VehicleAir:/data/app/com.qinggan.app.vehicle-c-tCtjLvpyNLX-G0pCv-NA==/base.apk",
+        "passed": true,
+        "expected": "c1456921ae38e0d72b9f054991f1c936819150dde5a5b48eee58dcdf45913384",
+        "actual": "c1456921ae38e0d72b9f054991f1c936819150dde5a5b48eee58dcdf45913384"
+      },
+      {
+        "id": "artifact:patched:MusicConcate:/data/app/com.qinggan.app.music-xJjRi-YhOP4bTZ5DoAETzQ==/base.apk",
+        "passed": true,
+        "expected": "584d98956b5c186380e811d237cea89ca803d4a6a9c53688375ae6cc2ce1fa45",
+        "actual": "584d98956b5c186380e811d237cea89ca803d4a6a9c53688375ae6cc2ce1fa45"
+      },
+      {
+        "id": "artifact:patched:PateoNavi:/data/app/com.pateonavi.naviapp-Ss3BCxQw1FEDChPdHwpxuA==/base.apk",
+        "passed": true,
+        "expected": "c3e130013293d9a048e843516be801c1982f65acf2fc8264bac307c77acde450",
+        "actual": "c3e130013293d9a048e843516be801c1982f65acf2fc8264bac307c77acde450"
+      },
+      {
+        "id": "artifact:patched:SystemService:/data/app/com.qinggan.systemservice-8nfui_97h8lCzHSDaRGyVQ==/base.apk",
+        "passed": true,
+        "expected": "71afd2abcfa0c9e9f4fb126d41ac401156be0c876d58b07a631882bdc031d3c5",
+        "actual": "71afd2abcfa0c9e9f4fb126d41ac401156be0c876d58b07a631882bdc031d3c5"
+      },
+      {
+        "id": "setting:global:policy_control",
+        "passed": true,
+        "expected": "immersive.status=*",
+        "actual": "immersive.status=*"
+      },
+      {
+        "id": "setting:secure:default_input_method",
+        "passed": true,
+        "expected": "com.qinggan.app.qgime/.QingganIME",
+        "actual": "com.qinggan.app.qgime/.QingganIME"
+      },
+      {
+        "id": "setting:secure:enabled_input_methods",
+        "passed": true,
+        "expected": ":com.qinggan.app.qgime/.QingganIME",
+        "actual": ":com.qinggan.app.qgime/.QingganIME"
+      },
+      {
+        "id": "property:persist.app.kuwo.support",
+        "passed": true,
+        "expected": "false",
+        "actual": "false"
+      },
+      {
+        "id": "property:persist.sys.locale",
+        "passed": true,
+        "expected": "en-US",
+        "actual": "en-US"
+      },
+      {
+        "id": "property:persist.sys.qg.powertrain",
+        "passed": true,
+        "expected": "hybrid",
+        "actual": "hybrid"
+      },
+      {
+        "id": "property:persist.sys.qg.default.theme_path",
+        "passed": true,
+        "expected": "/system/resc/defaulttheme/",
+        "actual": "/system/resc/defaulttheme/"
+      },
+      {
+        "id": "property:persist.clusterCardInfo",
+        "passed": true,
+        "expected": "[7,9,10]",
+        "actual": "[7,9,10]"
+      },
+      {
+        "id": "property:persist.traced.enable",
+        "passed": true,
+        "expected": "0",
+        "actual": "0"
+      },
+      {
+        "id": "property:persist.media.metrics.enabled",
+        "passed": true,
+        "expected": "0",
+        "actual": "0"
+      },
+      {
+        "id": "property:persist.app.feature.leavecar",
+        "passed": true,
+        "expected": "false",
+        "actual": "false"
+      },
+      {
+        "id": "property:persist.app.feature.washcar",
+        "passed": true,
+        "expected": "false",
+        "actual": "false"
+      },
+      {
+        "id": "boot-property:ro.product.board",
+        "passed": true,
+        "expected": "sa8155",
+        "actual": "sa8155"
+      },
+      {
+        "id": "boot-property:ro.build.product_3rdparty",
+        "passed": true,
+        "expected": "f0506h",
+        "actual": "f0506h"
+      },
+      {
+        "id": "boot-property:ro.build.product",
+        "passed": true,
+        "expected": "f0506h",
+        "actual": "f0506h"
+      },
+      {
+        "id": "boot-property:ro.product.device",
+        "passed": true,
+        "expected": "f0506h",
+        "actual": "f0506h"
+      },
+      {
+        "id": "boot-property:ro.product.locale",
+        "passed": true,
+        "expected": "zh-CN",
+        "actual": "zh-CN"
+      },
+      {
+        "id": "disabled:com.android.launcher3",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.server.telecom",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.dialer",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.contacts",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.providers.telephony",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.messaging",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.mms.service",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.smspush",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.cellbroadcastreceiver",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.carrierconfig",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.carrierdefaultapp",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.simappdialog",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.emergency",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.providers.blockednumber",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.calllogbackup",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.calendar",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.email",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.camera2",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.gallery3d",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.music",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.musicfx",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.deskclock",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.calculator2",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.quicksearchbox",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.htmlviewer",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:org.chromium.webview_shell",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.egg",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.printspooler",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.bips",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.printservice.recommendation",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.managedprovisioning",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.companiondevicemanager",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.backupconfirm",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.sharedstoragebackup",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.wallpaperbackup",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.provision",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.sdksetup",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.onetimeinitializer",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.dreams.basic",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.dreams.phototable",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.wallpaper.livepicker",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.wallpapercropper",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.cts.ctsshim",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.cts.priv.ctsshim",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.traceur",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.inputmethod.latin",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.bluetoothmidiservice",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "disabled:com.android.storagemanager",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "uninstalled:com.android.phone",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "uninstalled:com.android.se",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "home",
+        "passed": true,
+        "expected": "com.qinggan.app.launcher",
+        "actual": "com.qinggan.app.launcher"
+      },
+      {
+        "id": "binding:com.qinggan.systemservice/.turnbyturn.TurnByTurnInfoService",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "id": "service:storaged",
+        "passed": true,
+        "expected": "storaged",
+        "actual": "storaged"
+      },
+      {
+        "id": "service:qg.canbus",
+        "passed": true,
+        "expected": "qg.canbus",
+        "actual": "qg.canbus"
+      },
+      {
+        "id": "service:qg.power_manager",
+        "passed": true,
+        "expected": "qg.power_manager",
+        "actual": "qg.power_manager"
+      },
+      {
+        "id": "service:qg.system_policy",
+        "passed": true,
+        "expected": "qg.system_policy",
+        "actual": "qg.system_policy"
+      },
+      {
+        "id": "service:qg.carsignal",
+        "passed": true,
+        "expected": "qg.carsignal",
+        "actual": "qg.carsignal"
+      },
+      {
+        "id": "service:qg.key_manager",
+        "passed": true,
+        "expected": "qg.key_manager",
+        "actual": "qg.key_manager"
+      },
+      {
+        "id": "service:dls_tbox_service",
+        "passed": true,
+        "expected": "dls_tbox_service",
+        "actual": "dls_tbox_service"
+      },
+      {
+        "id": "activity:com.qinggan.app.launcher/.activity.MainActivity:0",
+        "passed": true,
+        "expected": null,
+        "actual": "Window #8 Window{6010a19 u0 com.qinggan.app.launcher/com.qinggan.app.launcher.activity.MainActivity}:\n    mDisplayId=0 stackId=0 mSession=Session{d284656 2146:1000} mClient=android.os.BinderProxy@9369560\n    mOwnerUid=1000 mShowToOwnerOnly=true package=com.qinggan.app.launcher appop=NONE\n    mAttrs={(0,0)(fillxfill) sim={state=always_hidden adjust=pan forwardNavigation} ty=BASE_APPLICATION fmt=TRANSPARENT wanim=0x7f1202fe\n      fl=LAYOUT_IN_SCREEN FULLSCREEN LAYOUT_INSET_DECOR SPLIT_TOUCH HARDWA"
+      },
+      {
+        "id": "activity:com.qinggan.app.launcher/com.qinggan.secondlauncher.activity.SecondMainActivity:1",
+        "passed": true,
+        "expected": null,
+        "actual": "Window #0 Window{c20c6c2 u0 Splash Screen com.qinggan.app.launcher}:\n    mDisplayId=1 stackId=1 mSession=Session{96e5e4d 1701:1000} mClient=android.view.ViewRootImpl$W@a0c270d\n    mOwnerUid=1000 mShowToOwnerOnly=false package=com.qinggan.app.launcher appop=NONE\n    mAttrs={(0,0)(fillxfill) sim={adjust=pan} ty=APPLICATION_STARTING fmt=TRANSPARENT wanim=0x7f1202fe\n      fl=NOT_FOCUSABLE NOT_TOUCHABLE LAYOUT_IN_SCREEN FULLSCREEN LAYOUT_INSET_DECOR ALT_FOCUSABLE_IM SPLIT_TOUCH HARDWARE_ACCELERATED D"
+      },
+      {
+        "id": "display:0",
+        "passed": true,
+        "expected": {
+          "width": 1920,
+          "height": 720,
+          "density": 160
+        },
+        "actual": {}
+      },
+      {
+        "id": "display:1",
+        "passed": true,
+        "expected": {
+          "width": 1920,
+          "height": 720,
+          "density": 160,
+          "xOffset": 1920,
+          "yOffset": 0,
+          "flag": 0
+        },
+        "actual": {}
+      },
+      {
+        "id": "routing:main:MainScreenNavigationBar",
+        "passed": true,
+        "expected": 0,
+        "actual": [
+          0
+        ]
+      },
+      {
+        "id": "routing:main:HiboardDelegate",
+        "passed": true,
+        "expected": 0,
+        "actual": [
+          0
+        ]
+      },
+      {
+        "id": "routing:main:VehicleHiboardDelegate",
+        "passed": true,
+        "expected": 0,
+        "actual": [
+          0
+        ]
+      },
+      {
+        "id": "routing:second:SecondScreenNavigationBar",
+        "passed": false,
+        "expected": 1,
+        "actual": null,
+        "message": "Window \"SecondScreenNavigationBar\" not found in dumpsys window"
+      },
+      {
+        "id": "routing:second:SecondHiboardDelegate",
+        "passed": false,
+        "expected": 1,
+        "actual": null,
+        "message": "Window \"SecondHiboardDelegate\" not found in dumpsys window"
+      },
+      {
+        "id": "routing:second:SecondVehicleHiboardBar",
+        "passed": false,
+        "expected": 1,
+        "actual": null,
+        "message": "Window \"SecondVehicleHiboardBar\" not found in dumpsys window"
+      },
+      {
+        "id": "routing:main:HiboardBar",
+        "passed": true,
+        "expected": 0,
+        "actual": null
+      },
+      {
+        "id": "routing:main:VehicleHiBoardBarNew",
+        "passed": true,
+        "expected": 0,
+        "actual": null
+      },
+      {
+        "id": "routing:second:SecondHiboardBar",
+        "passed": true,
+        "expected": 1,
+        "actual": null
+      },
+      {
+        "id": "routing:main:DimView",
+        "passed": true,
+        "expected": 0,
+        "actual": null
+      },
+      {
+        "id": "routing:second:SecondDimView",
+        "passed": true,
+        "expected": 1,
+        "actual": null
+      }
+    ]
+  }
+}

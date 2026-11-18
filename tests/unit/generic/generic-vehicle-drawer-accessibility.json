@@ -1,0 +1,70 @@
+{
+  "complete": true,
+  "status": "ok",
+  "coverage_basis": "accessibility_application_root",
+  "scope": "api28_default_display",
+  "unavailable_windows": [],
+  "nodes": [
+    {
+      "actionable": false,
+      "actionable_basis": "node_state_and_viewport_only",
+      "actionable_candidate": false,
+      "bounds": {
+        "height": 140,
+        "width": 6,
+        "x": 10,
+        "y": 290
+      },
+      "checkable": false,
+      "checked": false,
+      "class": "android.view.View",
+      "clickable": false,
+      "clipped_bounds": {
+        "height": 140,
+        "width": 6,
+        "x": 10,
+        "y": 290
+      },
+      "description": "",
+      "editor_status": "unsupported",
+      "enabled": true,
+      "focused": false,
+      "id": "2",
+      "identity_scope": "this_observation_only",
+      "occlusion": "unknown",
+      "package": "com.qinggan.app.launcher",
+      "parent": "1",
+      "resource_id": "com.qinggan.app.launcher:id/line_view",
+      "screen": "primary",
+      "scrollable": false,
+      "selected": false,
+      "selection_status": "unsupported",
+      "selection_unit": null,
+      "text": "",
+      "text_redacted": false,
+      "touchability": "unknown",
+      "visible": true,
+      "window_id": 11
+    }
+  ],
+  "windows": [
+    {
+      "accessibility_focused": false,
+      "active": false,
+      "bounds": {
+        "height": 720,
+        "width": 30,
+        "x": 0,
+        "y": 0
+      },
+      "component": null,
+      "id": 11,
+      "identity_basis": "accessibility_window_id_and_metadata",
+      "input_focused": false,
+      "layer": 3,
+      "package": "com.qinggan.app.launcher",
+      "title": "",
+      "type": 3
+    }
+  ]
+}

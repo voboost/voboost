@@ -1,0 +1,348 @@
+{
+  "schemaVersion": 2,
+  "releaseIdentity": "1.0.0-beta1",
+  "deviceMutationOwner": "packaged-installer-cli",
+  "voyemuOwner": "voyemu-cli",
+  "cases": [
+    {
+      "number": 1,
+      "id": "cli-install-first",
+      "required": true,
+      "observable": "Install the exact beta1 kit through the packaged CLI"
+    },
+    {
+      "number": 2,
+      "id": "cli-uninstall",
+      "required": true,
+      "observable": "Remove beta1 through the packaged CLI"
+    },
+    {
+      "number": 3,
+      "id": "cli-absence",
+      "required": true,
+      "observable": "Verify all nine absence checks and Enforcing"
+    },
+    {
+      "number": 4,
+      "id": "cli-install-second",
+      "required": true,
+      "observable": "Install the same exact kit again through the packaged CLI"
+    },
+    {
+      "number": 5,
+      "id": "settings-tab",
+      "required": true,
+      "observable": "Open OEM Settings and verify the Voboost tab"
+    },
+    {
+      "number": 6,
+      "id": "language-opposite",
+      "required": true,
+      "observable": "Select the opposite OEM system EN/ZH language, preserving the observed original language, and verify system-driven Voboost captions"
+    },
+    {
+      "number": 7,
+      "id": "language-return",
+      "required": true,
+      "observable": "Restore the observed original OEM system EN/ZH language and verify system-driven Voboost captions"
+    },
+    {
+      "number": 8,
+      "id": "agent-enablement-conflict",
+      "required": true,
+      "observable": "Enable available stable agents and verify keyboard-en and keyboard-ru cannot coexist"
+    },
+    {
+      "number": 9,
+      "id": "font-cyrillic",
+      "required": true,
+      "observable": "Verify actual Cyrillic rendering with the font agent"
+    },
+    {
+      "number": 10,
+      "id": "keyboard-en",
+      "required": true,
+      "observable": "Verify visible EN keyboard and text input"
+    },
+    {
+      "number": 11,
+      "id": "keyboard-ru-en",
+      "required": true,
+      "observable": "Verify visible RU/EN keyboard and text input"
+    },
+    {
+      "number": 12,
+      "id": "launcher-persistence",
+      "required": true,
+      "observable": "Install the approved Voboost Fixture fixture, verify last icon, move first and verify after reboot"
+    },
+    {
+      "number": 13,
+      "id": "forced-ev-persistence",
+      "required": true,
+      "observable": "Verify reboot resets Forced EV without the agent and preserves it with the agent; through the actual left drawer arm FEV, cycle Hybrid/Save/Electric, explicitly disable, prove continuous CAN OFF, repeat modes and cold reboot OFF"
+    },
+    {
+      "number": 14,
+      "id": "pedestrian-warning-persistence",
+      "required": true,
+      "observable": "Without the agent, disable Pedestrian Warning and verify reboot enables it; with the agent, verify it remains disabled after reboot"
+    },
+    {
+      "number": 15,
+      "id": "hidden-tbox-recovery",
+      "required": true,
+      "observable": "Select the actual hidden Settings radio and current description, then verify agents after reboot, tab absence and live TBOX recovery"
+    },
+    {
+      "number": 16,
+      "id": "none-no-processes",
+      "required": true,
+      "observable": "Select the actual none Settings radio and current description, verify post-reboot Voboost process absence and return only through the computer installer"
+    },
+    {
+      "number": 17,
+      "id": "settings-uninstall",
+      "required": true,
+      "observable": "Restore interface, require owned Voboost Fixture cleanup after cases12/18, use the Settings uninstall action and verify original clean state"
+    },
+    {
+      "number": 18,
+      "id": "catalog-classification",
+      "required": true,
+      "observable": "Actual package UID/flags and stock catalog preservation"
+    },
+    {
+      "number": 19,
+      "id": "navi-input-spacing",
+      "required": true,
+      "observable": "Actual Navi Moscow, Yo and mixed input codepoints/render"
+    },
+    {
+      "number": 20,
+      "id": "control-layout",
+      "required": true,
+      "observable": "Measure shared checkbox/radio/section layout under OEM EN/ZH and admitted i18n-ru; no Voboost language radio is expected"
+    },
+    {
+      "number": 21,
+      "id": "action-button-layout",
+      "required": true,
+      "observable": "Verify action padding, wrapping and clicks under OEM EN/ZH and admitted i18n-ru; missing RU proof is not a pass"
+    },
+    {
+      "number": 22,
+      "id": "chinese-language-persistence",
+      "required": true,
+      "observable": "Verify the actual system language picker, admitted Russian contribution, process/resource locale and reboot persistence; require current Android and QNX gauge/point/light apply/disable readback"
+    },
+    {
+      "number": 23,
+      "id": "startup-descriptions",
+      "required": true,
+      "observable": "Verify startup descriptions and startup controls under OEM system EN/ZH and admitted i18n-ru; computer-only return from none, cancel and rejected mutation readback"
+    },
+    {
+      "number": 24,
+      "id": "initial-state-seeding",
+      "required": true,
+      "observable": "Authoritative initial false/true seeding and root readback"
+    },
+    {
+      "number": 25,
+      "id": "state-outage-recovery",
+      "required": true,
+      "observable": "Source-bound retry/cancel plus actual multi-target load and observed outage"
+    },
+    {
+      "number": 26,
+      "id": "every-guest-reboot",
+      "required": true,
+      "observable": "Independent exact prepared inventory, Enforcing and UI evidence for every guest boot including installer intermediate boots"
+    },
+    {
+      "number": 27,
+      "id": "root-boundary",
+      "required": true,
+      "observable": "Root/policy authority and ordinary diagnostic boundary"
+    }
+  ],
+  "fixture": {
+    "package": "ru.voboost.tests.launcherfixture",
+    "label": "Voboost Fixture",
+    "source": "tests/emulator/agents/agent-launcher/app",
+    "apk": "build/test-fixtures/launcher/voboost-launcher-fixture.apk"
+  },
+  "publication": "forbidden",
+  "integrationCases": [
+    {
+      "id": "I01",
+      "required": true,
+      "observable": "Verify the actual signed delivery, inventory and packaged binaries"
+    },
+    {
+      "id": "I02",
+      "required": true,
+      "observable": "Verify real producer output with the actual component consumers"
+    },
+    {
+      "id": "I03",
+      "required": true,
+      "observable": "Verify product transactions and crash recovery without a guest"
+    },
+    {
+      "id": "I04",
+      "required": true,
+      "observable": "Verify composed installer and OEM controls without a guest"
+    },
+    {
+      "id": "I05",
+      "required": true,
+      "observable": "Verify log production, rotation, export and consumption"
+    }
+  ],
+  "guiCases": [
+    {
+      "id": "G01",
+      "required": true,
+      "observable": "Welcome, consent and actual device identification"
+    },
+    {
+      "id": "G02",
+      "required": true,
+      "observable": "Install through GUI and reopen management"
+    },
+    {
+      "id": "G03",
+      "required": true,
+      "observable": "Persist startup mode without stopping the running product"
+    },
+    {
+      "id": "G04",
+      "required": true,
+      "observable": "Export logs and cancel native save"
+    },
+    {
+      "id": "G05",
+      "required": true,
+      "observable": "Restore cancellation and confirmed restoration"
+    },
+    {
+      "id": "G06",
+      "required": true,
+      "observable": "Uninstall cancellation, confirmed removal and independent absence"
+    },
+    {
+      "id": "G07",
+      "required": true,
+      "observable": "Reinstall a compatible degraded installation"
+    },
+    {
+      "id": "G08",
+      "required": true,
+      "observable": "No-device, unauthorized and unsupported parameters"
+    },
+    {
+      "id": "G09",
+      "required": true,
+      "observable": "Transport interruption before mutation and reconnect"
+    },
+    {
+      "id": "G10",
+      "required": true,
+      "observable": "Transport interruption during mutation and safe reconciliation"
+    },
+    {
+      "id": "G11",
+      "required": true,
+      "observable": "Shared controls, languages, themes, window sizes and operation-time log access"
+    }
+  ],
+  "agentCases": [
+    {
+      "id": "font-cyrillic",
+      "required": true,
+      "observable": "Enable, verify actual effects on each required target, disable and verify restoration after reboot"
+    },
+    {
+      "id": "i18n-ru",
+      "required": true,
+      "observable": "Enable, verify actual effects on each required target, disable and verify restoration after reboot"
+    },
+    {
+      "id": "keyboard-en",
+      "required": true,
+      "observable": "Enable, verify actual effects on each required target, disable and verify restoration after reboot"
+    },
+    {
+      "id": "keyboard-ru",
+      "required": true,
+      "observable": "Enable, verify actual effects on each required target, disable and verify restoration after reboot"
+    },
+    {
+      "id": "launcher",
+      "required": true,
+      "observable": "Enable, verify actual effects on each required target, disable and verify restoration after reboot"
+    },
+    {
+      "id": "login-activation-skip",
+      "required": true,
+      "observable": "Enable, verify actual effects on each required target, disable and verify restoration after reboot"
+    },
+    {
+      "id": "media-apps",
+      "required": true,
+      "observable": "Enable, verify actual effects on each required target, disable and verify restoration after reboot"
+    },
+    {
+      "id": "media-popup-external-apps",
+      "required": true,
+      "observable": "Enable, verify actual effects on each required target, disable and verify restoration after reboot"
+    },
+    {
+      "id": "phone",
+      "required": true,
+      "observable": "Enable, verify actual effects on each required target, disable and verify restoration after reboot"
+    },
+    {
+      "id": "settings",
+      "required": true,
+      "observable": "Enable, verify actual effects on each required target, disable and verify restoration after reboot"
+    },
+    {
+      "id": "settings-engineering-menu",
+      "required": true,
+      "observable": "Enable, verify actual effects on each required target, disable and verify restoration after reboot"
+    },
+    {
+      "id": "steering-media-app-switcher",
+      "required": true,
+      "observable": "Enable, verify actual effects on each required target, disable and verify restoration after reboot"
+    },
+    {
+      "id": "steering-media-session",
+      "required": true,
+      "observable": "Enable, verify actual effects on each required target, disable and verify restoration after reboot"
+    },
+    {
+      "id": "vehicle-display-auto-lift",
+      "required": true,
+      "observable": "Enable, verify actual effects on each required target, disable and verify restoration after reboot"
+    },
+    {
+      "id": "vehicle-drive-forced-ev",
+      "required": true,
+      "observable": "Enable, verify actual effects on each required target, disable and verify restoration after reboot"
+    },
+    {
+      "id": "vehicle-drive-outing",
+      "required": true,
+      "observable": "Enable, verify actual effects on each required target, disable and verify restoration after reboot"
+    },
+    {
+      "id": "vehicle-drive-pedestrian-warning",
+      "required": true,
+      "observable": "Enable, verify actual effects on each required target, disable and verify restoration after reboot"
+    }
+  ]
+}

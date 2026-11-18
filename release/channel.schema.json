@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://voboost.ru/schemas/channel.schema.json",
+  "title": "Voboost OTA channel pointer",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "channel", "releaseIdentity", "manifestUrl", "manifestSize", "manifestSha256"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "channel": { "enum": ["stable", "beta"] },
+    "releaseIdentity": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(-((0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(\\.(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*))?(\\+[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?$",
+      "maxLength": 128
+    },
+    "manifestUrl": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://[^/@:#?\\s]+(?:/[^#\\s]*)?$",
+      "maxLength": 2048
+    },
+    "manifestSize": { "type": "integer", "minimum": 1, "maximum": 4194304 },
+    "manifestSha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "channel": { "const": "stable" } }, "required": ["channel"] },
+      "then": { "properties": { "releaseIdentity": { "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(\\+[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?$" } } }
+    },
+    {
+      "if": { "properties": { "channel": { "const": "beta" } }, "required": ["channel"] },
+      "then": { "properties": { "releaseIdentity": { "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)-beta[0-9A-Za-z-]*(\\.[0-9A-Za-z-]+)*(\\+[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?$" } } }
+    }
+  ]
+}

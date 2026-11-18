@@ -1,0 +1,25 @@
+Emulator acceptance failed: emulator operation failed (Some(72)): ui-capture stage=helper exit=72 helper_exit=1 xml_type=missing xml_bytes=0
+ui-observation service phase=initial present=true flags=65554 capabilities=15
+ui-observation stage=active-root-before-windows reason=active-root-waiting kind=none syscall=none errno=none windows=0 window-reads=0 nodes=0 pending-ipc=none pending-ipc-ms=0 refresh-calls=0 refresh-ms=0 child-calls=0 child-ms=0
+ui-observation active-root window-id=246 reads=2
+ui-observation service phase=after-set present=true flags=65618 capabilities=15
+ui-observation window id=251 type=-1 layer=3
+ui-observation window id=252 type=-1 layer=2
+ui-observation window id=255 type=-1 layer=1
+ui-observation window id=246 type=1 layer=0
+ui-observation stage=nodes-complete reason=timing kind=none syscall=none errno=none windows=4 window-reads=1 nodes=116 pending-ipc=none pending-ipc-ms=0 refresh-calls=116 refresh-ms=20 child-calls=224 child-ms=5
+ui-observation window id=251 type=-1 layer=3
+ui-observation window id=252 type=-1 layer=2
+ui-observation window id=255 type=-1 layer=1
+ui-observation window id=246 type=1 layer=0
+ui-observation window id=251 type=-1 layer=3
+ui-observation window id=252 type=-1 layer=2
+ui-observation window id=255 type=-1 layer=1
+ui-observation window id=246 type=1 layer=0
+ui-observation stage=gesture reason=gesture-window-or-target-drift kind=java.lang.IllegalStateException syscall=none errno=none windows=4 window-reads=100 nodes=116 pending-ipc=none pending-ipc-ms=0 refresh-calls=116 refresh-ms=20 child-calls=224 child-ms=5
+ui-capture diagnostic=run.log bytes=1444 sha256=e5f5f909f3336a5177595824ad63937b930b3a930ae229db092ac17cd212933f
+ui-capture diagnostic=native.log bytes=28 sha256=7eac3f15731263e7cb1e1baf9ba133c9f946d0b9fb34c1d0e9871fc95fa20444
+ui-capture native-window pid=8567 start=1791813978.830594444 end=1791813979.434734944 reader_exit=0
+ui-native --------- beginning of main
+ui-capture timing startup_ms=150 handshake_ms=70 run_ms=560 exit_ms=0 cleanup_ms=50 total_ms=1030
+

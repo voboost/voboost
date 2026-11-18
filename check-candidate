@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd -- "$(dirname -- "$0")"
+./gradlew prepareCandidateCheck --console=plain "$@"
+java_command=java
+if [[ -n "${JAVA_HOME:-}" ]]; then
+    java_command="$JAVA_HOME/bin/java"
+fi
+exec "$java_command" -cp "$(cat build/candidate-runner.classpath)" ru.voboost.tests.CandidateRoute "$@"

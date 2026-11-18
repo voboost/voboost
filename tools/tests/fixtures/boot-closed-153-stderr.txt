@@ -1,0 +1,1 @@
+Emulator acceptance failed: boot-observation process failed: exit=Some(1) stdout_bytes=0 stdout_kind=empty stderr_bytes=14 stdout_sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 stderr_sha256=8f0acf19b9cbb9670c5e483a0fd471ca6603474e6fc4558565f14ba5cefe4c57 stderr=error: closed

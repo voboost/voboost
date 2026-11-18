@@ -1,0 +1,5 @@
+- [x] Reproduce original visibility corruption, no-move checkpoint and unproved-language completion against the previous driver.
+- [x] Define and strictly validate the acceptance contract before applying runtime-tool source changes.
+- [x] Apply the scoped driver and fixture changes.
+- [x] Run named host gates and independent source review.
+- [x] Archive the implemented tooling contract and revalidate.

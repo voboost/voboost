@@ -1,8 +1,0 @@
-<resources>
-    <!-- App theme. The UI is fully custom-drawn (voboost-components views) and
-         runs fullscreen, so it needs only a no-action-bar platform theme. The
-         app never reads Material/AppCompat theme attributes (colorPrimary etc.
-         were unused), so the previous Theme.MaterialComponents parent and its
-         color items are dropped along with the material/appcompat deps. -->
-    <style name="Theme.Voboost" parent="@android:style/Theme.Material.NoActionBar" />
-</resources>

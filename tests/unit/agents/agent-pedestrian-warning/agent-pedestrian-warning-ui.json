@@ -1,0 +1,85 @@
+{
+  "complete": true,
+  "status": "ok",
+  "unavailable_windows": [],
+  "nodes": [
+    {
+      "id": "55",
+      "parent": "45",
+      "package": "com.qinggan.app.vehiclesetting",
+      "resource_id": "com.qinggan.app.vehiclesetting:id/fragment_safe_hum_vsp",
+      "window_id": 16,
+      "checkable": false,
+      "checked": false,
+      "enabled": true,
+      "visible": true,
+      "bounds": {
+        "height": 191,
+        "width": 705,
+        "x": 485,
+        "y": 503
+      },
+      "clipped_bounds": {
+        "height": 191,
+        "width": 705,
+        "x": 485,
+        "y": 503
+      }
+    },
+    {
+      "id": "56",
+      "parent": "55",
+      "package": "com.qinggan.app.vehiclesetting",
+      "resource_id": "com.qinggan.app.vehiclesetting:id/hint_Switch_view",
+      "window_id": 16,
+      "checkable": false,
+      "checked": false,
+      "enabled": true,
+      "visible": true,
+      "bounds": {
+        "height": 191,
+        "width": 705,
+        "x": 485,
+        "y": 503
+      },
+      "clipped_bounds": {
+        "height": 191,
+        "width": 705,
+        "x": 485,
+        "y": 503
+      }
+    },
+    {
+      "id": "57",
+      "parent": "56",
+      "package": "com.qinggan.app.vehiclesetting",
+      "resource_id": "com.qinggan.app.vehiclesetting:id/hint_switch_button",
+      "window_id": 16,
+      "checkable": true,
+      "checked": false,
+      "enabled": true,
+      "visible": true,
+      "bounds": {
+        "height": 48,
+        "width": 85,
+        "x": 515,
+        "y": 527
+      },
+      "clipped_bounds": {
+        "height": 48,
+        "width": 85,
+        "x": 515,
+        "y": 527
+      }
+    }
+  ],
+  "windows": [
+    {
+      "active": true,
+      "id": 16,
+      "input_focused": true,
+      "package": "com.qinggan.app.vehiclesetting",
+      "type": 1
+    }
+  ]
+}

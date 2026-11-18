@@ -1,0 +1,3 @@
+# Navi Moscow reference
+
+The PNG is the retained original primary SDK frame from `plans/2026-10-15/runtime179/navi-russian-result-primary.png`. Its focused editor geometry and exact committed text are extracted from `ru-en-russian-input-final-ui.json` in the same historical run. On 2026-11-02 the coordinator visually reviewed only the Moscow text: readable glyphs, even spacing, no overlaps, separate caret. This is a historical reference for that text and geometry, not evidence about the current process, firmware, Typeface or A11. The caret is excluded by the white-ink mask; no other text is inferred from the image.

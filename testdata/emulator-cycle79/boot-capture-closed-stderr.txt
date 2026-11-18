@@ -1,0 +1,2 @@
+Emulator acceptance failed: emulator capture failed: error: closed
+

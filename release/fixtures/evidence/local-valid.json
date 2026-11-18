@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "releaseIdentity": "1.0.0-beta1",
+  "producer": {"repository":"voboost/voboost","workflowPath":".github/workflows/beta1-evidence-ingest.yml","workflowCommitSha":"1111111111111111111111111111111111111111","workflowBlobSha":"2222222222222222222222222222222222222222","ref":"refs/heads/main","runId":"10","runAttempt":"1","job":"ingest","artifactName":"beta1-local-delivery-evidence"},
+  "product": {"commit":"3333333333333333333333333333333333333333","tree":"4444444444444444444444444444444444444444","workflowBlobSha":"5555555555555555555555555555555555555555","sourceDefinitionSha256":"dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd","trustDocumentSha256":"eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"},
+  "sources": {
+    "app":{"commit":"6666666666666666666666666666666666666666","tree":"7777777777777777777777777777777777777777"},
+    "agents":{"commit":"7777777777777777777777777777777777777777","tree":"8888888888888888888888888888888888888888"},
+    "inject":{"commit":"8888888888888888888888888888888888888888","tree":"9999999999999999999999999999999999999999"},
+    "installer":{"commit":"9999999999999999999999999999999999999999","tree":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+    "license":{"commit":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","tree":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"},
+    "logo":{"commit":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","tree":"cccccccccccccccccccccccccccccccccccccccc"}
+  },
+  "artifactSet":{"schemaVersion":1,"artifacts":[{"component":"app","file":"voboost-app.apk","size":897947,"sha256":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},{"component":"agents","file":"agents.json","size":22087,"sha256":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}]},
+  "artifactSetSha256":"1b400d303abb25b260af5203ee7958783608f52e704ea4511d8e2b4421810ec5",
+  "localBuild":{"status":"passed","completedAt":"2026-09-06T03:00:00Z","nonce":"1111111111111111111111111111111111111111111111111111111111111111","sequence":1,"artifactSetSha256":"1b400d303abb25b260af5203ee7958783608f52e704ea4511d8e2b4421810ec5","previousReceiptSha256":"0000000000000000000000000000000000000000000000000000000000000000","receiptSha256":"1c5cffef9ab613002c43b4f345489eb3a2f301a8127eb9bcf68cb54d6e81f8c1"},
+  "vehicle":{"status":"passed","completedAt":"2026-09-06T03:05:00Z","nonce":"2222222222222222222222222222222222222222222222222222222222222222","sequence":2,"artifactSetSha256":"1b400d303abb25b260af5203ee7958783608f52e704ea4511d8e2b4421810ec5","previousReceiptSha256":"1c5cffef9ab613002c43b4f345489eb3a2f301a8127eb9bcf68cb54d6e81f8c1","vehicleIdentitySha256":"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc","firmware":"free-09-chinese-6.0.3","receiptSha256":"3b0963235752d504c8a5edb1af51ca080db942f13fb1e7ba53c43a09adf1546a"},
+  "uninstall":{"status":"passed","completedAt":"2026-09-06T03:10:00Z","nonce":"3333333333333333333333333333333333333333333333333333333333333333","sequence":3,"artifactSetSha256":"1b400d303abb25b260af5203ee7958783608f52e704ea4511d8e2b4421810ec5","previousReceiptSha256":"3b0963235752d504c8a5edb1af51ca080db942f13fb1e7ba53c43a09adf1546a","receiptSha256":"2cea0d1cf8d43671bef013c12fdc5ad07610acb94ccf2b904493a0514f80269e"},
+  "cleanState":{"status":"passed","completedAt":"2026-09-06T03:20:00Z","nonce":"4444444444444444444444444444444444444444444444444444444444444444","sequence":4,"artifactSetSha256":"1b400d303abb25b260af5203ee7958783608f52e704ea4511d8e2b4421810ec5","previousReceiptSha256":"2cea0d1cf8d43671bef013c12fdc5ad07610acb94ccf2b904493a0514f80269e","receiptSha256":"c16ddb166f76d3d5d3ad6f76eb163344593cf7dffdc911dfe13c454dbbe35a06"}
+}

@@ -1,0 +1,105 @@
+name: Beta1 evidence ingestion
+run-name: beta1-evidence-${{ inputs.kind }}-${{ inputs.payload_sha256 }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      kind: {description: Evidence kind, required: true, type: choice, options: [local, ci-vehicle]}
+      payload_base64: {description: Base64 exact evidence payload without producer envelope, required: true, type: string}
+      payload_sha256: {description: SHA-256 of decoded exact payload bytes, required: true, type: string}
+      signature_base64: {description: Base64 raw Ed25519 signature over exact payload bytes, required: true, type: string}
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: beta1-evidence-${{ inputs.kind }}-${{ inputs.payload_sha256 }}
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment: beta1-evidence-ingestion
+    permissions: {actions: read, contents: read}
+    steps:
+      - name: Set up pinned Rust
+        uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # pinned
+        with: {toolchain: '1.98.0'}
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with: {node-version: '24.13.0'}
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with: {ref: "${{ github.workflow_sha }}", fetch-depth: 0, persist-credentials: false}
+      - name: Verify trusted producer and signed exact payload
+        env:
+          GH_TOKEN: "${{ github.token }}"
+          KIND: "${{ inputs.kind }}"
+          PAYLOAD_BASE64: "${{ inputs.payload_base64 }}"
+          PAYLOAD_SHA256: "${{ inputs.payload_sha256 }}"
+          SIGNATURE_BASE64: "${{ inputs.signature_base64 }}"
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = refs/heads/main
+          test "$GITHUB_SHA" = "$GITHUB_WORKFLOW_SHA"
+          [[ "$PAYLOAD_SHA256" =~ ^[0-9a-f]{64}$ ]]
+          cargo run --manifest-path release/Cargo.toml --locked -- check-trust-roots release/1.0.0-beta1-trust.json
+          test "$(jq -r .state release/1.0.0-beta1-trust.json)" = provisioned
+          EVIDENCE_PUBLIC_KEY_HEX=$(jq -r .roots.evidencePublicKeyHex release/1.0.0-beta1-trust.json)
+          [[ "$EVIDENCE_PUBLIC_KEY_HEX" =~ ^[0-9a-f]{64}$ ]]
+          printf '%s' "$PAYLOAD_BASE64" | base64 --decode > "$RUNNER_TEMP/payload.json"
+          printf '%s' "$SIGNATURE_BASE64" | base64 --decode > "$RUNNER_TEMP/payload.sig"
+          test "$(sha256sum "$RUNNER_TEMP/payload.json" | cut -d ' ' -f1)" = "$PAYLOAD_SHA256"
+          jq -cS . "$RUNNER_TEMP/payload.json" > "$RUNNER_TEMP/canonical.json"
+          cmp "$RUNNER_TEMP/payload.json" "$RUNNER_TEMP/canonical.json"
+          printf '%s' "$EVIDENCE_PUBLIC_KEY_HEX" | xxd -r -p > "$RUNNER_TEMP/evidence.pub"
+          cargo run --manifest-path release/Cargo.toml --locked -- verify-file "$RUNNER_TEMP/evidence.pub" "$RUNNER_TEMP/payload.json" "$RUNNER_TEMP/payload.sig"
+          workflow_blob=$(git rev-parse "$GITHUB_SHA:.github/workflows/beta1-evidence-ingest.yml")
+          ci_workflow_blob=$(git rev-parse "$GITHUB_SHA:.github/workflows/beta1-ci.yml")
+          source_definition_sha=$(sha256sum release/1.0.0-beta1.toml | cut -d ' ' -f1)
+          trust_document_sha=$(sha256sum release/1.0.0-beta1-trust.json | cut -d ' ' -f1)
+          product_tree=$(git rev-parse "$GITHUB_SHA^{tree}")
+          artifact_name=beta1-local-delivery-evidence
+          if test "$KIND" = ci-vehicle; then artifact_name=beta1-ci-vehicle-evidence; fi
+          jq -cS --arg repository "$GITHUB_REPOSITORY" --arg workflowCommitSha "$GITHUB_SHA" --arg workflowBlobSha "$workflow_blob" --arg ref "$GITHUB_REF" --arg runId "$GITHUB_RUN_ID" --arg runAttempt "$GITHUB_RUN_ATTEMPT" --arg artifactName "$artifact_name" '. + {producer:{repository:$repository,workflowPath:".github/workflows/beta1-evidence-ingest.yml",workflowCommitSha:$workflowCommitSha,workflowBlobSha:$workflowBlobSha,ref:$ref,runId:$runId,runAttempt:$runAttempt,job:"ingest",artifactName:$artifactName}}' "$RUNNER_TEMP/payload.json" > evidence.json
+          if test "$KIND" = local; then
+            jq -cn --arg workflowCommitSha "$GITHUB_SHA" --arg workflowBlobSha "$workflow_blob" --arg runId "$GITHUB_RUN_ID" --arg runAttempt "$GITHUB_RUN_ATTEMPT" --arg commit "$GITHUB_SHA" --arg tree "$product_tree" --arg ciWorkflowBlobSha "$ci_workflow_blob" --arg definition "$source_definition_sha" --arg trust "$trust_document_sha" --slurpfile evidence evidence.json '{producer:{workflowCommitSha:$workflowCommitSha,workflowBlobSha:$workflowBlobSha,runId:$runId,runAttempt:$runAttempt},product:{commit:$commit,tree:$tree,workflowBlobSha:$ciWorkflowBlobSha,sourceDefinitionSha256:$definition,trustDocumentSha256:$trust},sources:$evidence[0].sources}' > "$RUNNER_TEMP/expected.json"
+            for name in app agents inject installer logo; do
+              commit=$(jq -r ".sources.$name.commit" evidence.json)
+              tree=$(jq -r ".sources.$name.tree" evidence.json)
+              test "$(gh api "repos/voboost/voboost-$name/git/commits/$commit" --jq .tree.sha)" = "$tree"
+              test "$(sed -nE "s/^$name = \"([0-9a-f]{40})\"$/\1/p" release/1.0.0-beta1.toml)" = "$commit"
+            done
+            node tools/beta1-evidence.ts local evidence.json "$RUNNER_TEMP/expected.json"
+          else
+            ci_run=$(jq -r .ci.runId evidence.json)
+            gh api "repos/$GITHUB_REPOSITORY/actions/runs/$ci_run" > "$RUNNER_TEMP/ci-run.json"
+            test "$(jq -r .path "$RUNNER_TEMP/ci-run.json")" = .github/workflows/beta1-ci.yml
+            test "$(jq -r .head_sha "$RUNNER_TEMP/ci-run.json")" = "$GITHUB_SHA"
+            test "$(jq -r .conclusion "$RUNNER_TEMP/ci-run.json")" = success
+            for row in finalClosure:beta1-final-signed-closure:closure installerPackages:beta1-installer-packages:packages; do
+              key=${row%%:*}; tail=${row#*:}; expected_name=${tail%%:*}; directory=${tail#*:}
+              id=$(jq -r ".ci.$key.id" evidence.json); digest=$(jq -r ".ci.$key.digest" evidence.json); payload=$(jq -r ".ci.$key.payloadSha256" evidence.json)
+              gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$id" > "$RUNNER_TEMP/$directory-meta.json"
+              test "$(jq -r .name "$RUNNER_TEMP/$directory-meta.json")" = "$expected_name"
+              test "$(jq -r .workflow_run.id "$RUNNER_TEMP/$directory-meta.json")" = "$ci_run"
+              test "$(jq -r .digest "$RUNNER_TEMP/$directory-meta.json")" = "$digest"
+              gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$id/zip" > "$RUNNER_TEMP/$directory.zip"
+              test "sha256:$(sha256sum "$RUNNER_TEMP/$directory.zip" | cut -d ' ' -f1)" = "$digest"
+              mkdir "$RUNNER_TEMP/$directory"
+              unzip -q "$RUNNER_TEMP/$directory.zip" -d "$RUNNER_TEMP/$directory"
+              test "$(tar --sort=name --mtime='UTC 1970-01-01' --owner=0 --group=0 --numeric-owner -C "$RUNNER_TEMP/$directory" -cf - . | sha256sum | cut -d ' ' -f1)" = "$payload"
+            done
+            node tools/beta1-evidence.ts inventory "$RUNNER_TEMP/closure" "$RUNNER_TEMP/packages" "$RUNNER_TEMP/artifact-set.json"
+            jq -cn --arg workflowCommitSha "$GITHUB_SHA" --arg workflowBlobSha "$workflow_blob" --arg runId "$GITHUB_RUN_ID" --arg runAttempt "$GITHUB_RUN_ATTEMPT" --arg commit "$GITHUB_SHA" --arg ciWorkflowBlobSha "$ci_workflow_blob" --arg definition "$source_definition_sha" --arg trust "$trust_document_sha" --slurpfile evidence evidence.json --slurpfile inventory "$RUNNER_TEMP/artifact-set.json" '{producer:{workflowCommitSha:$workflowCommitSha,workflowBlobSha:$workflowBlobSha,runId:$runId,runAttempt:$runAttempt},product:{commit:$commit,workflowBlobSha:$ciWorkflowBlobSha,sourceDefinitionSha256:$definition,trustDocumentSha256:$trust},ci:$evidence[0].ci,artifactSet:$inventory[0]}' > "$RUNNER_TEMP/expected.json"
+            node tools/beta1-evidence.ts ci evidence.json "$RUNNER_TEMP/expected.json"
+          fi
+          cp "$RUNNER_TEMP/payload.sig" evidence-payload.sig
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ${{ inputs.kind == 'local' && 'beta1-local-delivery-evidence' || 'beta1-ci-vehicle-evidence' }}
+          path: |
+            evidence.json
+            evidence-payload.sig
+          if-no-files-found: error
+          retention-days: 14

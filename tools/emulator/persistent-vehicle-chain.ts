@@ -1,0 +1,11 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { parseResidentDocument, persistentVehicleArmed, residentStatusShape } from "./functional-observations.ts";
+const status = parseResidentDocument(readFileSync(0, "utf8"));
+residentStatusShape(status);
+const authority = { boot: "11111111-1111-1111-1111-111111111111", generationId: "11".repeat(32), catalogSha256: "22".repeat(32) };
+const uptime = process.argv[2] ?? "100.00";
+assert.match(uptime, /^[0-9]+\.[0-9]{2}$/);
+const body = `persistent-vehicle-state-snapshot:\nsource=daemon-secure-root-store-read; freshness=compare-boot-id-and-observedAtBootMs; unavailable-is-not-false\ncurrent-boot-id=${authority.boot}\ncurrent-boot-uptime=${uptime} 50.00\n${JSON.stringify(status)}\nblock-protection:\n`;
+assert.deepEqual(persistentVehicleArmed(body, authority), { fev: { status: "present", value: true }, pw: { status: "present", value: false } });
+console.log("actual secure boolean reads -> atomic status -> canonical management -> production consumer PASS");

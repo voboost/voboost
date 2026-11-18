@@ -1,0 +1,1 @@
+{"schemaVersion":1,"releaseIdentity":"1.0.0-beta1","state":"unprovisioned","rotation":{"mode":"source-reviewed-no-runtime-rotation","previousDocumentSha256":null},"roots":{"androidCertificateSha256":null,"agentCatalogPublicKeyHex":null,"productPublicKeyHex":null,"nativeExecutablePublicKeyHex":null,"restorePublicKeyHex":null,"evidencePublicKeyHex":null}}

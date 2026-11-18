@@ -1,0 +1,221 @@
+{
+  "sourceRevisionMeaning": "SHA256 of actual DMG179 agent-common.dex, matched to signed closure agents.json core.sha256; NOT a codeGeneration field",
+  "catalog": "local-builds-new/beta1-current179/closure/agents.json",
+  "catalogSha256": "4519bdb45dc6f239844d18f046221c0290aa02f8a0cce3d41262c30fb7e9b3c3",
+  "signatureSha256": "3c2e9525645b106c5d79bb13ab7481809e626f6f9ecd45f05d26bccc66e964ff",
+  "states": [
+    {
+      "state": "en-first",
+      "source": "plans/2026-10-15/runtime179/keyboard-initial-primary.png",
+      "sourcePngSha256": "23fa6734a7ec7587fa460b2557143e2faf9413712db390c6f992f6ca8268d6ed",
+      "cropBounds": [
+        0,
+        368,
+        1920,
+        720
+      ],
+      "baselineSha256": "985fcae38a5ae636d76214395e79c1f87c19a71c5141f9e93287dfce3a4e7b8c"
+    },
+    {
+      "state": "en-upper-lock",
+      "source": "plans/2026-10-15/runtime179/en-shift1-primary.png",
+      "sourcePngSha256": "c1600fa9e9d35ae68c145913e3c550365147a20e43d21d0d008ea03b7d4535a5",
+      "cropBounds": [
+        0,
+        368,
+        1920,
+        720
+      ],
+      "baselineSha256": "327f18ac8549fe6ce6d9f95a0c4b105bb406eb8b1d80a4a2ecaee4107be44a09"
+    },
+    {
+      "state": "en-lower",
+      "source": "plans/2026-10-15/runtime179/en-lower-primary.png",
+      "sourcePngSha256": "093fd74640dfa8cfb3a6fc979bc789dfea69280f179fa302e80d8500194b3364",
+      "cropBounds": [
+        0,
+        368,
+        1920,
+        720
+      ],
+      "baselineSha256": "1913a4cb85f718f12eff3c816f7b532d48280e6e5bcf4404b624cbd50dda3ca8"
+    },
+    {
+      "state": "ru-lower",
+      "source": "plans/2026-10-15/runtime179/ru-first-primary.png",
+      "sourcePngSha256": "67bc94d3b3dc0d74d50700daa70c8264048131e8a45a61128493ea9278192c45",
+      "cropBounds": [
+        0,
+        368,
+        1920,
+        720
+      ],
+      "baselineSha256": "7b2030e7328f06c1e3cfa46e294a9793e1543b898b814fee534b9d91fce5247a"
+    },
+    {
+      "state": "ru-first",
+      "source": "plans/2026-10-15/runtime179/ru-first-confirmed-primary.png",
+      "sourcePngSha256": "6f83d488023c42925b6cf01df6ffa926aa60970d6cb2bdcccefd9eb1b483f800",
+      "cropBounds": [
+        0,
+        368,
+        1920,
+        720
+      ],
+      "baselineSha256": "4a17acfd4f159fca689c7e478d2821d4e8dd154f24dc2a4a82bcde67966d17a5"
+    },
+    {
+      "state": "en-only-first",
+      "source": "plans/2026-10-15/runtime179/en-only-initial-primary.png",
+      "sourcePngSha256": "3bf0c3f41eff4a51dec2b479088c4314bd4572b02b2609e79a90e3a117f3da5c",
+      "cropBounds": [
+        0,
+        368,
+        1920,
+        720
+      ],
+      "baselineSha256": "1199a7fb888832efe2a92a1189c86be56a57274ffc4f90a0b9d9077ff9f7129d",
+      "agentMode": "EN-only",
+      "activationUi": "../en-only-on-ui.json",
+      "residentEvidence": "../resident-en-only.json"
+    },
+    {
+      "state": "en-only-upper-lock",
+      "source": "plans/2026-10-15/runtime179/en-only-shift1-primary.png",
+      "sourcePngSha256": "9c7b9419c3f0f535500c6d4f84dba9c0972ea3863d2844f740d5fb368973b1d6",
+      "cropBounds": [
+        0,
+        368,
+        1920,
+        720
+      ],
+      "baselineSha256": "01702e26b26c6f0f4e3fbdcef2752e89e644229a99514aeac0095f0d819efba4",
+      "agentMode": "EN-only",
+      "activationUi": "../en-only-on-ui.json",
+      "residentEvidence": "../resident-en-only.json"
+    },
+    {
+      "state": "en-only-lower",
+      "source": "plans/2026-10-15/runtime179/en-only-lower-primary.png",
+      "sourcePngSha256": "c844f11d1c91c933dfaf3dd72289b8ecd3fd856eccf584020a7305e3c8b05165",
+      "cropBounds": [
+        0,
+        368,
+        1920,
+        720
+      ],
+      "baselineSha256": "2f0fd2746e952c0e776768f274c4cb3c311b7d5ae71941abf19de99b82ffd136",
+      "agentMode": "EN-only",
+      "activationUi": "../en-only-on-ui.json",
+      "residentEvidence": "../resident-en-only.json"
+    }
+  ],
+  "observedControls": [
+    {
+      "fromState": "en-first",
+      "toState": "en-upper-lock",
+      "label": "shift",
+      "beforeUi": "../en-shift1-before-ui.json",
+      "afterUi": "../en-shift1-after-ui.json"
+    },
+    {
+      "fromState": "en-upper-lock",
+      "toState": "en-lower",
+      "label": "shift",
+      "beforeUi": "../en-shift2-before-ui.json",
+      "afterUi": "../en-shift2-after-ui.json"
+    },
+    {
+      "fromState": "en-lower",
+      "toState": "ru-lower",
+      "label": "switch",
+      "beforeUi": "../switch-ru-before-ui.json",
+      "afterUi": "../switch-ru-after-ui.json"
+    },
+    {
+      "fromState": "ru-lower",
+      "toState": "ru-first",
+      "label": "shift",
+      "beforeUi": "../ru-first-shift-before-ui.json",
+      "afterUi": "../ru-first-shift-after-ui.json"
+    },
+    {
+      "fromState": "en-only-first",
+      "toState": "en-only-upper-lock",
+      "label": "shift",
+      "beforeUi": "../en-only-shift1-before-ui.json",
+      "afterUi": "../en-only-shift1-after-ui.json"
+    },
+    {
+      "fromState": "en-only-upper-lock",
+      "toState": "en-only-lower",
+      "label": "shift",
+      "beforeUi": "../en-only-shift2-before-ui.json",
+      "afterUi": "../en-only-shift2-after-ui.json"
+    },
+    {
+      "fromState": "ru-lower",
+      "toState": "en-lower",
+      "label": "switch",
+      "beforeUi": "../switch-en-mixed-before-ui.json",
+      "afterUi": "../switch-en-mixed-after-ui.json"
+    },
+    {
+      "fromState": "en-only-lower",
+      "toState": "en-only-first",
+      "label": "switch",
+      "sourceCapture": "../en-only-language-key-primary.png",
+      "meaning": "Remains English; resets case to FIRST, not unchanged pixels"
+    }
+  ],
+  "duplicateCaptures": [
+    {
+      "state": "ru-lower",
+      "source": "../navi-russian-result-primary.png",
+      "sourcePngSha256": "b39181be7657c5466281e8a60f80e8d08c9fab9e2148663bc6b62a4d3aca40e6",
+      "baselineSha256": "7b2030e7328f06c1e3cfa46e294a9793e1543b898b814fee534b9d91fce5247a"
+    },
+    {
+      "state": "en-lower",
+      "source": "../mixed-en-layout-primary.png",
+      "sourcePngSha256": "30ec272d9a1309812567e77a5dc60c2485ad19f486a107fc1a0f726b584dfb1e",
+      "baselineSha256": "1913a4cb85f718f12eff3c816f7b532d48280e6e5bcf4404b624cbd50dda3ca8"
+    },
+    {
+      "state": "en-only-first",
+      "source": "../en-only-language-key-primary.png",
+      "sourcePngSha256": "f7a76d2d3176afaeca5bff480c1220b9b864eb3de86f1267f553f5eea56e14fb",
+      "baselineSha256": "1199a7fb888832efe2a92a1189c86be56a57274ffc4f90a0b9d9077ff9f7129d"
+    }
+  ],
+  "inputEvidence": {
+    "file": "../ru-en-russian-input-steps.json",
+    "sha256": "9d116887c4f82d8759283fb0c7022c366009b14b7ffb92d608d4ad135c173eb0",
+    "text": "Москва",
+    "selection": [
+      6,
+      6
+    ],
+    "perLetterPrefixesPassed": true,
+    "autoCapitalizationIsNotControlEdge": true
+  },
+  "mixedInputEvidence": {
+    "file": "../ru-en-mixed-input-steps.json",
+    "sha256": "fc55ded57b3c8b6c421fad9cfe77b6c825206660be58727eee7cd00f0c832299",
+    "text": "Москваmoscow",
+    "selection": [
+      12,
+      12
+    ],
+    "actualMixedEnCropMatchesAdmittedEnLower": true
+  },
+  "enOnlyInputEvidence": {
+    "file": "../en-only-input-steps.json",
+    "sha256": "dc9f8d91df726b8322a500cc146a161859230dfdc6b31e4d8f0d351d4058d6b2",
+    "text": "moscow",
+    "selection": [
+      6,
+      6
+    ]
+  }
+}

@@ -1,0 +1,160 @@
+name: Verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout product source
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      - name: Resolve exact source-pinned agents metadata commit
+        id: agents-source
+        shell: bash
+        run: |
+          set -euo pipefail
+          agents_sha=$(sed -nE 's/^agents = "([0-9a-f]{40})"$/\1/p' release/1.0.0-beta1.toml)
+          [[ "$agents_sha" =~ ^[0-9a-f]{40}$ ]]
+          echo "sha=$agents_sha" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout exact agents metadata without execution authority
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          repository: voboost/voboost-agents
+          ref: ${{ steps.agents-source.outputs.sha }}
+          path: .ci-agents-metadata
+          persist-credentials: false
+
+      - name: Verify clean exact agents metadata checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C .ci-agents-metadata rev-parse HEAD)" = "${{ steps.agents-source.outputs.sha }}"
+          test -z "$(git -C .ci-agents-metadata status --porcelain=v1)"
+
+      - name: Resolve exact source-pinned installer contract commit
+        id: installer-source
+        shell: bash
+        run: |
+          set -euo pipefail
+          installer_sha=$(sed -nE 's/^installer = "([0-9a-f]{40})"$/\1/p' release/1.0.0-beta1.toml)
+          [[ "$installer_sha" =~ ^[0-9a-f]{40}$ ]]
+          echo "sha=$installer_sha" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout exact installer diagnostic contract without execution authority
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          repository: voboost/voboost-installer
+          ref: ${{ steps.installer-source.outputs.sha }}
+          path: .ci-installer-contract
+          persist-credentials: false
+
+      - name: Verify clean exact installer contract checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C .ci-installer-contract rev-parse HEAD)" = "${{ steps.installer-source.outputs.sha }}"
+          test -z "$(git -C .ci-installer-contract status --porcelain=v1)"
+
+      - name: Resolve exact source-pinned inject contract commit
+        id: inject-source
+        shell: bash
+        run: |
+          set -euo pipefail
+          inject_sha=$(sed -nE 's/^inject = "([0-9a-f]{40})"$/\1/p' release/1.0.0-beta1.toml)
+          [[ "$inject_sha" =~ ^[0-9a-f]{40}$ ]]
+          echo "sha=$inject_sha" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout exact inject endpoint contract
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          repository: voboost/voboost-inject
+          ref: ${{ steps.inject-source.outputs.sha }}
+          path: .ci-inject-contract
+          persist-credentials: false
+
+      - name: Verify clean exact inject contract checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C .ci-inject-contract rev-parse HEAD)" = "${{ steps.inject-source.outputs.sha }}"
+          test -z "$(git -C .ci-inject-contract status --porcelain=v1)"
+          test -f .ci-inject-contract/daemon/tests/fixtures/current-endpoint146.json
+          test -f .ci-inject-contract/daemon/tests/fixtures/current-endpoint146-beta1-max-status.json
+
+      # Reuse the resource parser from pinned inject source in the Cargo sibling layout.
+      - name: Expose pinned shared contract at the required sibling path
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f "$GITHUB_WORKSPACE/.ci-inject-contract/common/contracts/Cargo.toml"
+          test ! -e "$GITHUB_WORKSPACE/../voboost-inject"
+          test ! -L "$GITHUB_WORKSPACE/../voboost-inject"
+          ln -s "$GITHUB_WORKSPACE/.ci-inject-contract" "$GITHUB_WORKSPACE/../voboost-inject"
+          test -f "$GITHUB_WORKSPACE/../voboost-inject/common/contracts/Cargo.toml"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: '24.13.0'
+          cache: npm
+
+      - name: Set up JDK for pinned Android build tools
+        uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
+
+      - name: Install exact product tools
+        run: npm ci --ignore-scripts
+
+      - name: Install pinned Rust toolchain
+        run: rustup toolchain install 1.98.0 --profile minimal
+
+      - name: Verify actual inject S serializer and trusted L metadata against shared fixture
+        run: |
+          cargo +1.98.0 test --manifest-path .ci-inject-contract/daemon/Cargo.toml --locked --bin voboost-daemon status::tests::current_endpoint_serializes_exact_producer_fixture_and_clears_with_generic_events -- --exact
+          cargo +1.98.0 test --manifest-path .ci-inject-contract/daemon/Cargo.toml --locked --bin voboost-daemon agent_log::tests::log_authority_binds_same_daemon_incarnation_and_desired_context_without_claiming_ack -- --exact
+          cargo +1.98.0 test --manifest-path .ci-inject-contract/daemon/Cargo.toml --locked --bin voboost-daemon status::tests::signed_beta1_inventory_max_details_and_endpoint_identity_fit_resident_budget -- --exact
+          cargo +1.98.0 test --manifest-path .ci-inject-contract/daemon/Cargo.toml --locked --bin voboost-daemon status::tests::actual_serializer_startup_catalog_fixture_roundtrips_management_and_host -- --exact
+          cargo +1.98.0 test --manifest-path .ci-inject-contract/daemon/Cargo.toml --locked --bin voboost-daemon management::tests::resident_status_full_beta1_fixture_roundtrips_current_endpoint_contract -- --exact
+
+      - name: Verify product release Rust
+        env:
+          VOBOOST_INJECT_CONTRACT_ROOT: ${{ github.workspace }}/.ci-inject-contract
+        run: |
+          cargo +1.98.0 fmt --manifest-path release/Cargo.toml -- --check
+          cargo +1.98.0 clippy --manifest-path release/Cargo.toml --locked --all-targets -- -D warnings
+          cargo +1.98.0 test --manifest-path release/Cargo.toml --locked
+
+      - name: Verify exact Android-tools product integration
+        run: >-
+          cargo +1.98.0 test --manifest-path release/Cargo.toml --locked
+          --features android-integration
+          verify::tests::pinned_android_tools_extract_identity_from_exact_signed_apk
+          -- --exact
+
+      - name: Audit product tool dependencies
+        run: npm run audit
+
+      - name: Run complete product verification
+        env:
+          VOBOOST_INJECT_CONTRACT_ROOT: ${{ github.workspace }}/.ci-inject-contract
+          VOBOOST_INSTALLER_ROOT: ${{ github.workspace }}/.ci-installer-contract
+          VOBOOST_DOCS_RELEASE_MODE: '1'
+          VOBOOST_AGENTS_CHECKOUT_CLEAN: '1'
+          VOBOOST_AGENTS_ROOT: ${{ github.workspace }}/.ci-agents-metadata
+          VOBOOST_AGENTS_COMMIT: ${{ steps.agents-source.outputs.sha }}
+        run: npm run check

@@ -1,0 +1,92 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://voboost.local/current-endpoint.schema.json",
+  "title": "Current registered endpoint and accepted S attestation",
+  "description": "Omitted endpoint means unavailable; omitted acceptedStatus means pending. Runtime validation also requires integer range bounds, accepted document equal desired document and independent current OS/daemon/boot authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "targetPid",
+    "targetStarttime",
+    "endpointEpoch",
+    "generationId",
+    "catalogSha256",
+    "desiredDocumentGeneration"
+  ],
+  "properties": {
+    "targetPid": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]*$",
+      "maxLength": 20
+    },
+    "targetStarttime": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]*$",
+      "maxLength": 20
+    },
+    "endpointEpoch": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]*$",
+      "maxLength": 20
+    },
+    "generationId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "catalogSha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "desiredDocumentGeneration": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)$",
+      "maxLength": 19
+    },
+    "acceptedStatus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "documentGeneration",
+        "receipt"
+      ],
+      "properties": {
+        "documentGeneration": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$",
+          "maxLength": 19
+        },
+        "receipt": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sequence",
+            "daemonPid",
+            "daemonStarttime",
+            "bootId"
+          ],
+          "properties": {
+            "sequence": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*$",
+              "maxLength": 20
+            },
+            "daemonPid": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*$",
+              "maxLength": 20
+            },
+            "daemonStarttime": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*$",
+              "maxLength": 20
+            },
+            "bootId": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$"
+            }
+          }
+        }
+      }
+    }
+  }
+}

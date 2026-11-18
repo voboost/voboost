@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "operation": "install",
+  "transactionId": "33be4e8e3666ba04ed97325a1a6d206eb2ef6fbbfda62e85fd07f85095798e09",
+  "journal": "recovery/33be4e8e3666ba04ed97325a1a6d206eb2ef6fbbfda62e85fd07f85095798e09/install-journal.json",
+  "phase": "install-agents",
+  "outcome": "failed",
+  "rebootCount": 1,
+  "bootId": "4c61a345-d725-4793-bbb3-3ae1cc5bf437",
+  "statusSequence": 21,
+  "journalSha256": "dd52ffd7735dd54f1f1616814aed08167a513f952fd776d6c4f728a07b1616e1",
+  "error": {
+    "code": "install-failed",
+    "message": "install intermediate boot readiness deadline expired"
+  },
+  "installedApk": null
+}

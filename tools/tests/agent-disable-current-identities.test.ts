@@ -1,0 +1,17 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {targetInventory} from "../emulator/agent-disable.ts";
+const inventory="oem-target-processes:\ninventoryStatus=complete\nPID NAME\n2454 com.qinggan.systemservice\ninventoryEnd=complete\n";
+const identity="\ncurrent-process-identities:\nschemaVersion=1\nprocess=com.qinggan.systemservice pid=2454 starttime=856 argv0=com.qinggan.systemservice\ncurrent-process-identities-end=complete\n";
+const end="\nandroid-art-fatal-context:\n";
+const pid=(s:string)=>targetInventory(s,["com.qinggan.systemservice"]).pids["com.qinggan.systemservice"];
+test("actual producer new identity stanza follows complete inventory",()=>assert.equal(pid(inventory+identity+end),"2454"));
+test("legacy complete inventory",()=>assert.equal(pid(inventory+end),"2454"));
+test("missing complete end rejected",()=>assert.throws(()=>pid(inventory.replace("inventoryEnd=complete","inventoryEnd=com")+identity+end)));
+test("missing complete start rejected",()=>assert.throws(()=>pid(inventory.replace("inventoryStatus=complete","inventoryStatus=unavailable")+identity+end)));
+test("duplicate inventory rejected",()=>assert.throws(()=>pid(inventory+identity+end+inventory+end)));
+test("duplicate target rejected",()=>assert.throws(()=>pid(inventory.replace("2454 com.qinggan.systemservice","2454 com.qinggan.systemservice\n2455 com.qinggan.systemservice")+identity+end)));
+test("identity stanza cannot masquerade as inventory target",()=>assert.equal(pid(inventory.replace("com.qinggan.systemservice","com.other")+identity+end),undefined));
+test("unknown header cannot be skipped",()=>assert.throws(()=>pid(inventory+"\nunknown-section:\nvalue=1\n"+end)));
+test("bounded inventory overflow rejected",()=>assert.throws(()=>pid(inventory.replace("2454 com.qinggan.systemservice", Array.from({length:10000},(_,i)=>(i+1)+" unrelated.process").join("\n"))+identity+end)));
+test("malformed inventory row rejected",()=>assert.throws(()=>pid(inventory.replace("2454 com.qinggan.systemservice","bad com.qinggan.systemservice")+identity+end)));

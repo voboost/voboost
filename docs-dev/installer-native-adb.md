@@ -1,0 +1,21 @@
+# Direct macOS ADB backend
+
+**English** | [Русский](installer-native-adb.ru.md)
+
+The same macOS executable connects to a vehicle over USB or to a selected emulator over loopback TCP. Both transports share the linked AOSP packet, authentication, transport and shell-v2 code. USB uses IOKit; RSA signing uses Security.framework. The installer launches no `adb` executable and needs no ADB server, OpenSSL or Apple managed entitlement. Windows uses its packaged ADB backend. Linux uses a system ADB executable from the backend's fixed locations.
+
+For GUI or headless startup, `--device 1234567` selects that USB device; `--device emulator-5588` selects raw ADB at `127.0.0.1:5589`. The emulator suffix must be a canonical even console port, and the backend derives its ADB port as console port plus one. No hostname or separate port option is accepted. The target is fixed for the process lifetime; emulator mode does not scan USB or other ports. Supplying the selector without an operation opens the GUI. Initial discovery, operations and reconnect retain that exact device; if it disappears or is unauthorized, another connected device is not selected. A conflicting operation serial is rejected. GUI selection cannot be combined with `--dry-run`. Without a selector, the normal GUI and CLI discover USB devices. Help and package verification require no device.
+
+Voyemu may keep its SDK ADB server for its own control API. The installer does not use or restart that server. Independent test tools such as the launcher frame-time probe may still use external SDK ADB.
+
+The emulator endpoint is a trusted local peer. ADB AUTH proves the host key to the device; it does not authenticate the emulator to the installer. A local process that takes over the raw port can impersonate the emulator and falsify its replies. Explicit target selection and device generations prevent accidental cross-device operations, but do not establish peer identity. This backend does not provide protection against a malicious local peer.
+
+[`src-tauri/build.rs`](../../voboost-installer/src-tauri/build.rs) compiles the source closure listed in [`adb/sources.json`](../../voboost-installer/src-tauri/adb/sources.json) with the Xcode toolchain for arm64 or x86_64, C++20, `-Oz` and deployment target macOS 11.0. It verifies the existing source inventory before compilation, removes intermediate objects and links libc++, CoreFoundation, IOKit and Security. The native build performs no downloads and does not use Android SDK headers.
+
+The AOSP sources retain their copyright and Apache-2.0 notices. `sources.json` records their upstream commits and input identities; [`NOTICES.txt`](../../voboost-installer/src-tauri/adb/NOTICES.txt) contains the retained notice and license. `compat/openssl/rsa.h` declares an opaque compatibility type and contains no OpenSSL implementation. Keep these provenance and legal files with the source.
+
+The Rust caller selects an absolute key directory; the installer uses the host's `.android` directory. Existing RSA-2048 PKCS#1 or unencrypted PKCS#8 keys are reused with a matching ADB public key. A missing private key is generated through Security.framework outside the keychain and written atomically with mode `0600`; a missing `.pub` is reconstructed. Existing private-key bytes are preserved. The backend secures an owned, regular, single-link private key through its verified descriptor and rejects symlinks, hardlinks and foreign owners.
+
+The internal [C ABI](../../voboost-installer/src-tauri/adb/voboost_adb_api.h) exposes asynchronous shell-v2 streams and fixed `root:`, `remount:` and `reboot:` services with bounded queues, deadlines and cancellation. Shell-v2 requires the device feature. Device generations reject operations retained across reconnects. One host creation attempt is allowed per process lifetime; this ABI is not a public compatibility guarantee. The closed C ABI also attaches one emulator console port and reconnects only to that loopback target. Network discovery, remote hosts, pairing and TLS are outside this backend.
+
+A completed control-service stream does not prove that root, remount or reboot succeeded. The caller must inspect the response, reconnect and verify the resulting device state. Host builds and protocol tests do not establish physical USB or vehicle readiness.

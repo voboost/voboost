@@ -1,0 +1,10 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+import {stripTypeScriptTypes} from "node:module";
+const source=readFileSync(new URL("../../release/emulator-gate.ts",import.meta.url),"utf8");
+const body=stripTypeScriptTypes(source.slice(source.indexOf("export function installAcceptanceReceipt("),source.indexOf("\nexport async function rejectFailedInstall("))).replace("export function","function");
+const exactKeys=(row,keys)=>assert.deepEqual(Object.keys(row).sort(),keys.sort());
+const installAcceptanceReceipt=Function("exactKeys",body+"return installAcceptanceReceipt;")(exactKeys);
+const request={schemaVersion:1,transactionId:"1".repeat(64),manifestSha256:"2".repeat(64),attemptToken:"3".repeat(64),bootId:"00000000-0000-0000-0000-000000000001",rebootCount:1 as const,decision:"status" as const};
+test("native acceptance expiry requires a positive canonical guest u64",()=>{for(const expiry of ["0","-1","01","18446744073709551616"]){assert.throws(()=>installAcceptanceReceipt(JSON.stringify({...request,state:"waiting",expiresMonotonicMs:expiry}),request),/identity differs/);}assert.equal(installAcceptanceReceipt(JSON.stringify({...request,state:"waiting",expiresMonotonicMs:"900100"}),request).expiresMonotonicMs,"900100");});

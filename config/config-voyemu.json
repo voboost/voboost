@@ -1,0 +1,10 @@
+{
+  "machines": [
+    "free-09-chinese-20260106-6.0.3",
+    "free-09-chinese-20260106-6.0.3-installer"
+  ],
+  "roles": {
+    "installer": "free-09-chinese-20260106-6.0.3-installer",
+    "agents": "free-09-chinese-20260106-6.0.3"
+  }
+}

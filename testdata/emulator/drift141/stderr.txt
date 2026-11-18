@@ -1,0 +1,22 @@
+Emulator acceptance failed: emulator operation failed (Some(72)): ui-capture stage=helper exit=72 helper_exit=1 xml_type=missing xml_bytes=0
+ui-observation service phase=initial present=true flags=65554 capabilities=15
+ui-observation stage=active-root-before-windows reason=active-root-waiting kind=none syscall=none errno=none windows=0 window-reads=0 nodes=0 pending-ipc=none pending-ipc-ms=0 refresh-calls=0 refresh-ms=0 child-calls=0 child-ms=0
+ui-observation service phase=root-fallback present=true flags=65618 capabilities=15
+ui-observation active-root window-id=85 reads=155
+ui-observation service phase=after-set present=true flags=65618 capabilities=15
+ui-observation window id=77 type=1 layer=0
+ui-observation stage=windows-before reason=active-root-outside-default-display kind=none syscall=none errno=none windows=1 window-reads=1 nodes=0 pending-ipc=none pending-ipc-ms=0 refresh-calls=0 refresh-ms=0 child-calls=0 child-ms=0
+ui-observation window id=77 type=1 layer=0
+ui-observation stage=windows-fresh reason=active-root-outside-default-display kind=none syscall=none errno=none windows=1 window-reads=2 nodes=45 pending-ipc=none pending-ipc-ms=0 refresh-calls=0 refresh-ms=0 child-calls=44 child-ms=2
+ui-observation stage=nodes-complete reason=timing kind=none syscall=none errno=none windows=1 window-reads=2 nodes=45 pending-ipc=none pending-ipc-ms=0 refresh-calls=0 refresh-ms=0 child-calls=88 child-ms=3
+ui-observation window id=77 type=1 layer=0
+ui-observation stage=metadata-after reason=active-root-outside-default-display kind=none syscall=none errno=none windows=1 window-reads=3 nodes=45 pending-ipc=none pending-ipc-ms=0 refresh-calls=0 refresh-ms=0 child-calls=88 child-ms=3
+ui-observation window id=77 type=1 layer=0
+ui-observation stage=gesture reason=active-root-outside-default-display kind=none syscall=none errno=none windows=1 window-reads=4 nodes=45 pending-ipc=none pending-ipc-ms=0 refresh-calls=0 refresh-ms=0 child-calls=88 child-ms=3
+ui-observation stage=gesture reason=gesture-window-or-target-drift kind=java.lang.IllegalStateException syscall=none errno=none windows=1 window-reads=4 nodes=45 pending-ipc=none pending-ipc-ms=0 refresh-calls=0 refresh-ms=0 child-calls=88 child-ms=3
+ui-capture diagnostic=run.log bytes=2086 sha256=e51cf19e7d8695bd24f2c2eabdeda0f2e01ffdb80e972b8b529f03678fb67302
+ui-capture diagnostic=native.log bytes=28 sha256=7eac3f15731263e7cb1e1baf9ba133c9f946d0b9fb34c1d0e9871fc95fa20444
+ui-capture native-window pid=4226 start=1791906920.865755003 end=1791906936.702603386 reader_exit=0
+ui-native --------- beginning of main
+ui-capture timing startup_ms=50 handshake_ms=70 run_ms=15830 exit_ms=0 cleanup_ms=70 total_ms=16160
+

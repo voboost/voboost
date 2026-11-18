@@ -1,0 +1,97 @@
+{
+  "identity": {
+    "package": "efb8d7cdbbf3d284aa057bbc98349567db9ee3a8fd5ced49cf62cad3afe5ad62",
+    "closure": "2ca8af310515e8d5a874185dabe15b25a99117e6d2d07502a35d0118d8e03022",
+    "dmg": "f3e2612b6b7604e9f607cd5f58da48e2b324b3b80c91fc2a493c628f8d8e1d9a",
+    "machine": "4a2cad8b2b834ff8eb1e9a371a4368abdd3f1b57d0dace5413bf33edabfd5ce7",
+    "cli": "6658494ea9a23253e420c4cc71f51434d8b01ff902cae1dbb43490f8d02b63f9"
+  },
+  "runtime": {
+    "pid": 134,
+    "port": 5562,
+    "serial": "emulator-5562"
+  },
+  "cases": [
+    {
+      "number": 20,
+      "id": "control-layout",
+      "status": "unavailable",
+      "reason": "Error: all viewport artifacts captured; geometry/component provenance requires a source-bound review unavailable to runner",
+      "actions": [],
+      "subchecks": [
+        {
+          "id": "source-layout-measurements-en",
+          "status": "unavailable",
+          "reason": "Error: source-bound component measurements unavailable",
+          "artifacts": []
+        },
+        {
+          "id": "source-layout-measurements-ru",
+          "status": "unavailable",
+          "reason": "Error: source-bound component measurements unavailable",
+          "artifacts": []
+        },
+        {
+          "id": "source-layout-measurements-zh",
+          "status": "unavailable",
+          "reason": "Error: source-bound component measurements unavailable",
+          "artifacts": []
+        },
+        {
+          "id": "three-locale-panel-captures",
+          "status": "passed",
+          "reason": "Current EN/RU/ZH PNG and hierarchy viewport captures retained",
+          "artifacts": []
+        },
+        {
+          "id": "missing-observable",
+          "status": "unavailable",
+          "reason": "Error: all viewport artifacts captured; geometry/component provenance requires a source-bound review unavailable to runner",
+          "artifacts": []
+        }
+      ]
+    },
+    {
+      "number": 21,
+      "id": "action-button-layout",
+      "status": "unavailable",
+      "reason": "Error: button PNGs captured; clipping/padding/editor review and all-action coverage unavailable",
+      "actions": [],
+      "subchecks": [
+        {
+          "id": "uninstall-action-measurements-cancel-en",
+          "status": "unavailable",
+          "reason": "Error: source-bound action measurements unavailable",
+          "artifacts": []
+        },
+        {
+          "id": "uninstall-action-measurements-cancel-ru",
+          "status": "unavailable",
+          "reason": "Error: source-bound action measurements unavailable",
+          "artifacts": []
+        },
+        {
+          "id": "uninstall-action-measurements-cancel-zh",
+          "status": "unavailable",
+          "reason": "Error: source-bound action measurements unavailable",
+          "artifacts": []
+        },
+        {
+          "id": "missing-observable",
+          "status": "unavailable",
+          "reason": "Error: button PNGs captured; clipping/padding/editor review and all-action coverage unavailable",
+          "artifacts": []
+        }
+      ]
+    },
+    {
+      "number": 26,
+      "id": "every-guest-reboot",
+      "status": "failed",
+      "reason": "Error: process did not complete within capture contract",
+      "actions": [],
+      "subchecks": []
+    }
+  ],
+  "actions": []
+}

@@ -1,0 +1,11 @@
+{
+  "voyemu": "/absolute/path/to/voyemu",
+  "machines": {
+    "free-09-chinese-20260106-6.0.3": {
+      "path": "/absolute/path/to/prepared-agent-machine"
+    },
+    "free-09-chinese-20260106-6.0.3-installer": {
+      "path": "/absolute/path/to/prepared-installer-machine"
+    }
+  }
+}

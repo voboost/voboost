@@ -1,0 +1,14 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { readyBeforeDisable } from "./agent-disable-readiness.ts";
+const row = (pid: string | undefined, state = "waiting", boot = "boot") => ({boot,inventory:{pids:pid?{"com.ime":pid}:{},completeFor:()=>true},injections:[{id:"keyboard-en",process:"com.ime",state}],file:state});
+const readSequence = (...rows: ReturnType<typeof row>[]) => {let reads=0;return {read:async()=>rows[Math.min(reads++,rows.length-1)],count:()=>reads};};
+test("active target needs one read and preserves exact observation",async()=>{const r=readSequence(row("24195","active"));assert.equal((await readyBeforeDisable("keyboard-en",["com.ime"],r.read)).file,"active");assert.equal(r.count(),1);});
+test("observed running waiting target must become active before disable",async()=>{const r=readSequence(row("24195"),row("24195","active"));assert.equal((await readyBeforeDisable("keyboard-en",["com.ime"],r.read)).injections[0].state,"active");assert.equal(r.count(),2);});
+test("complete dormant waiting target remains dormant, not falsely active",async()=>{const r=readSequence(row(undefined));assert.equal((await readyBeforeDisable("keyboard-en",["com.ime"],r.read)).injections[0].state,"waiting");assert.equal(r.count(),1);});
+test("disappearing formerly live target cannot turn into dormant success",async()=>{const r=readSequence(row("24864"),row(undefined));let clock=0;await assert.rejects(readyBeforeDisable("keyboard-en",["com.ime"],r.read,()=>clock++,2),/did not regain/);});
+test("never active is bounded and fails before caller action",async()=>{const r=readSequence(row("24864"));let clock=0,action=false;await assert.rejects((async()=>{await readyBeforeDisable("keyboard-en",["com.ime"],r.read,()=>clock++,3);action=true;})(),/did not regain/);assert.equal(action,false);assert.equal(r.count(),3);});
+test("cross boot observation fails",async()=>{const r=readSequence(row("1"),row("2","active","new"));await assert.rejects(readyBeforeDisable("keyboard-en",["com.ime"],r.read),/crossed boot/);});
+test("failed injection fails immediately",async()=>{const r=readSequence(row("1","failed"));await assert.rejects(readyBeforeDisable("keyboard-en",["com.ime"],r.read),/selection failed/);assert.equal(r.count(),1);});
+test("duplicate injection fails immediately",async()=>{const r=row("1");r.injections.push({...r.injections[0]});await assert.rejects(readyBeforeDisable("keyboard-en",["com.ime"],async()=>r),/ambiguous/);});
+test("incomplete absence is not dormant proof",async()=>{const r=row(undefined);r.inventory.completeFor=()=>false;await assert.rejects(readyBeforeDisable("keyboard-en",["com.ime"],async()=>r),/inventory incomplete/);});

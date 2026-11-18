@@ -1,0 +1,2228 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "evidenceType",
+    "invocationId",
+    "releaseIdentity",
+    "publication",
+    "productionEvidence",
+    "vehicleEvidence",
+    "passed",
+    "identity",
+    "runtime",
+    "cases",
+    "actions",
+    "boots",
+    "leaseStatus",
+    "activeOperation",
+    "voyemuProfile",
+    "preparedCheckInventory",
+    "preparation",
+    "fixtureCleanup"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "enum": [
+        3,
+        4
+      ]
+    },
+    "evidenceType": {
+      "const": "emulator-functional"
+    },
+    "invocationId": {
+      "type": "string"
+    },
+    "releaseIdentity": {
+      "type": "string"
+    },
+    "publication": {
+      "const": "forbidden"
+    },
+    "productionEvidence": {
+      "const": false
+    },
+    "vehicleEvidence": {
+      "const": false
+    },
+    "passed": {
+      "type": "boolean"
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "package",
+        "closure",
+        "dmg",
+        "machine",
+        "cli"
+      ],
+      "properties": {
+        "package": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "closure": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "dmg": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "machine": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "cli": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "macOverlaySources": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "runtime": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "port",
+            "pid",
+            "serial"
+          ],
+          "properties": {
+            "port": {
+              "type": "integer",
+              "minimum": 1024,
+              "maximum": 65534,
+              "multipleOf": 2
+            },
+            "pid": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "serial": {
+              "type": "string",
+              "pattern": "^emulator-[0-9]+$"
+            },
+            "sessionId": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{32}$"
+            },
+            "actualBoot": {
+              "type": "string"
+            },
+            "verificationContract": {
+              "type": "object",
+              "const": {
+                "kind": "native-session",
+                "schema": 2,
+                "api": "voyemu.test",
+                "readiness": [
+                  "session.reachable",
+                  "android.ready"
+                ],
+                "proof": [
+                  "owned-session",
+                  "android-sdk-pid",
+                  "android-delivery",
+                  "primary-home",
+                  "both-guest-displays"
+                ],
+                "excluded": [
+                  "legacy-prepared-check-inventory",
+                  "scene-oracle",
+                  "process-inventory",
+                  "forced-cold-boot"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 27,
+      "maxItems": 27,
+      "prefixItems": [
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/case"
+            },
+            {
+              "properties": {
+                "number": {
+                  "const": 1
+                },
+                "id": {
+                  "const": "cli-install-first"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/case"
+            },
+            {
+              "properties": {
+                "number": {
+                  "const": 2
+                },
+                "id": {
+                  "const": "cli-uninstall"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/case"
+            },
+            {
+              "properties": {
+                "number": {
+                  "const": 3
+                },
+                "id": {
+                  "const": "cli-absence"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/case"
+            },
+            {
+              "properties": {
+                "number": {
+                  "const": 4
+                },
+                "id": {
+                  "const": "cli-install-second"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/case"
+            },
+            {
+              "properties": {
+                "number": {
+                  "const": 5
+                },
+                "id": {
+                  "const": "settings-tab"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/case"
+            },
+            {
+              "properties": {
+                "number": {
+                  "const": 6
+                },
+                "id": {
+                  "const": "language-opposite"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/case"
+            },
+            {
+              "properties": {
+                "number": {
+                  "const": 7
+                },
+                "id": {
+                  "const": "language-return"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/case"
+            },
+            {
+              "properties": {
+                "number": {
+                  "const": 8
+                },
+                "id": {
+                  "const": "agent-enablement-conflict"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/case"
+            },
+            {
+              "properties": {
+                "number": {
+                  "const": 9
+                },
+                "id": {
+                  "const": "font-cyrillic"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/case"
+            },
+            {
+              "properties": {
+                "number": {
+                  "const": 10
+                },
+                "id": {
+                  "const": "keyboard-en"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/case"
+            },
+            {
+              "properties": {
+                "number": {
+                  "const": 11
+                },
+                "id": {
+                  "const": "keyboard-ru-en"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/case"
+            },
+            {
+              "properties": {
+                "number": {
+                  "const": 12
+                },
+                "id": {
+                  "const": "launcher-persistence"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/case"
+            },
+            {
+              "properties": {
+                "number": {
+                  "const": 13
+                },
+                "id": {
+                  "const": "forced-ev-persistence"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/case"
+            },
+            {
+              "properties": {
+                "number": {
+                  "const": 14
+                },
+                "id": {
+                  "const": "pedestrian-warning-persistence"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/case"
+            },
+            {
+              "properties": {
+                "number": {
+                  "const": 15
+                },
+                "id": {
+                  "const": "hidden-tbox-recovery"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/case"
+            },
+            {
+              "properties": {
+                "number": {
+                  "const": 16
+                },
+                "id": {
+                  "const": "none-no-processes"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/case"
+            },
+            {
+              "properties": {
+                "number": {
+                  "const": 17
+                },
+                "id": {
+                  "const": "settings-uninstall"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/case"
+            },
+            {
+              "properties": {
+                "number": {
+                  "const": 18
+                },
+                "id": {
+                  "const": "catalog-classification"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/case"
+            },
+            {
+              "properties": {
+                "number": {
+                  "const": 19
+                },
+                "id": {
+                  "const": "navi-input-spacing"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/case"
+            },
+            {
+              "properties": {
+                "number": {
+                  "const": 20
+                },
+                "id": {
+                  "const": "control-layout"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/case"
+            },
+            {
+              "properties": {
+                "number": {
+                  "const": 21
+                },
+                "id": {
+                  "const": "action-button-layout"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/case"
+            },
+            {
+              "properties": {
+                "number": {
+                  "const": 22
+                },
+                "id": {
+                  "const": "chinese-language-persistence"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/case"
+            },
+            {
+              "properties": {
+                "number": {
+                  "const": 23
+                },
+                "id": {
+                  "const": "startup-descriptions"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/case"
+            },
+            {
+              "properties": {
+                "number": {
+                  "const": 24
+                },
+                "id": {
+                  "const": "initial-state-seeding"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/case"
+            },
+            {
+              "properties": {
+                "number": {
+                  "const": 25
+                },
+                "id": {
+                  "const": "state-outage-recovery"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/case"
+            },
+            {
+              "properties": {
+                "number": {
+                  "const": 26
+                },
+                "id": {
+                  "const": "every-guest-reboot"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/case"
+            },
+            {
+              "properties": {
+                "number": {
+                  "const": 27
+                },
+                "id": {
+                  "const": "root-boundary"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "items": false
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/action"
+      }
+    },
+    "boots": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/boot"
+      }
+    },
+    "leaseStatus": {
+      "const": "retained"
+    },
+    "activeOperation": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "actionId",
+            "processId",
+            "serial",
+            "status"
+          ],
+          "properties": {
+            "actionId": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "processId": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 1
+            },
+            "serial": {
+              "type": "string"
+            },
+            "status": {
+              "const": "observation-timeout-not-released"
+            }
+          }
+        }
+      ]
+    },
+    "voyemuProfile": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"
+    },
+    "preparedCheckInventory": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "expected"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "expected": {}
+        }
+      }
+    },
+    "preparation": {
+      "$ref": "#/$defs/preparation"
+    },
+    "fixtureCleanup": {
+      "$ref": "#/$defs/fixtureCleanup"
+    },
+    "verificationContract": {
+      "type": "object",
+      "const": {
+        "kind": "native-session",
+        "schema": 2,
+        "api": "voyemu.test",
+        "readiness": [
+          "session.reachable",
+          "android.ready"
+        ],
+        "proof": [
+          "owned-session",
+          "android-sdk-pid",
+          "android-delivery",
+          "primary-home",
+          "both-guest-displays"
+        ],
+        "excluded": [
+          "legacy-prepared-check-inventory",
+          "scene-oracle",
+          "process-inventory",
+          "forced-cold-boot"
+        ]
+      }
+    },
+    "imageCapture": {
+      "const": "deferred"
+    },
+    "regressionScenario": {
+      "enum": [
+        "vehicle",
+        "settings-radio",
+        "launcher",
+        "lifecycle",
+        "lifecycle-input",
+        "input",
+        "keyboards",
+        "startup",
+        "final-uninstall",
+        "state-recovery",
+        "vehicle-startup"
+      ]
+    },
+    "vehiclePart": {
+      "const": "pw"
+    },
+    "settingsPart": {
+      "const": "postboot"
+    },
+    "functionalMode": {
+      "const": "full27"
+    },
+    "sourceAdmission": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "status",
+            "identity",
+            "receiptSha256"
+          ],
+          "properties": {
+            "status": {
+              "const": "passed"
+            },
+            "identity": {
+              "type": "object"
+            },
+            "receiptSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "kind",
+            "evidenceSha256",
+            "sourceInventorySha256",
+            "verificationDelta"
+          ],
+          "properties": {
+            "status": {
+              "const": "passed"
+            },
+            "kind": {
+              "const": "local-artifact"
+            },
+            "evidenceSha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "sourceInventorySha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "verificationDelta": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "path",
+                  "beforeSha256",
+                  "afterSha256"
+                ],
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "beforeSha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  },
+                  "afterSha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://voboost.ru/schemas/emulator-runtime-evidence.schema.json",
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "passed": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "cases": {
+            "items": {
+              "properties": {
+                "status": {
+                  "const": "passed"
+                },
+                "subchecks": {
+                  "minItems": 1,
+                  "items": {
+                    "properties": {
+                      "status": {
+                        "enum": [
+                          "passed",
+                          "unavailable"
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "number": {
+                        "const": 9
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "subchecks": {
+                        "items": {
+                          "anyOf": [
+                            {
+                              "properties": {
+                                "status": {
+                                  "const": "passed"
+                                }
+                              }
+                            },
+                            {
+                              "properties": {
+                                "id": {
+                                  "enum": [
+                                    "actual-cyrillic-font-provenance"
+                                  ]
+                                },
+                                "status": {
+                                  "const": "unavailable"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "number": {
+                        "const": 19
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "subchecks": {
+                        "items": {
+                          "anyOf": [
+                            {
+                              "properties": {
+                                "status": {
+                                  "const": "passed"
+                                }
+                              }
+                            },
+                            {
+                              "properties": {
+                                "id": {
+                                  "enum": [
+                                    "moscow-font-provenance",
+                                    "yo-font-provenance",
+                                    "mixed-prefix-font-provenance",
+                                    "mixed-latin-font-provenance",
+                                    "mixed-yo-font-provenance"
+                                  ]
+                                },
+                                "status": {
+                                  "const": "unavailable"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "number": {
+                        "not": {
+                          "enum": [
+                            9,
+                            19
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "subchecks": {
+                        "items": {
+                          "properties": {
+                            "status": {
+                              "const": "passed"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "boots": {
+            "minItems": 1,
+            "items": {
+              "properties": {
+                "status": {
+                  "const": "passed"
+                }
+              }
+            }
+          },
+          "activeOperation": {
+            "type": "null"
+          },
+          "fixtureCleanup": {
+            "properties": {
+              "owned": {
+                "const": true
+              },
+              "status": {
+                "const": "passed"
+              }
+            }
+          },
+          "preparation": {
+            "properties": {
+              "status": {
+                "const": "passed"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "schemaVersion": {
+            "const": 4
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "verificationContract"
+        ],
+        "properties": {
+          "preparedCheckInventory": {
+            "maxItems": 0
+          },
+          "runtime": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "port",
+                      "pid",
+                      "serial"
+                    ],
+                    "properties": {
+                      "port": {
+                        "type": "integer",
+                        "minimum": 1024,
+                        "maximum": 65534,
+                        "multipleOf": 2
+                      },
+                      "pid": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "serial": {
+                        "type": "string",
+                        "pattern": "^emulator-[0-9]+$"
+                      },
+                      "sessionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                      },
+                      "actualBoot": {
+                        "type": "string"
+                      },
+                      "verificationContract": {
+                        "type": "object",
+                        "const": {
+                          "kind": "native-session",
+                          "schema": 2,
+                          "api": "voyemu.test",
+                          "readiness": [
+                            "session.reachable",
+                            "android.ready"
+                          ],
+                          "proof": [
+                            "owned-session",
+                            "android-sdk-pid",
+                            "android-delivery",
+                            "primary-home",
+                            "both-guest-displays"
+                          ],
+                          "excluded": [
+                            "legacy-prepared-check-inventory",
+                            "scene-oracle",
+                            "process-inventory",
+                            "forced-cold-boot"
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "required": [
+                      "sessionId",
+                      "actualBoot",
+                      "verificationContract"
+                    ],
+                    "properties": {
+                      "sessionId": {},
+                      "actualBoot": {},
+                      "verificationContract": {}
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "verificationContract": {}
+        }
+      },
+      "else": {
+        "not": {
+          "required": [
+            "verificationContract"
+          ],
+          "properties": {
+            "verificationContract": {}
+          }
+        },
+        "properties": {
+          "preparedCheckInventory": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "required": [
+          "imageCapture"
+        ],
+        "properties": {
+          "imageCapture": {}
+        }
+      },
+      "then": {
+        "properties": {
+          "passed": {
+            "const": false
+          },
+          "boots": {
+            "items": {
+              "properties": {
+                "status": {
+                  "enum": [
+                    "unavailable",
+                    "failed",
+                    "not-run"
+                  ]
+                },
+                "screenshot": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          "cases": {
+            "items": {
+              "properties": {
+                "status": {
+                  "enum": [
+                    "unavailable",
+                    "failed",
+                    "not-run"
+                  ]
+                }
+              }
+            }
+          },
+          "actions": {
+            "items": {
+              "not": {
+                "required": [
+                  "nativeOperation"
+                ],
+                "properties": {
+                  "nativeOperation": {
+                    "const": "session.screenshot"
+                  }
+                }
+              }
+            }
+          },
+          "regressionScenario": {}
+        },
+        "oneOf": [
+          {
+            "required": [
+              "regressionScenario"
+            ],
+            "not": {
+              "required": [
+                "functionalMode"
+              ],
+              "properties": {
+                "functionalMode": {}
+              }
+            },
+            "properties": {
+              "regressionScenario": {}
+            }
+          },
+          {
+            "required": [
+              "functionalMode"
+            ],
+            "properties": {
+              "functionalMode": {
+                "const": "full27"
+              }
+            },
+            "not": {
+              "required": [
+                "regressionScenario"
+              ],
+              "properties": {
+                "regressionScenario": {}
+              }
+            }
+          }
+        ]
+      },
+      "else": {
+        "not": {
+          "required": [
+            "regressionScenario"
+          ],
+          "properties": {
+            "regressionScenario": {}
+          }
+        },
+        "properties": {
+          "boots": {
+            "items": {
+              "not": {
+                "required": [
+                  "semanticStatus"
+                ],
+                "properties": {
+                  "semanticStatus": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "required": [
+          "vehiclePart"
+        ],
+        "properties": {
+          "vehiclePart": {}
+        }
+      },
+      "then": {
+        "required": [
+          "imageCapture",
+          "regressionScenario"
+        ],
+        "properties": {
+          "imageCapture": {
+            "const": "deferred"
+          },
+          "regressionScenario": {
+            "const": "vehicle"
+          },
+          "cases": {
+            "items": {
+              "if": {
+                "properties": {
+                  "number": {
+                    "not": {
+                      "const": 14
+                    }
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "status": {
+                    "const": "not-run"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "required": [
+          "settingsPart"
+        ],
+        "properties": {
+          "settingsPart": {
+            "const": "postboot"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "imageCapture",
+          "regressionScenario"
+        ],
+        "properties": {
+          "imageCapture": {
+            "const": "deferred"
+          },
+          "regressionScenario": {
+            "const": "settings-radio"
+          }
+        },
+        "not": {
+          "required": [
+            "vehiclePart"
+          ],
+          "properties": {
+            "vehiclePart": {}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "required": [
+          "functionalMode"
+        ],
+        "properties": {
+          "functionalMode": {}
+        }
+      },
+      "then": {
+        "required": [
+          "imageCapture"
+        ],
+        "properties": {
+          "imageCapture": {
+            "const": "deferred"
+          },
+          "passed": {
+            "const": false
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "number",
+        "id",
+        "status",
+        "reason",
+        "actions",
+        "subchecks"
+      ],
+      "properties": {
+        "number": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 27
+        },
+        "id": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "passed",
+            "failed",
+            "unavailable",
+            "not-run"
+          ]
+        },
+        "reason": {
+          "type": "string"
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "subchecks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "status",
+              "reason",
+              "artifacts"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "passed",
+                  "failed",
+                  "unavailable",
+                  "not-run"
+                ]
+              },
+              "reason": {
+                "type": "string"
+              },
+              "artifacts": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "id": {
+                      "pattern": "captures(?:-|$)"
+                    },
+                    "status": {
+                      "const": "passed"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "artifacts": {
+                      "minItems": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "passed",
+                  "failed",
+                  "unavailable"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "subchecks": {
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "subchecks": {
+                "contains": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "pattern": "captures(?:-|$)"
+                    },
+                    "status": {
+                      "const": "passed"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "actions": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "action": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "caseNumber",
+        "startedMonotonicNs",
+        "finishedMonotonicNs",
+        "executable",
+        "args",
+        "exitCode",
+        "signal",
+        "timedOut",
+        "overflow",
+        "artifacts"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "caseNumber": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 27
+        },
+        "startedMonotonicNs": {
+          "type": "string",
+          "pattern": "^[0-9]+$"
+        },
+        "finishedMonotonicNs": {
+          "type": "string",
+          "pattern": "^[0-9]+$"
+        },
+        "executable": {
+          "type": "string"
+        },
+        "args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "exitCode": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "signal": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "timedOut": {
+          "type": "boolean"
+        },
+        "overflow": {
+          "type": "boolean"
+        },
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "sha256",
+              "kind"
+            ],
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "kind": {
+                "enum": [
+                  "stdout",
+                  "stderr",
+                  "png",
+                  "request",
+                  "archive"
+                ]
+              },
+              "boot": {
+                "type": "string"
+              },
+              "locale": {
+                "enum": [
+                  "ru",
+                  "en",
+                  "zh"
+                ]
+              },
+              "kit": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "runtime": {}
+            }
+          }
+        },
+        "context": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kit",
+            "runtime",
+            "serial",
+            "bootId",
+            "locale"
+          ],
+          "properties": {
+            "kit": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "runtime": {},
+            "serial": {
+              "type": "string"
+            },
+            "bootId": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "locale": {
+              "enum": [
+                "ru",
+                "en",
+                "zh"
+              ]
+            }
+          }
+        },
+        "nativeOperation": {
+          "enum": [
+            "info",
+            "profile.list",
+            "profile.get",
+            "session.start",
+            "session.attach",
+            "session.stop",
+            "multimedia.reboot",
+            "multimedia.launch",
+            "session.status",
+            "vehicle.fields",
+            "vehicle.get",
+            "vehicle.set",
+            "cluster.power",
+            "cluster.reboot",
+            "input.tap",
+            "input.gesture",
+            "input.key.press",
+            "input.wheel.buttons",
+            "input.wheel.press",
+            "input.wheel.release",
+            "input.voice.trigger",
+            "session.ui",
+            "vehicle.can.get",
+            "multimedia.system",
+            "session.observe",
+            "session.screenshot",
+            "session.logs",
+            "session.watch.start",
+            "session.watch.read",
+            "session.watch.stop",
+            "session.wait",
+            "operation.get",
+            "test.run",
+            "control.wait",
+            "output.status"
+          ]
+        },
+        "nativeAuthority": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "requestId",
+            "operationId",
+            "sessionId",
+            "manifest",
+            "output",
+            "display"
+          ],
+          "properties": {
+            "requestId": {
+              "type": "string"
+            },
+            "operationId": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{32}$"
+            },
+            "sessionId": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{32}$"
+            },
+            "manifest": {
+              "type": "string"
+            },
+            "output": {
+              "type": "string"
+            },
+            "display": {
+              "enum": [
+                "primary",
+                "secondary"
+              ]
+            }
+          }
+        },
+        "nativeRequest": {
+          "type": "string"
+        },
+        "inputProvenance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "targetWindowPreDispatchFenced"
+          ],
+          "properties": {
+            "kind": {
+              "const": "owned-profile-physical-swipe"
+            },
+            "targetWindowPreDispatchFenced": {
+              "const": false
+            },
+            "before": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "boot",
+                "generationId",
+                "catalogSha256",
+                "targetPid",
+                "targetStarttime"
+              ],
+              "properties": {
+                "boot": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$"
+                },
+                "generationId": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                },
+                "catalogSha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                },
+                "targetPid": {
+                  "type": "string",
+                  "pattern": "^[1-9][0-9]*$"
+                },
+                "targetStarttime": {
+                  "type": "string",
+                  "pattern": "^[1-9][0-9]*$"
+                },
+                "process": {
+                  "const": "com.qinggan.app.launcher"
+                }
+              }
+            },
+            "after": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "boot",
+                "generationId",
+                "catalogSha256",
+                "targetPid",
+                "targetStarttime"
+              ],
+              "properties": {
+                "boot": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$"
+                },
+                "generationId": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                },
+                "catalogSha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                },
+                "targetPid": {
+                  "type": "string",
+                  "pattern": "^[1-9][0-9]*$"
+                },
+                "targetStarttime": {
+                  "type": "string",
+                  "pattern": "^[1-9][0-9]*$"
+                },
+                "process": {
+                  "const": "com.qinggan.app.launcher"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "boot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "caseNumber",
+        "kind",
+        "status",
+        "reason",
+        "before",
+        "after",
+        "verifiedBoot",
+        "actions",
+        "screenshot"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "caseNumber": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 27
+        },
+        "kind": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "passed",
+            "failed",
+            "unavailable",
+            "not-run"
+          ]
+        },
+        "reason": {
+          "type": "string"
+        },
+        "before": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "after": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "verifiedBoot": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "screenshot": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "observation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "actionId",
+            "finishedMonotonicNs",
+            "rebootCount"
+          ],
+          "properties": {
+            "actionId": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "finishedMonotonicNs": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            },
+            "rebootCount": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 16
+            }
+          }
+        },
+        "semanticStatus": {
+          "const": "passed"
+        },
+        "homeProof": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "before",
+            "capture",
+            "after"
+          ],
+          "properties": {
+            "before": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "capture": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "after": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "passed"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "observation"
+            ],
+            "properties": {
+              "before": {
+                "type": "string"
+              },
+              "after": {
+                "type": "string"
+              },
+              "verifiedBoot": {
+                "type": "string"
+              },
+              "actions": {
+                "minItems": 1
+              },
+              "screenshot": {
+                "type": "string"
+              },
+              "observation": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "preparation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "reason",
+        "kind",
+        "actionId",
+        "bootId",
+        "context",
+        "actions",
+        "artifacts"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "passed",
+            "failed",
+            "unavailable",
+            "not-run"
+          ]
+        },
+        "reason": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "normal",
+            "already-absent",
+            "emergency",
+            null
+          ]
+        },
+        "actionId": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "bootId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "context": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kit",
+                "runtime",
+                "serial",
+                "bootId"
+              ],
+              "properties": {
+                "kit": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                },
+                "runtime": {
+                  "$ref": "#/properties/runtime"
+                },
+                "serial": {
+                  "type": "string",
+                  "pattern": "^emulator-[0-9]+$"
+                },
+                "bootId": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+                }
+              }
+            }
+          ]
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "passed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "normal",
+                  "already-absent",
+                  "emergency"
+                ]
+              },
+              "actionId": {
+                "type": "integer"
+              },
+              "bootId": {
+                "type": "string"
+              },
+              "context": {
+                "type": "object",
+                "properties": {
+                  "runtime": {
+                    "type": "object"
+                  }
+                }
+              },
+              "actions": {
+                "minItems": 1
+              },
+              "artifacts": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "fixtureCleanup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "package",
+        "source",
+        "owned",
+        "status",
+        "reason",
+        "bootId",
+        "artifacts",
+        "originalAbsenceAction",
+        "installAction",
+        "removalAction"
+      ],
+      "properties": {
+        "package": {
+          "const": "ru.voboost.tests.launcherfixture"
+        },
+        "owned": {
+          "type": "boolean"
+        },
+        "status": {
+          "enum": [
+            "passed",
+            "failed",
+            "unavailable",
+            "not-run"
+          ]
+        },
+        "reason": {
+          "type": "string"
+        },
+        "bootId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "originalAbsenceAction": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "installAction": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "removalAction": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "removalAttempted": {
+          "type": "boolean"
+        },
+        "removalBootId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$"
+        },
+        "source": {
+          "enum": [
+            "tests/emulator/agents/agent-launcher/app",
+            "tests/fixtures/launcher"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "passed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "owned": {
+                "const": true
+              },
+              "originalAbsenceAction": {
+                "type": "integer"
+              },
+              "installAction": {
+                "type": "integer"
+              },
+              "removalAction": {
+                "type": "integer"
+              },
+              "bootId": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$"
+              },
+              "artifacts": {
+                "minItems": 1
+              },
+              "removalAttempted": {
+                "const": true
+              },
+              "removalBootId": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

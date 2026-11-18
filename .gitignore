@@ -1,21 +1,10 @@
+node_modules/
+release/target/
+/build/
 .vscode/
-.gradle/
-.kotlin/
-build/
-local.properties
-voboost-release.jks
-
-# Carrier assets copied from sibling repos at build time (voboost-script/build).
-# Regenerated on every build by the `copyAgents` Gradle task — never edit by hand
-# and never commit.
-src/main/assets/agents/
-src/main/assets/scripts/
-src/main/assets/bin/
-
-# Local working notes / scratch (not part of the source tree)
-plans/
-logs/
-REMOVEME/
-
-# macOS filesystem metadata
 .DS_Store
+*.key
+*.jks
+.gradle/
+
+/config/config-voyemu-local.json
